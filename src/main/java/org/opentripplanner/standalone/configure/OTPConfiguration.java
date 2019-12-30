@@ -119,7 +119,7 @@ public class OTPConfiguration {
      * Create plug in config to the data store.
      */
     public OtpDataStoreConfig createDataStoreConfig() {
-        return new OtpDataStoreConfigAdapter(cli.getBaseDirectory(), buildConfig().storage);
+        return new OtpDataStoreConfigAdapter(cli.getBaseDirectory(), buildConfig().dataSources);
     }
 
     /**

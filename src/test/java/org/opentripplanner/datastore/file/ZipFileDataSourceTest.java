@@ -3,7 +3,7 @@ package org.opentripplanner.datastore.file;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.opentripplanner.ConstantsForTests;
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 
 import java.io.File;
@@ -30,8 +30,8 @@ public class ZipFileDataSourceTest {
         // Given:
         File target = new File(FILENAME);
         File copyTarget = new File(FILENAME);
-        CompositeDataSource subject = new ZipFileDataSource(target, GTFS);
-        CompositeDataSource copySubject = new ZipFileDataSource(copyTarget, GTFS);
+        CatalogDataSource subject = new ZipFileDataSource(target, GTFS);
+        CatalogDataSource copySubject = new ZipFileDataSource(copyTarget, GTFS);
         String expectedPath = target.getPath();
 
         // Verify zip file exist before we start the test
@@ -59,7 +59,7 @@ public class ZipFileDataSourceTest {
     public void testIO() throws IOException {
         // Given:
         File target = new File(FILENAME);
-        CompositeDataSource subject = new ZipFileDataSource(target, GTFS);
+        CatalogDataSource subject = new ZipFileDataSource(target, GTFS);
 
         Collection<DataSource> content = subject.content();
         Collection<String> names = content.stream().map(it -> it.name()).collect(Collectors.toList());
@@ -84,7 +84,7 @@ public class ZipFileDataSourceTest {
     public void testEntryProperties() {
         // Given:
         File target = new File(FILENAME);
-        CompositeDataSource subject = new ZipFileDataSource(target, GTFS);
+        CatalogDataSource subject = new ZipFileDataSource(target, GTFS);
         DataSource entry = subject.entry("trips.txt");
 
         assertEquals("trips.txt", entry.name());
@@ -102,7 +102,7 @@ public class ZipFileDataSourceTest {
     public void testUnsupportedDelete() {
         // Given:
         File target = new File(FILENAME);
-        CompositeDataSource subject = new ZipFileDataSource(target, GTFS);
+        CatalogDataSource subject = new ZipFileDataSource(target, GTFS);
 
         // delete entry is not implemented
         try {

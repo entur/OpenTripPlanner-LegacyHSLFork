@@ -1,6 +1,6 @@
 package org.opentripplanner.netex.loader;
 
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.graph_builder.DataImportIssueStore;
 import org.opentripplanner.model.impl.OtpTransitServiceBuilder;
@@ -38,7 +38,7 @@ public class NetexBundle implements Closeable {
     /** stack of NeTEx elements needed to link the input to existing data */
     private Deque<NetexImportDataIndex> netexIndex = new LinkedList<>();
 
-    private final CompositeDataSource source;
+    private final CatalogDataSource source;
 
     private final NetexDataSourceHierarchy hierarchy;
 
@@ -52,7 +52,7 @@ public class NetexBundle implements Closeable {
 
     public NetexBundle(
             String netexFeedId,
-            CompositeDataSource source,
+            CatalogDataSource source,
             NetexDataSourceHierarchy hierarchy
 
     ) {

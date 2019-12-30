@@ -33,7 +33,7 @@ public interface DataSource {
 
     /**
      * @return the short name identifying the source within its scope (withing a {@link
-     * OtpDataStore} or {@link CompositeDataSource}) Including the file extension.
+     * OtpDataStore} or {@link CatalogDataSource}) Including the file extension.
      * <p>
      * Examples:
      * <p>
@@ -63,7 +63,7 @@ public interface DataSource {
     default long lastModified() { return -1; }
 
     /**
-     * @return true is it exist in the data store; hence calling {@link #asInputStream()} is safe.
+     * @return true is it exist; hence calling {@link #asInputStream()} is safe.
      */
     default boolean exists() { return true; }
 

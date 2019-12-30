@@ -2,7 +2,7 @@ package org.opentripplanner.graph_builder;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.datastore.FileType;
 import org.opentripplanner.datastore.OtpDataStore;
@@ -96,7 +96,7 @@ public class GraphBuilderDataSources {
         return inputData.get(type);
     }
 
-    CompositeDataSource getBuildReportDir() {
+    CatalogDataSource getBuildReportDir() {
         return store.getBuildReportDir();
     }
 

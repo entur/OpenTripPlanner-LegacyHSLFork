@@ -6,7 +6,6 @@ import org.opentripplanner.datastore.FileType;
 import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class GsDataSourceRepositoryTest {
 
@@ -17,11 +16,8 @@ public class GsDataSourceRepositoryTest {
         assertEquals("Google Cloud Storage", subject.description());
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void findSource() throws Exception {
-        assertNull(
-                "Expect to return null for unknown URI without connection to store",
-                subject.findSource(new URI("file:/a.txt"), FileType.UNKNOWN)
-        );
+        subject.findSource(new URI("file:/a.txt"), FileType.UNKNOWN);
     }
 }

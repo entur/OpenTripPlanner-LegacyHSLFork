@@ -3,6 +3,7 @@ package org.opentripplanner.datastore;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -13,27 +14,15 @@ import java.util.List;
 public interface OtpDataStoreConfig {
 
     /**
+     * List of all configured data stores, like Google Storage and AWS S3.
+     */
+    Collection<RepositoryConfig> stores();
+
+    /**
      * The base directory on the local file-system. Used to lookup config files and all input
      * files if no URIs are found in the config.
      */
     File baseDirectory();
-
-    /**
-     * Save the build issue report to this location (URI).
-     * If {@code null} the {@link #baseDirectory()} + {@code /report} is used.
-     */
-    URI reportDirectory();
-
-    /**
-     * Local file system path to Google Cloud Platform service accounts credentials file. The
-     * credentials is used to access GCS urls. When using GCS from outside of the bucket cluster you
-     * need to provide a path the the service credentials.
-     * <p>
-     * This is a path to a file on the local file system, not an URI.
-     * <p>
-     * Optional. May return {@code null}.
-     */
-    String gsCredentials();
 
     /**
      * Array of URIs to the open street map pbf files (the pbf format is the only one supported).
@@ -76,4 +65,10 @@ public interface OtpDataStoreConfig {
      * The URI to the street graph object file to load and/or save.
      */
     URI streetGraph();
+
+    /**
+     * Save the build issue report to this location (URI).
+     * If {@code null} the {@link #baseDirectory()} + {@code /report} is used.
+     */
+    URI reportDirectory();
 }

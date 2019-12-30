@@ -1,6 +1,6 @@
 package org.opentripplanner.datastore.base;
 
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.datastore.FileType;
 
@@ -16,17 +16,17 @@ import java.util.zip.ZipInputStream;
 
 /**
  * This decorator help unzip the content of any underling data source(the delegate).
- * This make it easier to provide a store implementation - since this code can be reused.
+ * This make it easier to provide a repository implementation - since this code can be reused.
  * <p/>
- * See the Google Cloud Store implementation for an example on hwo to use it.
+ * See the Google Cloud Store implementation for an example on how to use it.
  */
-public class ZipStreamDataSourceDecorator implements CompositeDataSource {
+public class ZipStreamDataSourceDecorator implements CatalogDataSource {
 
 
     private final DataSource delegate;
 
     /**
-     * This store load the zip file into memory; hence we should load the content only once,
+     * This class load the zip file into memory; hence we should load the content only once,
      * even at the risk that the source is changed since last tile a resource is accessed.
      * To achieve this we use a boolean flag to indicate if the content is loaded or not.
      */

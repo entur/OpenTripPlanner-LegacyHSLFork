@@ -1,10 +1,11 @@
 package org.opentripplanner.ext.datastore.gs;
 
+import com.google.cloud.storage.BlobId;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.datastore.FileType;
 
@@ -17,7 +18,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.opentripplanner.ext.datastore.gs.GsHelper.toUri;
 
 
 /**
@@ -32,25 +32,27 @@ import static org.opentripplanner.ext.datastore.gs.GsHelper.toUri;
  */
 @Ignore("This test is a manual integration test, because it require an Google Cloud Store to run.")
 public class GsIntegrationTest {
+
     private static final String CREDENTIALS_FILE = "<Insert path to local Google Service Credential file here>";
     private static final String BUCKET_NAME = "<Insert bucket name here>";
-    private static final URI GTFS_URI = toUri(BUCKET_NAME, "gtfs.zip");
+    private static final URI GTFS_URI = toUri("gtfs.zip");
     private static final String DATA = "{ \"key\" : \"data\" }";
+    private static final String GS_SCHEME = "gs1";
 
     private GsDataSourceRepository repo;
 
     @Before
     public void setUp() {
         // Open a repository
-        repo = new GsDataSourceRepository(CREDENTIALS_FILE);
+        repo = new GsDataSourceRepository(new GoogleRepositoryConfig(CREDENTIALS_FILE, GS_SCHEME));
         repo.open();
     }
 
     @Test
     public void testGsDirectory() throws Exception {
         // Get a virtual directory
-        URI dirUri = toUri(BUCKET_NAME, "my-test-dir");
-        CompositeDataSource dir = repo.findCompositeSource(dirUri, FileType.REPORT);
+        URI dirUri = toUri("my-test-dir");
+        CatalogDataSource dir = repo.findCatalogSource(dirUri, FileType.REPORT);
 
         assertEquals(dirUri.toString(), dir.path());
         assertEquals(FileType.REPORT, dir.type());
@@ -99,12 +101,12 @@ public class GsIntegrationTest {
         cleanUpDir(tempDir);
 
         // Create on new file
-        URI dsUri = toUri(BUCKET_NAME, tempDir + "/ds.txt");
+        URI dsUri = toUri(tempDir + "/ds.txt");
         DataSource ds = repo.findSource(dsUri, FileType.UNKNOWN);
 
         //assertFalse(ds.exists());
         assertEquals(tempDir + "/ds.txt",  ds.name());
-        assertEquals(GsHelper.toUriString(BUCKET_NAME, tempDir + "/ds.txt"),  ds.path());
+        assertEquals(toObjectId(tempDir + "/ds.txt").toUriString(),  ds.path());
         assertEquals(FileType.UNKNOWN,  ds.type());
         assertTrue( ds.isWritable());
         assertFalse(ds.exists());
@@ -132,7 +134,7 @@ public class GsIntegrationTest {
     @Test
     //@Ignore("This test is a manual test, because it require an Google Cloud Store to run.")
     public void testReadingZipFile() throws Exception {
-        CompositeDataSource ds = repo.findCompositeSource(GTFS_URI, FileType.GTFS);
+        CatalogDataSource ds = repo.findCatalogSource(GTFS_URI, FileType.GTFS);
 
         DataSource stops = ds.entry("stops.txt");
         String text = IOUtils.toString(stops.asInputStream(), UTF_8);
@@ -140,7 +142,7 @@ public class GsIntegrationTest {
     }
 
     private void cleanUpDir(String dir) {
-        CompositeDataSource tempdir = repo.findCompositeSource(toUri(BUCKET_NAME, dir), FileType.REPORT);
+        CatalogDataSource tempdir = repo.findCatalogSource(toUri(dir), FileType.REPORT);
         tempdir.delete();
     }
 
@@ -149,5 +151,13 @@ public class GsIntegrationTest {
             IOUtils.write(DATA, output, UTF_8);
             output.flush();
         }
+    }
+
+    private static ObjectId toObjectId(String blobName) {
+        return new ObjectId(GS_SCHEME, BlobId.of(BUCKET_NAME, blobName));
+    }
+
+    private static URI toUri(String blobName) {
+        return toObjectId(blobName).toUri();
     }
 }

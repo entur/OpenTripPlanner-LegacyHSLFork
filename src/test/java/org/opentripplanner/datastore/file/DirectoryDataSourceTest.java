@@ -5,7 +5,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 
 import java.io.File;
@@ -39,8 +39,8 @@ public class DirectoryDataSourceTest {
     public void testAccessorsForNoneExistingDirectory() throws IOException {
         File target = new File(tempDir, DIRNAME);
         File copyTarget = new File(tempDir, DIRNAME);
-        CompositeDataSource subject = new DirectoryDataSource(target, REPORT);
-        CompositeDataSource copySubject = new DirectoryDataSource(copyTarget, REPORT);
+        CatalogDataSource subject = new DirectoryDataSource(target, REPORT);
+        CatalogDataSource copySubject = new DirectoryDataSource(copyTarget, REPORT);
         String expectedPath = new File(tempDir, DIRNAME).getPath();
 
         assertTrue(subject.content().toString(), subject.content().isEmpty());
@@ -67,7 +67,7 @@ public class DirectoryDataSourceTest {
         File child = new File(target, "a.txt");
 
         // And then CREATE a file data source - our subject
-        CompositeDataSource subject = new DirectoryDataSource(target, REPORT);
+        CatalogDataSource subject = new DirectoryDataSource(target, REPORT);
 
         // Verify content is empty
         assertEquals("[]", toString(subject.content()));

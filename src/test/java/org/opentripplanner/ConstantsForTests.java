@@ -1,7 +1,7 @@
 package org.opentripplanner;
 
 import com.google.common.collect.Lists;
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.datastore.FileType;
 import org.opentripplanner.datastore.file.ZipFileDataSource;
@@ -51,7 +51,7 @@ public class ConstantsForTests {
 
     private static final String NETEX_FILENAME = "netex_minimal.zip";
 
-    private static final CompositeDataSource NETEX_MINIMAL_DATA_SOURCE = new ZipFileDataSource(
+    private static final CatalogDataSource NETEX_MINIMAL_DATA_SOURCE = new ZipFileDataSource(
             new File(NETEX_DIR, NETEX_FILENAME),
             FileType.NETEX
     );

@@ -7,7 +7,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
 import org.opentripplanner.graph_builder.services.GraphBuilderModule;
 import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class DataImportIssuesToHTML implements GraphBuilderModule {
     private static Logger LOG = LoggerFactory.getLogger(DataImportIssuesToHTML.class);
 
     //Path to output folder
-    private CompositeDataSource reportDirectory;
+    private CatalogDataSource reportDirectory;
 
     //If there are more then this number of issues the report are split into multiple files
     //This is because browsers aren't made for giant HTML files which can be made with 500k lines
@@ -51,7 +51,7 @@ public class DataImportIssuesToHTML implements GraphBuilderModule {
     //Multimap because there are multiple issues for each classname
     private Multimap<String, String> issues = ArrayListMultimap.create();
   
-    DataImportIssuesToHTML(CompositeDataSource reportDirectory, int maxNumberOfIssuesPerFile) {
+    DataImportIssuesToHTML(CatalogDataSource reportDirectory, int maxNumberOfIssuesPerFile) {
         this.reportDirectory = reportDirectory;
         this.maxNumberOfIssuesPerFile = maxNumberOfIssuesPerFile;
     }

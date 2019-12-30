@@ -5,7 +5,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.datastore.FileType;
 
@@ -19,12 +19,12 @@ import java.util.function.Consumer;
  * class wil have a common namespace. It does only support creating new output sources, it can not
  * be used to list files with the common namespace (directory path).
  */
-public class GsDirectoryDataSource extends AbstractGsDataSource implements CompositeDataSource {
+public class GsDirectoryDataSource extends AbstractGsDataSource implements CatalogDataSource {
 
     private final Storage storage;
 
-    GsDirectoryDataSource(Storage storage, BlobId blobId, FileType type) {
-        super(blobId, type);
+    GsDirectoryDataSource(Storage storage, ObjectId objectId, FileType type) {
+        super(objectId, type);
         this.storage = storage;
     }
 
@@ -42,17 +42,20 @@ public class GsDirectoryDataSource extends AbstractGsDataSource implements Compo
         Blob blob = childBlob(name);
         // If file exist
         if(blob != null) {
-            return new GsFileDataSource(blob, type());
+            ObjectId childId = new ObjectId(uriScheme(), blob.getBlobId());
+            return new GsFileDataSource(blob, childId, type());
         }
         // New file
         BlobId childBlobId = BlobId.of(bucketName(), childPath(name));
-        return new GsOutFileDataSource(storage, childBlobId, type());
+        return new GsOutFileDataSource(storage, objectId(childBlobId), type());
     }
 
     @Override
     public Collection<DataSource> content() {
         Collection<DataSource> content = new ArrayList<>();
-        forEachChildBlob(blob -> content.add(new GsFileDataSource(blob, type())));
+        forEachChildBlob(blob -> content.add(
+                new GsFileDataSource(blob, objectId(blob.getBlobId()), type()))
+        );
         return content;
     }
 
@@ -75,12 +78,16 @@ public class GsDirectoryDataSource extends AbstractGsDataSource implements Compo
         return bucket;
     }
 
+    private ObjectId objectId(BlobId blobId) {
+        return new ObjectId(uriScheme(), blobId);
+    }
+
     private Blob childBlob(String name) {
         return getBucket().get(childPath(name));
     }
 
     private String childPrefix() {
-        return GsHelper.isRoot(blobId()) ? "" : name() + "/";
+        return isRoot() ? "" : name() + "/";
     }
 
     private String childPath(String name) {

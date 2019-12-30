@@ -10,13 +10,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class GsHelperTest {
+public class ObjectIdTest {
 
     @Test
-    public void toBlobId() throws URISyntaxException {
-        BlobId blobId = GsHelper.toBlobId(new URI("gs://nalle/puh"));
-        assertEquals("nalle", blobId.getBucket());
-        assertEquals("puh", blobId.getName());
+    public void toObjectId() throws URISyntaxException {
+        ObjectId objectId = ObjectId.toObjectId(new URI("gs1://nalle/puh"));
+        assertEquals("gs1", objectId.uriScheme());
+        assertEquals("nalle", objectId.blobId().getBucket());
+        assertEquals("puh", objectId.blobId().getName());
     }
 
     @Test
@@ -25,7 +26,7 @@ public class GsHelperTest {
         String illegalBucketName = "gs://n/puh";
         try {
             // when:
-            GsHelper.toBlobId(new URI(illegalBucketName));
+            ObjectId.toObjectId(new URI(illegalBucketName));
 
             fail("An exception is expected");
         }
@@ -36,22 +37,24 @@ public class GsHelperTest {
 
     @Test
     public void toUri() {
-        assertEquals("gs://bucket/blob",  GsHelper.toUriString("bucket", "blob"));
-        assertEquals("gs://bucket/blob",  GsHelper.toUriString(BlobId.of("bucket", "blob")));
-        assertEquals("gs://bucket/blob",  GsHelper.toUri("bucket", "blob").toString());
+        // Given
+        ObjectId subject = new ObjectId("gs", BlobId.of("bucket", "blob"));
+
+        // Then
+        assertEquals("gs://bucket/blob",  subject.toUriString());
+        assertEquals("gs://bucket/blob",  subject.toUri().toString());
     }
 
     @Test
-    public void testRoot() {
-        String uriStr = GsHelper.toUriString(BlobId.of("bucket", ""));
-        assertEquals("gs://bucket/", uriStr);
+    public void testRoot() throws URISyntaxException {
+        ObjectId root = ObjectId.toObjectId(new URI("gs://bucket/"));
+        assertEquals("gs://bucket/", root.toString());
 
-        URI uri = GsHelper.toUri("bucket", "");
+        URI uri = root.toUri();
         assertEquals("gs://bucket/",  uri.toString());
 
-        BlobId blobId = GsHelper.toBlobId(uri);
+        BlobId blobId = root.blobId();
         assertEquals("bucket",  blobId.getBucket());
         assertEquals("",  blobId.getName());
     }
-
 }

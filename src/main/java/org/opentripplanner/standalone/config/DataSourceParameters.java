@@ -1,11 +1,15 @@
 package org.opentripplanner.standalone.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.opentripplanner.util.OtpAppException;
+import org.opentripplanner.util.StringUtil;
 
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,7 +29,7 @@ import java.util.List;
  * <pre>
  * {
  *     htmlAnnotations: true,
- *     storage: {
+ *     da: {
  *         gsCredentials: "${OTP_GOOGLE_SERVICE_ACCOUNT}",
  *         osm: [ "gs://otp-test-bucket/a/b/osm-oslo-mini.pbf" ],
  *         dem: [ "file:/public/dem/norway.dem.tif" ],
@@ -40,22 +44,15 @@ import java.util.List;
  * artifacts like the loaded graph, saved graph and NeTEx files are loaded and written from/to the local
  * base directory - it they exist.
  */
-public class StorageParameters {
+public class DataSourceParameters {
+
 
     /**
-     * Local file system path to Google Cloud Platform service accounts credentials file. The
-     * credentials is used to access GCS urls. When using GCS from outside of the bucket cluster you
-     * need to provide a path the the service credentials. Environment variables in the path is
-     * resolved.
-     * <p>
-     * Example: {@code "credentialsFile" : "${MY_GOC_SERVICE}"} or {@code "app-1-3983f9f66728.json"
-     * : "~/"}
-     * <p>
-     * This is a path to a file on the local file system, not an URI.
-     * <p>
-     * This parameter is optional.
+     * List of stores (storage providers). There should be one store for each URI namespace.
+     * <p/>
+     * The 'file' prefix is reserved for the local-file-system.
      */
-    public final String gsCredentials;
+    public List<RepositoryParameters> repositories = new ArrayList<>();
 
     /**
      * URI to the street graph object file for reading and writing. The file is created or
@@ -126,8 +123,8 @@ public class StorageParameters {
      */
     public final URI buildReportDir;
 
-    StorageParameters(JsonNode node) {
-        this.gsCredentials = node.path("gsCredentials").asText(null);
+    DataSourceParameters(JsonNode node) {
+        this.repositories.addAll(parseStores(node.path("repositories")));
         this.graph = uriFromJson("graph", node);
         this.streetGraph = uriFromJson("streetGraph", node);
         this.osm.addAll(uris("osm", node));
@@ -135,6 +132,35 @@ public class StorageParameters {
         this.gtfs.addAll(uris("gtfs", node));
         this.netex.addAll(uris("netex", node));
         this.buildReportDir = uriFromJson("buildReportDir", node);
+    }
+
+    private Collection<RepositoryParameters> parseStores(JsonNode array) {
+
+        if(array.isMissingNode()) {
+            return Collections.emptyList();
+        }
+        if(!array.isArray()) {
+            throw new IllegalArgumentException(
+                    "Unable to parse 'storage/stores' in 'build-config.json': "
+                            + "\n\tActual: \"stores\" : \"" + array.asText() + "\""
+                            + "\n\tExpected ARRAY of stores."
+            );
+        }
+        List<RepositoryParameters> stores = new ArrayList<>();
+        for (JsonNode it : array) {
+            String type = it.path("type").asText();
+
+            if("GoogleStorage". equals(type)) {
+                stores.add(GoogleStoreParameters.fromJson(it));
+            }
+            else {
+                throw new OtpAppException(
+                        "Unexpected value in 'build-config.json', path 'dataSources/repositories', "
+                                + "\"type\" : " + StringUtil.quote(type)+ "."
+                );
+            }
+        }
+        return stores;
     }
 
     static List<URI> uris(String name, JsonNode node) {

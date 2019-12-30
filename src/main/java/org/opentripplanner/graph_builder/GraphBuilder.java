@@ -1,7 +1,7 @@
 package org.opentripplanner.graph_builder;
 
 import com.google.common.collect.Lists;
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.ext.transferanalyzer.DirectTransferAnalyzer;
 import org.opentripplanner.graph_builder.model.GtfsBundle;
@@ -158,7 +158,7 @@ public class GraphBuilder implements Runnable {
             List<GtfsBundle> gtfsBundles = Lists.newArrayList();
             for (DataSource gtfsData : dataSources.get(GTFS)) {
 
-                GtfsBundle gtfsBundle = new GtfsBundle((CompositeDataSource)gtfsData);
+                GtfsBundle gtfsBundle = new GtfsBundle((CatalogDataSource)gtfsData);
 
                 // TODO OTP2 - In OTP2 we have deleted the transfer edges from the street graph.
                 //           - The new transfer generation do not take this config param into

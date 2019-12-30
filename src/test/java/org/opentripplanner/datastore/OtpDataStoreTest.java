@@ -4,7 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.opentripplanner.datastore.configure.DataStoreFactory;
+import org.opentripplanner.datastore.configure.OtpDataStoreFactory;
 import org.opentripplanner.standalone.config.CommandLineParameters;
 import org.opentripplanner.standalone.configure.OTPConfiguration;
 
@@ -67,7 +67,7 @@ public class OtpDataStoreTest {
     @Test
     public void readEmptyDir() {
 
-        OtpDataStore store = new DataStoreFactory(config()).open();
+        OtpDataStore store = new OtpDataStoreFactory(config()).open();
         assertNoneExistingFile(store.getGraph(), GRAPH_FILENAME, GRAPH);
         assertNoneExistingFile(store.getStreetGraph(), STREET_GRAPH_FILENAME, GRAPH);
         assertNoneExistingFile(store.getBuildReportDir(), REPORT_FILENAME, REPORT);
@@ -95,7 +95,7 @@ public class OtpDataStoreTest {
         write(baseDir, GRAPH_FILENAME, "Data");
         writeToDir(baseDir, REPORT_FILENAME, "index.json");
 
-        OtpDataStore store = new DataStoreFactory(config()).open();
+        OtpDataStore store = new OtpDataStoreFactory(config()).open();
         assertExistingSource(store.getGraph(), GRAPH_FILENAME, GRAPH);
         assertExistingSource(store.getStreetGraph(), STREET_GRAPH_FILENAME, GRAPH);
         assertReportExist(store.getBuildReportDir());
@@ -158,7 +158,7 @@ public class OtpDataStoreTest {
         write(tempDataDir, "unknown-2.txt", "Data");
 
         // Open data store using the base-dir
-        OtpDataStore store = new DataStoreFactory(
+        OtpDataStore store = new OtpDataStoreFactory(
                 new OTPConfiguration(createCliForTest(baseDir)).createDataStoreConfig()
         ).open();
 
@@ -250,7 +250,7 @@ public class OtpDataStoreTest {
         }
     }
 
-    private static void assertReportExist(CompositeDataSource report) {
+    private static void assertReportExist(CatalogDataSource report) {
         assertEquals(REPORT, report.type());
         assertEquals(REPORT_FILENAME, report.name());
         assertTrue(report.exists());

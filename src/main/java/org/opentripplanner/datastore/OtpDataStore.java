@@ -5,7 +5,8 @@ import com.google.common.collect.Multimap;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.opentripplanner.datastore.base.DataSourceRepository;
 import org.opentripplanner.datastore.base.LocalDataSourceRepository;
-import org.opentripplanner.datastore.configure.DataStoreFactory;
+import org.opentripplanner.datastore.configure.OtpDataStoreFactory;
+import org.opentripplanner.util.OtpAppException;
 
 import javax.validation.constraints.NotNull;
 import java.net.URI;
@@ -14,7 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.opentripplanner.datastore.FileType.CONFIG;
@@ -29,16 +30,15 @@ import static org.opentripplanner.datastore.FileType.UNKNOWN;
 /**
  * The responsibility of this class is to provide access to all data sources OTP uses like the
  * graph, including OSM data and transit data. The default is to use the the local disk, but other
- * "providers/repositories" can be implemented to access files in the cloud (as an example).
+ * "providers/repositories" can be implemented to access files elsewhere like in the cloud.
  * <p>
- * This class provide an abstraction layer for accessing OTP data input and output sources.In a
+ * This class provide an abstraction layer for accessing OTP data input and output sources. In a
  * cloud ecosystem you might find it easier to access the data directly from the cloud storage,
  * rather than first copy the data into your node local disk, and then copy the build graph back
  * into cloud storage after building it. Depending on the source this might also offer enhanced
  * performance.
  * <p>
- * Use the {@link DataStoreFactory} to obtain a
- * new instance of this class.
+ * Use the {@link OtpDataStoreFactory} to obtain a new instance of this class.
  */
 public class OtpDataStore {
     public static final String BUILD_REPORT_DIR = "report";
@@ -47,44 +47,42 @@ public class OtpDataStore {
 
     private final OtpDataStoreConfig config;
     private final List<String> repositoryDescriptions = new ArrayList<>();
-    private final List<DataSourceRepository> allRepositories;
-    private final LocalDataSourceRepository localRepository;
+    private final Map<String, DataSourceRepository> repositories;
     private final Multimap<FileType, DataSource> sources = ArrayListMultimap.create();
 
     /* Named resources available for both reading and writing. */
     private DataSource streetGraph;
     private DataSource graph;
-    private CompositeDataSource buildReportDir;
+    private CatalogDataSource buildReportDir;
 
     /**
-     * Use the {@link DataStoreFactory} to
+     * Use the {@link OtpDataStoreFactory} to
      * create a new instance of this class.
      */
     public OtpDataStore(
             OtpDataStoreConfig config,
-            List<DataSourceRepository> repositories
+            Map<String, DataSourceRepository> repositories
     ) {
         this.config = config;
         this.repositoryDescriptions.addAll(
-                repositories.stream()
+                repositories.values().stream()
                         .map(DataSourceRepository::description)
                         .collect(Collectors.toList())
         );
-        this.allRepositories = repositories;
-        this.localRepository = getLocalDataSourceRepo(repositories);
+        this.repositories = repositories;
     }
 
     public void open() {
-        allRepositories.forEach(DataSourceRepository::open);
-        addAll(localRepository.listExistingSources(CONFIG));
+        repositories.values().forEach(DataSourceRepository::open);
+        addAll(getLocalFilesRepo().listExistingSources(CONFIG));
         addAll(findMultipleSources(config.osmFiles(), OSM));
         addAll(findMultipleSources(config.demFiles(),  DEM));
-        addAll(findMultipleCompositeSources(config.gtfsFiles(), GTFS));
-        addAll(findMultipleCompositeSources(config.netexFiles(), NETEX));
+        addAll(findMultipleCatalogSources(config.gtfsFiles(), GTFS));
+        addAll(findMultipleCatalogSources(config.netexFiles(), NETEX));
 
         streetGraph = findSingleSource(config.streetGraph(), STREET_GRAPH_FILENAME, GRAPH);
         graph = findSingleSource(config.graph(), GRAPH_FILENAME, GRAPH);
-        buildReportDir = findCompositeSource(config.reportDirectory(), BUILD_REPORT_DIR, REPORT);
+        buildReportDir = findCatalogSource(config.reportDirectory(), BUILD_REPORT_DIR, REPORT);
 
         addAll(Arrays.asList(streetGraph, graph, buildReportDir));
 
@@ -103,11 +101,9 @@ public class OtpDataStore {
     /**
      * List all existing data sources by file type. An empty list is returned if there is no files
      * of the given type.
-     * <p>
-     * This method should not be called after this data store is closed. The behavior is undefined.
      *
-     * @return The collection may contain elements of type {@link DataSource} or
-     * {@link CompositeDataSource}.
+     * @return The collection may contain elements of type {@link DataSource} or {@link
+     * CatalogDataSource}.
      */
     @NotNull
     public Collection<DataSource> listExistingSourcesFor(FileType type) {
@@ -125,7 +121,7 @@ public class OtpDataStore {
     }
 
     @NotNull
-    public CompositeDataSource getBuildReportDir() {
+    public CatalogDataSource getBuildReportDir() {
         return buildReportDir;
     }
 
@@ -142,70 +138,60 @@ public class OtpDataStore {
         list.forEach(this::add);
     }
 
-    private LocalDataSourceRepository getLocalDataSourceRepo(List<DataSourceRepository> repositories) {
-        List<LocalDataSourceRepository> localRepos = repositories
-                .stream()
-                .filter(it -> it instanceof LocalDataSourceRepository)
-                .map(it -> (LocalDataSourceRepository)it)
-                .collect(Collectors.toList());
-        if(localRepos.size() != 1) {
-            throw new IllegalStateException("Only one LocalDataSourceRepository is supported.");
-        }
-        return localRepos.get(0);
+    private LocalDataSourceRepository getLocalFilesRepo() {
+        return (LocalDataSourceRepository) repositories.get("file");
     }
 
     private DataSource findSingleSource(@Nullable URI uri, @NotNull String filename, @NotNull FileType type) {
         if(uri != null) {
-            return findSourceUsingAllRepos(it -> it.findSource(uri, type));
+            return repo(uri).findSource(uri, type);
         }
-        return localRepository.findSource(filename, type);
+        return getLocalFilesRepo().findSource(filename, type);
     }
 
-    private CompositeDataSource findCompositeSource(@Nullable URI uri, @NotNull String filename, @NotNull FileType type) {
+    private CatalogDataSource findCatalogSource(@Nullable URI uri, @NotNull String filename, @NotNull FileType type) {
         if(uri != null) {
-            return findSourceUsingAllRepos(it -> it.findCompositeSource(uri, type));
+            return repo(uri).findCatalogSource(uri, type);
         }
         else {
-            return localRepository.findCompositeSource(filename, type);
+            return getLocalFilesRepo().findCatalogSource(filename, type);
         }
     }
 
     private List<DataSource> findMultipleSources(@NotNull Collection<URI> uris, @NotNull FileType type) {
         if(uris == null || uris.isEmpty()) {
-            return localRepository.listExistingSources(type);
+            return getLocalFilesRepo().listExistingSources(type);
         }
         List<DataSource> result = new ArrayList<>();
         for (URI uri : uris) {
-            DataSource res = findSourceUsingAllRepos(it -> it.findSource(uri, type));
-            result.add(res);
+            result.add(repo(uri).findSource(uri, type));
         }
         return result;
     }
 
-    private List<CompositeDataSource> findMultipleCompositeSources(
+    private List<CatalogDataSource> findMultipleCatalogSources(
             @NotNull Collection<URI> uris, @NotNull FileType type
     ) {
         if(uris.isEmpty()) {
-            return localRepository.listExistingSources(type)
+            return getLocalFilesRepo().listExistingSources(type)
                     .stream()
-                    .map(it -> (CompositeDataSource)it)
+                    .map(it -> (CatalogDataSource)it)
                     .collect(Collectors.toList());
         }
-        List<CompositeDataSource> result = new ArrayList<>();
+        List<CatalogDataSource> result = new ArrayList<>();
         for (URI uri : uris) {
-            CompositeDataSource res = findSourceUsingAllRepos(it -> it.findCompositeSource(uri, type));
-            result.add(res);
+            result.add(repo(uri).findCatalogSource(uri, type));
         }
         return result;
     }
-   
-    private <T> T findSourceUsingAllRepos(Function<DataSourceRepository, T> repoFindSource) {
-        for (DataSourceRepository it : allRepositories) {
-            T res = repoFindSource.apply(it);
-            if (res != null) {
-                return res;
-            }
+
+    private DataSourceRepository repo(URI uri) {
+        String scheme = uri.getScheme();
+        DataSourceRepository repo = repositories.get(scheme);
+        if(repo == null) {
+            throw new OtpAppException("No datasource storage configured in the 'build-config.json' "
+                    + "file for URI prefix: " + scheme);
         }
-        return null;
+        return repo;
     }
 }

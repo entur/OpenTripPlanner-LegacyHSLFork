@@ -4,17 +4,17 @@ import java.io.Closeable;
 import java.util.Collection;
 
 /**
- * A composite data source contain a collection of other {@link DataSource}s.
+ * A data source containing a collection of other {@link DataSource}s.
  * <p>
- * Example are file directories and zip files with gtfs or netex data.
+ * Example are file directories and zip files with GTFS or NeTEx data.
  */
-public interface CompositeDataSource extends DataSource, Closeable {
+public interface CatalogDataSource extends DataSource, Closeable {
 
     /**
-     * Open the composite data source and read the content. For a random access data source
-     * (local-file system), this does not read each entry, but just the metadata for each of them.
-     * But, for a streamed data source(cloud storage) it will fetch the entire content - this might
-     * be using a lot of memory.
+     * Open the data source and read the content. The implementation should try to fetch
+     * meta-data for the content, not the entire files. For a zip-file stored in the cloud
+     * this might not be possible and the entire zip file might get downloaded when this
+     * method is called.
      */
     Collection<DataSource> content();
 
@@ -28,7 +28,7 @@ public interface CompositeDataSource extends DataSource, Closeable {
     DataSource entry(String name);
 
     /**
-     * Delete content and container in store.
+     * Delete content and container.
      */
     default void delete() {
         throw new UnsupportedOperationException(

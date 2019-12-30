@@ -3,7 +3,7 @@ package org.opentripplanner.datastore.base;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.opentripplanner.ConstantsForTests;
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.datastore.file.FileDataSource;
 
@@ -28,8 +28,8 @@ public class ZipStreamDataSourceDecoratorTest {
         // Given:
         File target = new File(FILENAME);
         File copyTarget = new File(FILENAME);
-        CompositeDataSource subject = new ZipStreamDataSourceDecorator(new FileDataSource(target, GTFS));
-        CompositeDataSource copySubject = new ZipStreamDataSourceDecorator(new FileDataSource(copyTarget, GTFS));
+        CatalogDataSource subject = new ZipStreamDataSourceDecorator(new FileDataSource(target, GTFS));
+        CatalogDataSource copySubject = new ZipStreamDataSourceDecorator(new FileDataSource(copyTarget, GTFS));
         String expectedPath = target.getPath();
 
         // Verify zip file exist before we start the test
@@ -55,7 +55,7 @@ public class ZipStreamDataSourceDecoratorTest {
     public void testIO() throws IOException {
         // Given:
         File target = new File(FILENAME);
-        CompositeDataSource subject = new ZipStreamDataSourceDecorator(new FileDataSource(target, GTFS));
+        CatalogDataSource subject = new ZipStreamDataSourceDecorator(new FileDataSource(target, GTFS));
 
         Collection<DataSource> content = subject.content();
         Collection<String> names = content.stream().map(it -> it.name()).collect(Collectors.toList());
@@ -90,7 +90,7 @@ public class ZipStreamDataSourceDecoratorTest {
     public void testEntryProperties() {
         // Given:
         File target = new File(FILENAME);
-        CompositeDataSource subject = new ZipStreamDataSourceDecorator(new FileDataSource(target, GTFS));
+        CatalogDataSource subject = new ZipStreamDataSourceDecorator(new FileDataSource(target, GTFS));
         DataSource entry = subject.entry("trips.txt");
 
         assertEquals("trips.txt", entry.name());

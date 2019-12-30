@@ -1,6 +1,6 @@
 package org.opentripplanner.netex.loader;
 
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +31,12 @@ import java.util.regex.Pattern;
 public class NetexDataSourceHierarchy {
     private static final Logger LOG = LoggerFactory.getLogger(NetexDataSourceHierarchy.class);
 
-    private final CompositeDataSource source;
+    private final CatalogDataSource source;
     private final List<DataSource> sharedEntries = new ArrayList<>();
     private final Map<String, GroupEntries> groupEntries = new TreeMap<>();
 
     public NetexDataSourceHierarchy(
-            CompositeDataSource source
+            CatalogDataSource source
     ) {
         this.source = source;
     }

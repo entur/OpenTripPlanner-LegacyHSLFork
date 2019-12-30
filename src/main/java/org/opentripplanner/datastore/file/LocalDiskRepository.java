@@ -1,7 +1,7 @@
 package org.opentripplanner.datastore.file;
 
 
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.datastore.FileType;
 import org.opentripplanner.datastore.base.LocalDataSourceRepository;
@@ -31,12 +31,12 @@ import static org.opentripplanner.standalone.config.ConfigLoader.isConfigFile;
 /**
  * This data store uses the local file system to access in-/out- data files.
  */
-public class FileDataSourceRepository implements LocalDataSourceRepository {
-    private static final Logger LOG = LoggerFactory.getLogger(FileDataSourceRepository.class);
+public class LocalDiskRepository implements LocalDataSourceRepository {
+    private static final Logger LOG = LoggerFactory.getLogger(LocalDiskRepository.class);
 
     private final File baseDir;
 
-    public FileDataSourceRepository(File baseDir) {
+    public LocalDiskRepository(File baseDir) {
         this.baseDir = baseDir;
     }
 
@@ -44,9 +44,9 @@ public class FileDataSourceRepository implements LocalDataSourceRepository {
      * Use for unit testing
      */
     @NotNull
-    public static CompositeDataSource compositeSource(File file, FileType type) {
+    public static CatalogDataSource catalogSource(File file, FileType type) {
         // The cast is safe
-        return createCompositeSource(file, type);
+        return createCatalogSource(file, type);
     }
 
     @Override
@@ -68,15 +68,15 @@ public class FileDataSourceRepository implements LocalDataSourceRepository {
     }
 
     @Override
-    public CompositeDataSource findCompositeSource(URI uri, FileType type) {
-        return createCompositeSource(new File(uri), type);
+    public CatalogDataSource findCatalogSource(URI uri, FileType type) {
+        return createCatalogSource(new File(uri), type);
     }
 
     @Override
-    public CompositeDataSource findCompositeSource(String localFilename, FileType type) {
+    public CatalogDataSource findCatalogSource(String localFilename, FileType type) {
         // If the local file name is '.' then use the 'baseDir', if not create a new file directory.
         File file = isCurrentDir(localFilename) ? baseDir : new File(baseDir, localFilename);
-        return createCompositeSource(file, type);
+        return createCatalogSource(file, type);
     }
 
     @Override
@@ -93,8 +93,8 @@ public class FileDataSourceRepository implements LocalDataSourceRepository {
 
         for (File file : files) {
             if(type == resolveFileType(file)) {
-                if (isCompositeDataSource(file)) {
-                    existingFiles.add(createCompositeSource(file, type));
+                if (isCatalogDataSource(file)) {
+                    existingFiles.add(createCatalogSource(file, type));
                 }
                 else {
                     existingFiles.add(new FileDataSource(file, type));
@@ -111,11 +111,11 @@ public class FileDataSourceRepository implements LocalDataSourceRepository {
 
     /* private methods */
 
-    private boolean isCompositeDataSource(File file) {
+    private boolean isCatalogDataSource(File file) {
        return file.isDirectory() || file.getName().endsWith(".zip");
     }
 
-    private static CompositeDataSource createCompositeSource(File file, FileType type) {
+    private static CatalogDataSource createCatalogSource(File file, FileType type) {
         if (file.exists() && file.isDirectory()) {
             return new DirectoryDataSource(file, type);
         }
@@ -127,7 +127,7 @@ public class FileDataSourceRepository implements LocalDataSourceRepository {
             return new DirectoryDataSource(file, type);
         }
         throw new IllegalArgumentException("The " + file + " is not recognized as a zip-file or "
-                + "directory. Unable to create composite data source for file type " + type + ".");
+                + "directory. Unable to create catalog data source for file type " + type + ".");
     }
 
 

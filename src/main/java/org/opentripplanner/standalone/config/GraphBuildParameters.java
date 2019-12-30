@@ -204,14 +204,13 @@ public class GraphBuildParameters {
     public final NetexParameters netex;
 
     /**
-     * Otp auto detect input and output files using the command line supplied paths. This parameter
-     * make it possible to override this by specifying a path for each file. All parameters in the
-     * storage section is optional, and the fallback is to use the auto detection. It is OK to
+     * Otp auto detect input and output files using the command line supplied path (BASE_PATH).
+     * This set of parameters make it possible to override this by specifying a path for each file
+     * and configure repositories to use when accessing this files. All parameters in the
+     * 'dataSources' section is optional, and the fallback is to use the auto detection. It is OK to
      * autodetect some file and specify the path to others.
      */
-    public final StorageParameters storage;
-
-
+    public final DataSourceParameters dataSources;
 
     /**
      * Set all parameters from the given Jackson JSON tree, applying defaults.
@@ -254,7 +253,7 @@ public class GraphBuildParameters {
                 CompactElevationProfile.DEFAULT_DISTANCE_BETWEEN_SAMPLES_METERS
         );
         netex = new NetexParameters(config.path("netex"));
-        storage = new StorageParameters(config.path("storage"));
+        dataSources = new DataSourceParameters(config.path("dataSources"));
     }
 
 

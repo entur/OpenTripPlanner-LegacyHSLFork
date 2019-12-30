@@ -1,6 +1,6 @@
 package org.opentripplanner.datastore.file;
 
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.datastore.FileType;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ import java.util.zip.ZipFile;
  * This is a wrapper around a ZipFile, it can be used to read the content, but
  * not write to it. The {@link #asOutputStream()} is throwing an exception.
  */
-public class ZipFileDataSource extends AbstractFileDataSource implements CompositeDataSource {
+public class ZipFileDataSource extends AbstractFileDataSource implements CatalogDataSource {
     private static final Logger LOG = LoggerFactory.getLogger(ZipFileDataSource.class);
 
     private boolean contentLoaded = false;

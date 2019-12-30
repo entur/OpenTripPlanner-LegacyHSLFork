@@ -1,7 +1,7 @@
 package org.opentripplanner.datastore.base;
 
 
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.datastore.FileType;
 
@@ -38,7 +38,7 @@ public interface LocalDataSourceRepository extends DataSourceRepository {
     DataSource findSource(String localFilename, FileType type);
 
     /**
-     * Get the a composite data source (zip/directory) for the given uri and type.
+     * Get the a catalog data source (zip/directory) for the given uri and type.
      * <p>
      * The source may or may not {@link DataSource#exists()}.
      *
@@ -46,7 +46,7 @@ public interface LocalDataSourceRepository extends DataSourceRepository {
      * @param type the file type to load.
      * @return the datasource wrapper that can be used to access the data source.
      */
-    CompositeDataSource findCompositeSource(String localFilename, @NotNull FileType type);
+    CatalogDataSource findCatalogSource(String localFilename, @NotNull FileType type);
 
     /**
      * List all existing data sources for the given type.

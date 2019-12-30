@@ -3,9 +3,9 @@ package org.opentripplanner.graph_builder.model;
 import org.apache.http.client.ClientProtocolException;
 import org.onebusaway.csv_entities.CsvInputSource;
 import org.opentripplanner.graph_builder.module.GtfsFeedId;
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.FileType;
-import org.opentripplanner.datastore.configure.DataStoreFactory;
+import org.opentripplanner.datastore.configure.OtpDataStoreFactory;
 import org.opentripplanner.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class GtfsBundle {
 
     private static final Logger LOG = LoggerFactory.getLogger(GtfsBundle.class);
 
-    private final CompositeDataSource dataSource;
+    private final CatalogDataSource dataSource;
 
     private URL url;
 
@@ -60,10 +60,10 @@ public class GtfsBundle {
 
     /** Used by unit tests */
     public GtfsBundle(File gtfsFile) {
-        this(DataStoreFactory.compositeSource(gtfsFile, FileType.GTFS));
+        this(OtpDataStoreFactory.localCatalogSource(gtfsFile, FileType.GTFS));
     }
 
-    public GtfsBundle(CompositeDataSource dataSource) {
+    public GtfsBundle(CatalogDataSource dataSource) {
         this.dataSource = dataSource;
     }
 

@@ -7,13 +7,7 @@ import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This class help with mapping from an URI to String and  GCS {@link BlobId}.
- */
-class GsHelper {
-    /** This is a utility class with static methods only; hence this constructor is private */
-    private GsHelper() {}
-
+class ObjectId {
     /**
      * GCS URL pattern for the Scheme Specific Part, without the 'gs:' prefix Not all rules are
      * validated here, but the following is:
@@ -32,11 +26,37 @@ class GsHelper {
             "//([\\p{Lower}\\d_.-]{3,222})/([^\\p{Cntrl}]+)?"
     );
 
-    static BlobId toBlobId(URI uri) {
+    private final String uriScheme;
+    private final BlobId blobId;
+
+
+    ObjectId(String uriScheme, BlobId blobId) {
+        this.uriScheme = uriScheme;
+        this.blobId = blobId;
+    }
+
+    @Override
+    public String toString() {
+        return toUriString();
+    }
+
+    boolean isZipFile() {
+        return blobId.getName().endsWith(".zip");
+    }
+
+    BlobId blobId() {
+        return blobId;
+    }
+
+    String uriScheme() {
+        return uriScheme;
+    }
+
+    static ObjectId toObjectId(URI uri) {
         Matcher m = GS_URL_PATTERN.matcher(uri.getSchemeSpecificPart());
 
         if(m.matches()) {
-            return BlobId.of(m.group(1), dirName(m.group(2)));
+            return new ObjectId(uri.getScheme(), BlobId.of(m.group(1), dirName(m.group(2))));
         }
         throw new IllegalArgumentException(
                 "The '" + uri + "' is not a legal Google Cloud Storage "
@@ -44,24 +64,20 @@ class GsHelper {
         );
     }
 
-    static String toUriString(BlobId blobId) {
-        return toUriString(blobId.getBucket(), blobId.getName());
+    String toUriString() {
+        return uriScheme + "://" + blobId.getBucket() + "/" + blobId.getName();
     }
 
-    static String toUriString(String bucket, String objectName) {
-        return "gs://" + bucket+ "/" + objectName;
-    }
-
-    static URI toUri(String bucket, String objectName) {
+    URI toUri() {
         try {
-            return new URI(toUriString(bucket, objectName));
+            return new URI(toUriString());
         }
         catch (URISyntaxException e) {
             throw new IllegalArgumentException(e.getLocalizedMessage(), e);
         }
     }
 
-    static boolean isRoot(BlobId blobId) {
+    boolean isRoot() {
         return "".equals(blobId.getName());
     }
 

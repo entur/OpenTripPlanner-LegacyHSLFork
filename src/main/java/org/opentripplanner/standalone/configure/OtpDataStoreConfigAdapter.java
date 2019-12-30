@@ -1,10 +1,16 @@
 package org.opentripplanner.standalone.configure;
 
 import org.opentripplanner.datastore.OtpDataStoreConfig;
-import org.opentripplanner.standalone.config.StorageParameters;
+import org.opentripplanner.datastore.RepositoryConfig;
+import org.opentripplanner.ext.datastore.gs.GoogleRepositoryConfig;
+import org.opentripplanner.standalone.config.RepositoryParameters;
+import org.opentripplanner.standalone.config.GoogleStoreParameters;
+import org.opentripplanner.standalone.config.DataSourceParameters;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -18,13 +24,22 @@ import java.util.List;
  */
 class OtpDataStoreConfigAdapter implements OtpDataStoreConfig {
     private final File baseDirectory;
-    private final StorageParameters config;
+    private final DataSourceParameters config;
+    private final Collection<RepositoryConfig> stores = new ArrayList<>();
 
     OtpDataStoreConfigAdapter(
-            File baseDirectory, StorageParameters config
+            File baseDirectory, DataSourceParameters config
     ) {
         this.baseDirectory = baseDirectory;
         this.config = config;
+        for (RepositoryParameters it : config.repositories) {
+            stores.add(mapStoreParameters(it));
+        }
+    }
+
+    @Override
+    public Collection<RepositoryConfig> stores() {
+        return stores;
     }
 
     @Override
@@ -35,11 +50,6 @@ class OtpDataStoreConfigAdapter implements OtpDataStoreConfig {
     @Override
     public URI reportDirectory() {
         return config.buildReportDir;
-    }
-
-    @Override
-    public String gsCredentials() {
-        return config.gsCredentials;
     }
 
     @Override
@@ -70,5 +80,13 @@ class OtpDataStoreConfigAdapter implements OtpDataStoreConfig {
     @Override
     public URI streetGraph() {
         return config.streetGraph;
+    }
+
+    private RepositoryConfig mapStoreParameters(RepositoryParameters storeParameters) {
+        if(storeParameters instanceof GoogleStoreParameters) {
+            GoogleStoreParameters gsp = (GoogleStoreParameters) storeParameters;
+            return new GoogleRepositoryConfig(gsp.credentialsFile(), gsp.uriScheme());
+        }
+        throw new IllegalArgumentException("Unknown class/mapping missing: " + storeParameters.getClass());
     }
 }

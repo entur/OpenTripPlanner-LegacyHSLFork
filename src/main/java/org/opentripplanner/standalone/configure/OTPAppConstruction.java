@@ -1,7 +1,7 @@
 package org.opentripplanner.standalone.configure;
 
 import org.opentripplanner.datastore.OtpDataStore;
-import org.opentripplanner.datastore.configure.DataStoreFactory;
+import org.opentripplanner.datastore.configure.OtpDataStoreFactory;
 import org.opentripplanner.graph_builder.GraphBuilder;
 import org.opentripplanner.graph_builder.GraphBuilderDataSources;
 import org.opentripplanner.routing.graph.Graph;
@@ -53,7 +53,7 @@ public class OTPAppConstruction {
      */
     public OtpDataStore store() {
         if(store == null) {
-            this.store = new DataStoreFactory(config.createDataStoreConfig()).open();
+            this.store = new OtpDataStoreFactory(config.createDataStoreConfig()).open();
         }
         return store;
     }

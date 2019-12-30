@@ -29,8 +29,8 @@ class GsFileDataSource extends AbstractGsDataSource implements DataSource {
      * as well as normal files. It does not handle directories({@link DirectoryDataSource}) or
      * zip-files {@link ZipFileDataSource} witch contain multiple files.
      */
-    GsFileDataSource(Blob blob, FileType type) {
-        super(blob.getBlobId(), type);
+    GsFileDataSource(Blob blob, ObjectId objectId, FileType type) {
+        super(objectId, type);
         this.blob = blob;
     }
 

@@ -1,6 +1,6 @@
 package org.opentripplanner.netex.configure;
 
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.datastore.FileType;
 import org.opentripplanner.datastore.file.ZipFileDataSource;
@@ -50,7 +50,7 @@ public class NetexConfig {
         List<NetexBundle> netexBundles = new ArrayList<>();
 
         for(DataSource it : netexSources){
-            NetexBundle netexBundle = netexBundle((CompositeDataSource)it);
+            NetexBundle netexBundle = netexBundle((CatalogDataSource)it);
             netexBundles.add(netexBundle);
         }
 
@@ -65,11 +65,11 @@ public class NetexConfig {
     }
 
     /** public to enable testing */
-    private NetexBundle netexBundle(CompositeDataSource source) {
+    private NetexBundle netexBundle(CatalogDataSource source) {
         return new NetexBundle(buildParams.netex.netexFeedId, source, hierarchy(source));
     }
 
-    private NetexDataSourceHierarchy hierarchy(CompositeDataSource source){
+    private NetexDataSourceHierarchy hierarchy(CatalogDataSource source){
         NetexParameters c = buildParams.netex;
         return new NetexDataSourceHierarchy(source).prepare(
                 c.ignoreFilePattern,

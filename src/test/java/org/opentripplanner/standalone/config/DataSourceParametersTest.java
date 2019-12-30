@@ -10,11 +10,11 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.opentripplanner.standalone.config.StorageParameters.uriFromJson;
-import static org.opentripplanner.standalone.config.StorageParameters.uriFromString;
-import static org.opentripplanner.standalone.config.StorageParameters.uris;
+import static org.opentripplanner.standalone.config.DataSourceParameters.uriFromJson;
+import static org.opentripplanner.standalone.config.DataSourceParameters.uriFromString;
+import static org.opentripplanner.standalone.config.DataSourceParameters.uris;
 
-public class StorageParametersTest {
+public class DataSourceParametersTest {
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
             .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
@@ -51,7 +51,9 @@ public class StorageParametersTest {
     @Test
     public void testCreateGoogleCloudStorageParameters() throws IOException {
         JsonNode node = MAPPER.readTree("{"
-                + " gsCredentials : 'file:/cfile',\n"
+                + " repositories : [ "
+                + "{ type: \"GoogleStorage\", uriScheme: \"myGs\" } "
+                + "],\n"
                 + " graph : 'gs://b/g.obj',\n"
                 + " streetGraph : 'file:/b/bg.obj',\n"
                 + " osm : [ 'file:/b/osm.pbf' ],\n"
@@ -60,9 +62,8 @@ public class StorageParametersTest {
                 + " gtfs : [ 'file:/b/gtfs.zip' ],\n"
                 + " buildReportDir : 'gs://b/report'\n"
                 + "}");
-        StorageParameters c =  new StorageParameters(node);
+        DataSourceParameters c =  new DataSourceParameters(node);
 
-        assertEquals("file:/cfile", c.gsCredentials);
         assertEquals("gs://b/g.obj", c.graph.toString());
         assertEquals("file:/b/bg.obj", c.streetGraph.toString());
         assertEquals("[file:/b/osm.pbf]", c.osm.toString());
@@ -70,5 +71,9 @@ public class StorageParametersTest {
         assertEquals("[gs://b/netex.zip]", c.netex.toString());
         assertEquals("[file:/b/gtfs.zip]", c.gtfs.toString());
         assertEquals("gs://b/report", c.buildReportDir.toString());
+
+        assertEquals(1, c.repositories.size());
+        GoogleStoreParameters repo = (GoogleStoreParameters) c.repositories.get(0);
+        assertEquals("myGs", repo.uriScheme());
     }
 }

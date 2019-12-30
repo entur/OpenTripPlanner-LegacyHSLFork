@@ -1,7 +1,7 @@
 package org.opentripplanner.datastore.file;
 
 import org.apache.commons.io.FileUtils;
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.datastore.FileType;
 
@@ -13,9 +13,9 @@ import java.util.Collection;
 
 /**
  * This is a adapter to wrap a file directory and all files in it as a
- * composite data source. Sub-directories are ignored.
+ * catalog data source. Sub-directories are ignored.
  */
-public class DirectoryDataSource extends AbstractFileDataSource implements CompositeDataSource {
+public class DirectoryDataSource extends AbstractFileDataSource implements CatalogDataSource {
 
     public DirectoryDataSource(File path, FileType type) {
         super(path, type);

@@ -1,7 +1,7 @@
 package org.opentripplanner.datastore.base;
 
 
-import org.opentripplanner.datastore.CompositeDataSource;
+import org.opentripplanner.datastore.CatalogDataSource;
 import org.opentripplanner.datastore.DataSource;
 import org.opentripplanner.datastore.FileType;
 
@@ -49,7 +49,7 @@ public interface DataSourceRepository {
     DataSource findSource(@NotNull URI uri, @NotNull FileType type);
 
     /**
-     * Get the a composite data source (zip/directory) for the given uri and type.
+     * Get the a catalog data source (zip/directory) for the given uri and type.
      * <p>
      * The source may or may not {@link DataSource#exists()}.
      *
@@ -57,5 +57,5 @@ public interface DataSourceRepository {
      * @param type the file type to load.
      * @return the datasource wrapper that can be used to access the data source.
      */
-    CompositeDataSource findCompositeSource(@NotNull URI uri, @NotNull FileType type);
+    CatalogDataSource findCatalogSource(@NotNull URI uri, @NotNull FileType type);
 }

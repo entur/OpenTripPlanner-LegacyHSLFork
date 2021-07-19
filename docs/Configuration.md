@@ -174,6 +174,7 @@ Feature | Description | Enabled by default | Sandbox
 `SandboxAPILegacyGraphQLApi` | Enable (GTFS) GraphQL API | no | yes
 `SandboxAPIMapboxVectorTilesApi` | Enable Mapbox vector tiles API | no | yes
 `SandboxAPIParkAndRideApi` | Enable park-and-ride endpoint | no | yes
+`SandboxWheelchair` | Enable wheelchair routing | no | yes
 `TransferAnalyzer` | Analyze transfers during graph build | no | yes
 `FlexRouting` | Enable FLEX routing | no | yes
 `FloatingBike` | Enable floating bike routing | no | yes

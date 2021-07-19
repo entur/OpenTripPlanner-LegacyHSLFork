@@ -48,6 +48,7 @@ import org.opentripplanner.routing.impl.PathComparator;
 import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
+import org.opentripplanner.util.OTPFeature;
 import org.opentripplanner.util.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -429,6 +430,11 @@ public class RoutingRequest implements AutoCloseable, Cloneable, Serializable {
     @Deprecated
     public double waitAtBeginningFactor = 0.4;
 
+    /**
+     * [TODO WHEELCHAIR - add doc]
+     *
+     * THIS IS AN EXPERIMENTAL FEATURE AND PART OF THE WHEELCHAIR SANDBOX
+     */
     public TObjectDoubleMap<String> surfaceReluctances = new TObjectDoubleHashMap<>(0);
 
     /**
@@ -1333,7 +1339,7 @@ public class RoutingRequest implements AutoCloseable, Cloneable, Serializable {
     }
 
     public void setSurfaceReluctances(String surfaceReluctances) throws ParameterException {
-        if (surfaceReluctances == null) {
+        if (OTPFeature.SandboxWheelchair.isOff() || surfaceReluctances == null) {
             return;
         }
         String[] reluctanceSegments = surfaceReluctances.split(";");

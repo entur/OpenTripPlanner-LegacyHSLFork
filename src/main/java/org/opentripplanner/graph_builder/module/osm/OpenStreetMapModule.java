@@ -64,6 +64,7 @@ import org.opentripplanner.routing.vertextype.ParkAndRideVertex;
 import org.opentripplanner.routing.vertextype.TransitStopStreetVertex;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.NonLocalizedString;
+import org.opentripplanner.util.OTPFeature;
 import org.opentripplanner.util.ProgressTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1175,7 +1176,10 @@ public class OpenStreetMapModule implements GraphBuilderModule {
                 street.setHasBogusName(true);
             }
             street.setStairs(steps);
-            Optional.ofNullable(way.getSurface()).ifPresent(street::setSurface);
+
+            if(OTPFeature.SandboxWheelchair.isOn()) {
+                Optional.ofNullable(way.getSurface()).ifPresent(street::setSurface);
+            }
 
             /* TODO: This should probably generalized somehow? */
             if (!ignoreWheelchairAccessibility

@@ -32,7 +32,9 @@ public enum OTPFeature {
     SandboxAPIMapboxVectorTilesApi(false),
     SandboxExampleAPIGraphStatistics(false),
     SandboxAPIParkAndRideApi(false),
-    TransferAnalyzer(false);
+    TransferAnalyzer(false),
+    SandboxWheelchair(false),
+    ;
 
     private static final Logger LOG = LoggerFactory.getLogger(OTPFeature.class);
 

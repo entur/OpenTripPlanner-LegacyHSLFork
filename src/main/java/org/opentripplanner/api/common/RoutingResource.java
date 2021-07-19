@@ -196,6 +196,8 @@ public abstract class RoutingResource {
      * comma-separated pair, of "surface_key" * (as detailed at
      * https://wiki.openstreetmap.org/wiki/Key:surface) and the reluctance factor (>1). Each
      * "surfaceReluctance" pair should be separated by a semi-colon (;).
+     *
+     * [TODO WHEELCHAIR - add example]
      */
     @QueryParam("surfaceReluctances")
     protected String surfaceReluctances;

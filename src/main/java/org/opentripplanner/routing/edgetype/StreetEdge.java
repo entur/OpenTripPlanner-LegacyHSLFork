@@ -34,6 +34,7 @@ import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.util.BitSetUtils;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.NonLocalizedString;
+import org.opentripplanner.util.OTPFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -383,11 +384,14 @@ public class StreetEdge extends Edge implements Cloneable, CarPickupableEdge {
             // TODO: this is being applied even when biking or driving.
             weight *= options.walkReluctance;
         }
-        for (String surfaceToCheck : options.surfaceReluctances.keys(new String[0])) {
-            if (surfaceToCheck.equals(this.surface)) {
-                weight *= options.surfaceReluctances.get(surfaceToCheck);
-                // only up to one surface can match
-                break;
+
+        if(OTPFeature.SandboxWheelchair.isOn()) {
+            for (String surfaceToCheck : options.surfaceReluctances.keys(new String[0])) {
+                if (surfaceToCheck.equals(this.surface)) {
+                    weight *= options.surfaceReluctances.get(surfaceToCheck);
+                    // only up to one surface can match
+                    break;
+                }
             }
         }
 
@@ -745,6 +749,11 @@ public class StreetEdge extends Edge implements Cloneable, CarPickupableEdge {
 	    flags = BitSetUtils.set(flags, SLOPEOVERRIDE_FLAG_INDEX, slopeOverride);
 	}
 
+	/**
+     * [TODO WHEELCHAIR - doc ]
+     *
+     * THIS IS AN EXPERIMENTAL FEATURE AND PART OF THE WHEELCHAIR SANDBOX
+     */
     public String getSurface() {
         return surface;
     }

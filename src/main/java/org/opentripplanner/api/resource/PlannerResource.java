@@ -1,6 +1,5 @@
 package org.opentripplanner.api.resource;
 
-import javax.ws.rs.WebApplicationException;
 import org.glassfish.grizzly.http.server.Request;
 import org.opentripplanner.api.common.Message;
 import org.opentripplanner.api.common.ParameterException;

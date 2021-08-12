@@ -53,6 +53,10 @@ public class DefaultWayPropertySetSource implements WayPropertySetSource {
         props.setProperties("highway=service;access=private", StreetTraversalPermission.NONE);
         props.setProperties("highway=trail", StreetTraversalPermission.NONE);
         props.setProperties("highway=*;informal=yes", StreetTraversalPermission.NONE);
+        props.setProperties("mtb:scale=3", StreetTraversalPermission.NONE);
+        props.setProperties("mtb:scale=4", StreetTraversalPermission.NONE);
+        props.setProperties("mtb:scale=5", StreetTraversalPermission.NONE);
+        props.setProperties("mtb:scale=6", StreetTraversalPermission.NONE);
 
         /* PEDESTRIAN */
 		props.setProperties("highway=corridor", StreetTraversalPermission.PEDESTRIAN);
@@ -63,8 +67,11 @@ public class DefaultWayPropertySetSource implements WayPropertySetSource {
         props.setProperties("railway=platform", StreetTraversalPermission.PEDESTRIAN);
         props.setProperties("footway=sidewalk;highway=footway",
                 StreetTraversalPermission.PEDESTRIAN);
+        props.setProperties("mtb:scale=1", StreetTraversalPermission.PEDESTRIAN);
+        props.setProperties("mtb:scale=2", StreetTraversalPermission.PEDESTRIAN);
 
         /* PEDESTRIAN_AND_BICYCLE */
+        props.setProperties("mtb:scale=0", StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE);
         props.setProperties("highway=cycleway", StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE,
                 0.60, 0.60);
         props.setProperties("highway=path", StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE,

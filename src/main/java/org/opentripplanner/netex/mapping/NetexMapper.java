@@ -108,10 +108,15 @@ public class NetexMapper {
             transitBuilder.getRoutes().add(route);
         }
 
-        for (TariffZone tariffZone : netexDao.tariffZoneById.values()) {
-            if (tariffZone != null) {
-                org.opentripplanner.model.TariffZone otpTariffZone = tariffZoneMapper.mapTariffZone(tariffZone);
-                transitBuilder.getTariffZones().add(otpTariffZone);
+        for (String tariffZoneId : netexDao.tariffZoneById.keys()) {
+            if (tariffZoneId != null) {
+                final TariffZone tariffZone = netexDao.tariffZoneById.lookupLastVersionById(
+                    tariffZoneId);
+                if (tariffZone != null) {
+                    org.opentripplanner.model.TariffZone otpTariffZone = tariffZoneMapper.mapTariffZone(
+                        tariffZone);
+                    transitBuilder.getTariffZones().add(otpTariffZone);
+                }
             }
         }
 

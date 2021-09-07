@@ -80,7 +80,7 @@ public class NetexDao {
     public final HierarchicalMapById<ServiceLink> serviceLinkById;
     public final HierarchicalMultimapById<StopPlace> stopPlaceById;
     public final HierarchicalMapById<StopPointInJourneyPattern> stopPointInJourneyPatternById;
-    public final HierarchicalMapById<TariffZone> tariffZoneById;
+    public final HierarchicalMultimapById<TariffZone> tariffZoneById;
 
     private String timeZone = null;
     private final NetexDao parent;
@@ -126,7 +126,7 @@ public class NetexDao {
         this.serviceLinkById = new HierarchicalMapById<>();
         this.stopPlaceById = new HierarchicalMultimapById<>();
         this.stopPointInJourneyPatternById = new HierarchicalMapById<>();
-        this.tariffZoneById = new HierarchicalMapById<>();
+        this.tariffZoneById = new HierarchicalMultimapById<>();
     }
 
     /**
@@ -173,7 +173,7 @@ public class NetexDao {
         this.serviceJourneyByPatternId = new HierarchicalMultimap<>(parent.serviceJourneyByPatternId);
         this.stopPlaceById = new HierarchicalMultimapById<>(parent.stopPlaceById);
         this.stopPointInJourneyPatternById = new HierarchicalMapById<>(parent.stopPointInJourneyPatternById);
-        this.tariffZoneById = new HierarchicalMapById<>(parent.tariffZoneById);
+        this.tariffZoneById = new HierarchicalMultimapById<>(parent.tariffZoneById);
     }
 
     /**

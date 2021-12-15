@@ -558,20 +558,20 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.0.13</version>
+            <version>1.2.8</version>
         </dependency>
         <!-- Jersey uses java.util logging, redirect it to slf4j API (we use the Logback implementation) -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
-            <version>1.7.6</version>
+            <version>1.7.32</version>
         </dependency>
         <!-- AWS SDK uses Java commons logging. Redirect it to the slf4j API (we use the Logback implementation) -->
         <!-- Why does this work? It seems like we'd need to declare JCL "provided" to avoid using the true JCL. -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.6</version>
+            <version>1.7.32</version>
         </dependency>
         <!-- Trove provides optimized map/set collections for native types (int, long...) -->
         <dependency>

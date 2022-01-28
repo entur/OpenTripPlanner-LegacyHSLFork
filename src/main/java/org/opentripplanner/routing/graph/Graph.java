@@ -13,8 +13,9 @@
 
 package org.opentripplanner.routing.graph;
 
-import com.conveyal.r5.kryo.TIntArrayListSerializer;
-import com.conveyal.r5.kryo.TIntIntHashMapSerializer;
+import com.conveyal.kryo.TIntArrayListSerializer;
+import com.conveyal.kryo.TIntArrayListSerializer;
+import com.conveyal.kryo.TIntIntHashMapSerializer;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;

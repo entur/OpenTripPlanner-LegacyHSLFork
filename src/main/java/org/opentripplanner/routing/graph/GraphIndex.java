@@ -593,7 +593,7 @@ public class GraphIndex {
     }
 
     private Stream<TraverseMode> modesForStop(Stop stop) {
-        return routesForStop(stop).stream().map(GtfsLibrary::getTraverseMode);
+        return patternsForStop.get(stop).stream().map(tripPattern -> tripPattern.mode);
     }
 
     private boolean stopHasRoutesWithMode(Stop stop, Set<TraverseMode> modes) {

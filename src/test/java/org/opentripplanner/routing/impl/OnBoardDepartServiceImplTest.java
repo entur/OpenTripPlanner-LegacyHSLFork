@@ -21,6 +21,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +31,7 @@ import java.util.Collections;
 import java.util.TimeZone;
 
 import org.junit.Test;
+import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.AgencyAndId;
 import org.opentripplanner.model.Route;
@@ -134,7 +136,7 @@ public class OnBoardDepartServiceImplTest {
 
         TripTimes tripTimes = new TripTimes(trip, stopTimes, new Deduplicator());
         StopPattern stopPattern = new StopPattern(stopTimes);
-        TripPattern tripPattern = new TripPattern(route, stopPattern);
+        TripPattern tripPattern = new TripPattern(route, stopPattern, GtfsLibrary.getTraverseMode(route));
         TripPattern.generateUniqueIds(Arrays.asList(tripPattern));
 
         when(depart.getTripPattern()).thenReturn(tripPattern);
@@ -231,7 +233,7 @@ public class OnBoardDepartServiceImplTest {
 
         TripTimes tripTimes = new TripTimes(trip, stopTimes, new Deduplicator());
         StopPattern stopPattern = new StopPattern(stopTimes);
-        TripPattern tripPattern = new TripPattern(route, stopPattern);
+        TripPattern tripPattern = new TripPattern(route, stopPattern, GtfsLibrary.getTraverseMode(route));
         TripPattern.generateUniqueIds(Arrays.asList(tripPattern));
 
         when(depart.getTripPattern()).thenReturn(tripPattern);
@@ -311,7 +313,7 @@ public class OnBoardDepartServiceImplTest {
 
         TripTimes tripTimes = new TripTimes(trip, stopTimes, new Deduplicator());
         StopPattern stopPattern = new StopPattern(stopTimes);
-        TripPattern tripPattern = new TripPattern(route, stopPattern);
+        TripPattern tripPattern = new TripPattern(route, stopPattern, GtfsLibrary.getTraverseMode(route));
         TripPattern.generateUniqueIds(Arrays.asList(tripPattern));
 
         when(depart.getTripPattern()).thenReturn(tripPattern);

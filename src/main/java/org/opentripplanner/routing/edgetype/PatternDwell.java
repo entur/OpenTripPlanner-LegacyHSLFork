@@ -50,7 +50,7 @@ public class PatternDwell extends TablePatternEdge implements OnboardEdge, Dwell
     }
         
     public TraverseMode getMode() {
-        return GtfsLibrary.getTraverseMode(getPattern().route);
+        return getPattern().mode;
     }
 
     public String getName() {

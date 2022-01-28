@@ -24,6 +24,7 @@ import org.locationtech.jts.geom.LineString;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opentripplanner.calendar.impl.CalendarServiceImpl;
+import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.AgencyAndId;
 import org.opentripplanner.model.Route;
@@ -406,9 +407,9 @@ public class GraphPathToTripPlanConverterTest {
         StopPattern secondStopPattern = new StopPattern(secondStopTimes);
         StopPattern thirdStopPattern  = new StopPattern(thirdStopTimes);
 
-        TripPattern firstTripPattern  = new TripPattern(firstRoute, firstStopPattern);
-        TripPattern secondTripPattern = new TripPattern(secondRoute, secondStopPattern);
-        TripPattern thirdTripPattern  = new TripPattern(thirdRoute, thirdStopPattern);
+        TripPattern firstTripPattern  = new TripPattern(firstRoute, firstStopPattern, GtfsLibrary.getTraverseMode(firstRoute));
+        TripPattern secondTripPattern = new TripPattern(secondRoute, secondStopPattern, GtfsLibrary.getTraverseMode(secondRoute));
+        TripPattern thirdTripPattern  = new TripPattern(thirdRoute, thirdStopPattern, GtfsLibrary.getTraverseMode(thirdRoute));
 
         TripTimes firstTripTimes  = new TripTimes(firstTrip, firstStopTimes, new Deduplicator());
         TripTimes secondTripTimes = new TripTimes(secondTrip, secondStopTimes, new Deduplicator());

@@ -23,6 +23,7 @@ import org.opentripplanner.graph_builder.annotation.TripDegenerate;
 import org.opentripplanner.graph_builder.annotation.TripUndefinedService;
 import org.opentripplanner.model.*;
 import org.opentripplanner.model.impl.OtpTransitBuilder;
+import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.edgetype.factory.PatternHopFactory;
 import org.opentripplanner.routing.graph.AddBuilderAnnotation;
@@ -130,7 +131,7 @@ public class GenerateTripPatternsOperation {
         StopPattern stopPattern = new StopPattern(stopTimes, getAreasById()::get);
 
         TripPattern tripPattern = findOrCreateTripPattern(stopPattern, trip.getRoute(),
-                directionId);
+                directionId, GtfsLibrary.getTraverseMode(trip));
 
         // Create a TripTimes object for this list of stoptimes, which form one trip.
         TripTimes tripTimes = new TripTimes(trip, stopTimes, deduplicator);
@@ -164,14 +165,14 @@ public class GenerateTripPatternsOperation {
         return UNKNOWN_DIRECTION_ID;
     }
 
-    private TripPattern findOrCreateTripPattern(StopPattern stopPattern, Route route, int directionId) {
+    private TripPattern findOrCreateTripPattern(StopPattern stopPattern, Route route, int directionId, TraverseMode mode) {
         for(TripPattern tripPattern : tripPatterns.get(stopPattern)) {
             if(tripPattern.route.equals(route) && tripPattern.directionId == directionId) {
                 return tripPattern;
             }
         }
 
-        TripPattern tripPattern = new TripPattern(route, stopPattern);
+        TripPattern tripPattern = new TripPattern(route, stopPattern, mode);
         tripPattern.directionId = directionId;
         tripPatterns.put(stopPattern, tripPattern);
         return tripPattern;

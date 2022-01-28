@@ -85,7 +85,7 @@ public class OnBoardDepartPatternHop extends Edge implements OnboardEdge, Tempor
     }
 
     public TraverseMode getMode() {
-        return GtfsLibrary.getTraverseMode(trip.getRoute());
+        return GtfsLibrary.getTraverseMode(trip);
     }
 
     public String getName() {

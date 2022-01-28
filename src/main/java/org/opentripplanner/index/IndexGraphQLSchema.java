@@ -1787,7 +1787,7 @@ public class IndexGraphQLSchema {
                 .name("mode")
                 .type(Scalars.GraphQLString)
                 .dataFetcher(environment -> GtfsLibrary.getTraverseMode(
-                    environment.getSource()))
+                                (Route) environment.getSource()))
                 .build())
             .field(GraphQLFieldDefinition.newFieldDefinition()
                 .name("type")

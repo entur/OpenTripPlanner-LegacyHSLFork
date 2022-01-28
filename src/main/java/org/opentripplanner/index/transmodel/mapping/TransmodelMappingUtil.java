@@ -111,12 +111,9 @@ public class TransmodelMappingUtil {
         return Joiner.on(LIST_VALUE_SEPARATOR).join(otpModelModes);
     }
 
-    // Create a dummy route to be able to reuse GtfsLibrary functionality
     public Object mapVehicleTypeToTraverseMode(int vehicleType) {
-        Route dummyRoute = new Route();
-        dummyRoute.setType(vehicleType);
         try {
-            return GtfsLibrary.getTraverseMode(dummyRoute);
+            return GtfsLibrary.getTraverseMode(vehicleType);
         } catch (IllegalArgumentException iae) {
             return "unknown";
         }

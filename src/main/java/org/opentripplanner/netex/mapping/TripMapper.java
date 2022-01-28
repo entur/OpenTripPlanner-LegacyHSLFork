@@ -10,6 +10,7 @@ import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.model.impl.OtpTransitBuilder;
 import org.opentripplanner.netex.loader.NetexDao;
 import org.opentripplanner.routing.edgetype.Timetable;
+import org.rutebanken.netex.model.AllVehicleModesOfTransportEnumeration;
 import org.rutebanken.netex.model.FlexibleLine;
 import org.rutebanken.netex.model.FlexibleServiceProperties;
 import org.rutebanken.netex.model.JourneyPattern;
@@ -105,6 +106,11 @@ public class TripMapper {
         }
         trip.setKeyValues(keyValueMapper.mapKeyValues(serviceJourney.getKeyList()));
         trip.setWheelchairAccessible(0); // noInformation
+
+        AllVehicleModesOfTransportEnumeration serviceJourneyTransportMode = serviceJourney.getTransportMode();
+        if (serviceJourneyTransportMode != null) {
+            trip.setType(transportModeMapper.getTransportMode(serviceJourneyTransportMode, serviceJourney.getTransportSubmode()));
+        }
 
         trip.setTransportSubmode(transportModeMapper.getTransportSubmode(serviceJourney.getTransportSubmode()));
         if (trip.getTransportSubmode()==null) {

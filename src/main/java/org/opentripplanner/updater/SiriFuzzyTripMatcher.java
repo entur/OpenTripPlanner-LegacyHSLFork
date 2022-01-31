@@ -384,7 +384,7 @@ public class SiriFuzzyTripMatcher {
 
         List<AgencyAndId> matches = new ArrayList<>();
         for (Trip trip : cachedTripsBySiriId) {
-            if (GtfsLibrary.getTraverseMode(trip.getRoute()).equals(traverseMode) ||
+            if (GtfsLibrary.getTraverseMode(trip).equals(traverseMode) ||
                     trip.getTransportSubmode().equals(transportSubmode)) {
                 Set<ServiceDate> serviceDates = index.graph.getCalendarService().getServiceDatesForServiceId(trip.getServiceId());
 

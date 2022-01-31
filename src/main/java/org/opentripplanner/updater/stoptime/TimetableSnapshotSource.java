@@ -17,6 +17,7 @@ import com.google.common.base.Preconditions;
 import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
+import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.model.Agency;
 import org.opentripplanner.model.AgencyAndId;
 import org.opentripplanner.model.Operator;
@@ -757,7 +758,7 @@ public class TimetableSnapshotSource {
         }
 
         StopPattern stopPattern = new StopPattern(aimedStopTimes);
-        TripPattern pattern = new TripPattern(trip.getRoute(), stopPattern);
+        TripPattern pattern = new TripPattern(trip.getRoute(), stopPattern, GtfsLibrary.getTraverseMode(trip));
 
         TripTimes tripTimes = new TripTimes(trip, aimedStopTimes, graph.deduplicator);
 

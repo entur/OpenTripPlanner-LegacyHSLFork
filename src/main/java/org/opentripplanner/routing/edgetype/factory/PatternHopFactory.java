@@ -389,7 +389,7 @@ public class PatternHopFactory {
             tripPattern.setServiceCodes(graph.serviceCodes); // TODO this could be more elegant
 
             /* Iterate over all stops in this pattern recording mode information. */
-            TraverseMode mode = GtfsLibrary.getTraverseMode(tripPattern.route);
+            TraverseMode mode = tripPattern.mode;
             for (TransitStop tstop : tripPattern.stopVertices) {
                 tstop.addMode(mode);
                 if (mode == TraverseMode.SUBWAY) {

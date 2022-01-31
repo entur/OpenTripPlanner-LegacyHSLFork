@@ -5,6 +5,7 @@ import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.graph_builder.annotation.NoPassengerStopAssignment;
 import org.opentripplanner.graph_builder.annotation.NoQuayOrFlexibleStopPlaceForTimetabledPassingTimes;
 import org.opentripplanner.graph_builder.annotation.TimeMissingForTrip;
+import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.model.AgencyAndId;
 import org.opentripplanner.model.Area;
 import org.opentripplanner.model.BookingArrangement;
@@ -16,6 +17,7 @@ import org.opentripplanner.model.TripAlterationOnDate;
 import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.model.impl.OtpTransitBuilder;
 import org.opentripplanner.netex.loader.NetexDao;
+import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.graph.AddBuilderAnnotation;
 import org.opentripplanner.routing.trippattern.Deduplicator;
@@ -173,7 +175,8 @@ public class TripPatternMapper {
             return;
         }
 
-        TripPattern tripPattern = new TripPattern(otpRoute, stopPattern);
+        TraverseMode mode = GtfsLibrary.getTraverseMode(trips.get(0));
+        TripPattern tripPattern = new TripPattern(otpRoute, stopPattern, mode);
         tripPattern.code = journeyPattern.getId();
         tripPattern.name = journeyPattern.getName() == null ? "" : journeyPattern.getName().getValue();
         tripPattern.id = AgencyAndIdFactory.createAgencyAndId(journeyPattern.getId());

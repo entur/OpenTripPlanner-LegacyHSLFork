@@ -2203,6 +2203,12 @@ public class TransmodelIndexGraphQLSchema {
                         .dataFetcher(environment -> ((Trip) environment.getSource()).getAlteration())
                         .build())
                 .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("transportMode")
+                        .type(transportModeEnum)
+                        .dataFetcher(environment -> GtfsLibrary.getTraverseMode(
+                                (Trip) environment.getSource()))
+                        .build())
+                .field(GraphQLFieldDefinition.newFieldDefinition()
                         .name("transportSubmode")
                         .type(transportSubmode)
                         .description("The transport submode of the journey, if different from lines transport submode.")
@@ -2529,7 +2535,7 @@ public class TransmodelIndexGraphQLSchema {
                         .name("transportMode")
                         .type(transportModeEnum)
                         .dataFetcher(environment -> GtfsLibrary.getTraverseMode(
-                                environment.getSource()))
+                                        (Route) environment.getSource()))
                         .build())
                 .field(GraphQLFieldDefinition.newFieldDefinition()
                         .name("transportSubmode")

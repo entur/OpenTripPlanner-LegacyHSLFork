@@ -92,7 +92,7 @@ public class PatternHop extends TablePatternEdge implements OnboardEdge, HopEdge
     }
 
     public TraverseMode getMode() {
-        return GtfsLibrary.getTraverseMode(getPattern().route);
+        return getPattern().mode;
     }
     
     public String getName() {

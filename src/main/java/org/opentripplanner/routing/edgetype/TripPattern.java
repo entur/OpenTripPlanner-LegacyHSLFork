@@ -179,13 +179,13 @@ public class TripPattern implements Cloneable, Serializable {
     BitSet services;
 
 
-    public TripPattern(Route route, StopPattern stopPattern) {
-        this(route, stopPattern, null);
+    public TripPattern(Route route, StopPattern stopPattern, TraverseMode mode) {
+        this(route, stopPattern, null, mode);
     }
 
-    public TripPattern(Route route, StopPattern stopPattern, ServiceDate serviceDate) {
+    public TripPattern(Route route, StopPattern stopPattern, ServiceDate serviceDate, TraverseMode mode) {
         this.route = route;
-        this.mode = GtfsLibrary.getTraverseMode(this.route);
+        this.mode = mode;
         this.stopPattern = stopPattern;
         this.scheduledTimetable = serviceDate == null
                 ? new Timetable(this)

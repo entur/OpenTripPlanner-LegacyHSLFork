@@ -1528,7 +1528,7 @@ public class RoutingRequest implements Cloneable, Serializable {
             return false;
         }
         if (!transportSubmodes.isEmpty()) {
-            Set<TransmodelTransportSubmode> allowedSubmodesForMode = transportSubmodes.get(GtfsLibrary.getTraverseMode(trip.getRoute()));
+            Set<TransmodelTransportSubmode> allowedSubmodesForMode = transportSubmodes.get(GtfsLibrary.getTraverseMode(trip));
             if (!CollectionUtils.isEmpty(allowedSubmodesForMode) && !allowedSubmodesForMode.contains(trip.getTransportSubmode())) {
                 return true;
             }

@@ -1,6 +1,6 @@
 package org.opentripplanner.routing.graph;
 
-import com.conveyal.r5.diff.ObjectDiffer;
+import com.conveyal.object_differ.ObjectDiffer;
 import org.geotools.util.WeakValueHashMap;
 import org.jets3t.service.io.TempFile;
 import org.junit.Test;

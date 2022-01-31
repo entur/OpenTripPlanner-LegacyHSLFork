@@ -16,6 +16,7 @@ package org.opentripplanner.updater.stoptime;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
+import org.opentripplanner.gtfs.GtfsLibrary;
 import org.opentripplanner.model.*;
 import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.routing.edgetype.TripPattern;
@@ -59,7 +60,7 @@ public class TripPatternCache {
         // Create TripPattern if it doesn't exist yet
         if (tripPattern == null) {
 
-            tripPattern = new TripPattern(trip.getRoute(), stopPattern, serviceDate);
+            tripPattern = new TripPattern(trip.getRoute(), stopPattern, serviceDate, GtfsLibrary.getTraverseMode(trip));
 
             // Generate unique code for trip pattern
             tripPattern.code = generateUniqueTripPatternCode(tripPattern);

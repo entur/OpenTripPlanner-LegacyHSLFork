@@ -153,6 +153,8 @@ public class RoutingRequestMapper {
       .setIgnoreRealtimeUpdates(
         c.asBoolean("ignoreRealtimeUpdates", preferences.transit().ignoreRealtimeUpdates())
       );
+    request.extraSearchCoachReluctance =
+      c.asDouble("extraSearchCoachReluctance", dft.extraSearchCoachReluctance);
     request.carPickup = c.asBoolean("kissAndRide", dft.carPickup);
     request.setLocale(c.asLocale("locale", dft.locale()));
     // 'maxTransfers' is configured in the Raptor tuning parameters, not here

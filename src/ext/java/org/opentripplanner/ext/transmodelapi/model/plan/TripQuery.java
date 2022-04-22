@@ -444,6 +444,14 @@ public class TripQuery {
           .type(ItineraryFiltersInputType.create(gqlUtil, preferences.system().itineraryFilters()))
           .build()
       )
+      .argument(
+        GraphQLArgument
+          .newArgument()
+          .name("extraSearchCoachReluctance")
+          .description("FOR TESTING ONLY")
+          .type(Scalars.GraphQLFloat)
+          .build()
+      )
       .dataFetcher(environment -> new TransmodelGraphQLPlanner().plan(environment))
       .build();
   }

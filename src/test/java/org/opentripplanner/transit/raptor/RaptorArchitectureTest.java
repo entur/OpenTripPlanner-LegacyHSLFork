@@ -28,6 +28,9 @@ public class RaptorArchitectureTest {
   private static final Package RR_STANDARD = RANGE_RAPTOR.subPackage("standard");
   private static final Package RR_STD_CONFIGURE = RR_STANDARD.subPackage("configure");
   private static final Package RR_CONTEXT = RANGE_RAPTOR.subPackage("context");
+  private static final Package EXT_SORLANDSBANAN_HACK = Package.of(
+    "org.opentripplanner.ext.sorlandsbanen"
+  );
 
   @Test
   void enforcePackageDependenciesRaptorAPI() {
@@ -128,7 +131,15 @@ public class RaptorArchitectureTest {
   @Test
   void enforcePackageDependenciesInRaptorService() {
     SERVICE
-      .dependsOn(UTILS, RAPTOR_API, RAPTOR_UTIL, CONFIGURE, RR_INTERNAL_API, RR_TRANSIT)
+      .dependsOn(
+        UTILS,
+        RAPTOR_API,
+        RAPTOR_UTIL,
+        CONFIGURE,
+        RR_INTERNAL_API,
+        RR_TRANSIT,
+        EXT_SORLANDSBANAN_HACK
+      )
       .verify();
   }
 

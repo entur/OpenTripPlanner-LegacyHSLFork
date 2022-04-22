@@ -213,6 +213,9 @@ public class RouteRequest implements Cloneable, Serializable {
    */
   public DebugRaptor raptorDebugging = new DebugRaptor();
 
+  /** Zero means turned off. HACK SØRLANDSBANEN */
+  public double extraSearchCoachReluctance = 0.0;
+
   private Envelope fromEnvelope;
 
   private Envelope toEnvelope;

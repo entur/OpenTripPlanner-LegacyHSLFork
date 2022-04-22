@@ -226,6 +226,10 @@ public class TransmodelGraphQLPlanner {
 
     // callWith.argument("useFlex", (Boolean v) -> request.useFlexService = v);
     // callWith.argument("ignoreMinimumBookingPeriod", (Boolean v) -> request.ignoreDrtAdvanceBookMin = v);
+    callWith.argument(
+      "extraSearchCoachReluctance",
+      (Double v) -> preferences.transit().setExtraSearchCoachReluctance(v)
+    );
 
     RequestModes modes = getModes(environment, callWith);
     if (modes != null) {

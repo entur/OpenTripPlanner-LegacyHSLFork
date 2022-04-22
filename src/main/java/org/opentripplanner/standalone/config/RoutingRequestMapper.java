@@ -163,6 +163,11 @@ public class RoutingRequestMapper {
       .setIgnoreRealtimeUpdates(
         c.asBoolean("ignoreRealtimeUpdates", preferences.transit().ignoreRealtimeUpdates())
       );
+    preferences
+      .transit()
+      .setExtraSearchCoachReluctance(
+        c.asDouble("extraSearchCoachReluctance", preferences.transit().extraSearchCoachReluctance())
+      );
     request.setLocale(c.asLocale("locale", dft.locale()));
     // 'maxTransfers' is configured in the Raptor tuning parameters, not here
     preferences

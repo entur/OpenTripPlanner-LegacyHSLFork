@@ -263,6 +263,13 @@ public class RoutingRequestMapper {
             """
           )
           .asLinearFunction(dft.unpreferredCost())
+      )
+      .setExtraSearchCoachReluctance(
+        c
+          .of("extraSearchCoachReluctance")
+          .since(NA)
+          .summary("TODO")
+          .asDouble(dft.extraSearchCoachReluctance())
       );
   }
 

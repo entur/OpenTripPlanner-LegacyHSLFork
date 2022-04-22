@@ -36,6 +36,8 @@ public class TransitPreferences implements Cloneable, Serializable {
 
   private RaptorOptions raptorOptions = new RaptorOptions();
 
+  private double extraSearchCoachReluctance = 0.0;
+
   /**
    * Has information how much time boarding a vehicle takes; The number of seconds to add before
    * boarding a transit leg. Can be significant for airplanes or ferries. It is recommended to use
@@ -161,6 +163,15 @@ public class TransitPreferences implements Cloneable, Serializable {
    */
   public RaptorOptions raptorOptions() {
     return raptorOptions;
+  }
+
+  /** Zero means turned off. HACK SØRLANDSBANEN */
+  public double extraSearchCoachReluctance() {
+    return extraSearchCoachReluctance;
+  }
+
+  public void setExtraSearchCoachReluctance(double extraSearchCoachReluctance) {
+    this.extraSearchCoachReluctance = extraSearchCoachReluctance;
   }
 
   public TransitPreferences clone() {

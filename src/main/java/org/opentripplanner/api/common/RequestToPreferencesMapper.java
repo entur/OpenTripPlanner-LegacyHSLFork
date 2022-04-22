@@ -83,6 +83,7 @@ class RequestToPreferencesMapper {
       setIfNotNull(req.alightSlack, tr::withDefaultAlightSlackSec);
       setIfNotNull(req.otherThanPreferredRoutesPenalty, tr::setOtherThanPreferredRoutesPenalty);
       setIfNotNull(req.ignoreRealtimeUpdates, tr::setIgnoreRealtimeUpdates);
+      setIfNotNull(req.extraSearchCoachReluctance, tr::setExtraSearchCoachReluctance);
     });
 
     return new BoardAndAlightSlack(

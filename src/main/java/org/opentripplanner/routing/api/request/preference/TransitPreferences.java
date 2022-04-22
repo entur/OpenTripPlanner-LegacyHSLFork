@@ -32,6 +32,7 @@ public final class TransitPreferences implements Serializable {
   private final boolean ignoreRealtimeUpdates;
   private final boolean includePlannedCancellations;
   private final RaptorPreferences raptor;
+  private final double extraSearchCoachReluctance;
 
   private TransitPreferences() {
     this.boardSlack = this.alightSlack = DurationForEnum.of(TransitMode.class).build();
@@ -41,6 +42,7 @@ public final class TransitPreferences implements Serializable {
     this.ignoreRealtimeUpdates = false;
     this.includePlannedCancellations = false;
     this.raptor = RaptorPreferences.DEFAULT;
+    this.extraSearchCoachReluctance = 0.0;
   }
 
   private TransitPreferences(Builder builder) {
@@ -52,6 +54,7 @@ public final class TransitPreferences implements Serializable {
     this.ignoreRealtimeUpdates = builder.ignoreRealtimeUpdates;
     this.includePlannedCancellations = builder.includePlannedCancellations;
     this.raptor = requireNonNull(builder.raptor);
+    this.extraSearchCoachReluctance = builder.extraSearchCoachReluctance;
   }
 
   public static Builder of() {
@@ -145,6 +148,11 @@ public final class TransitPreferences implements Serializable {
     return raptor;
   }
 
+  /** Zero means turned off. HACK SØRLANDSBANEN */
+  public double extraSearchCoachReluctance() {
+    return extraSearchCoachReluctance;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -214,6 +222,7 @@ public final class TransitPreferences implements Serializable {
     private boolean ignoreRealtimeUpdates;
     private boolean includePlannedCancellations;
     private RaptorPreferences raptor;
+    private double extraSearchCoachReluctance;
 
     public Builder(TransitPreferences original) {
       this.original = original;
@@ -225,6 +234,7 @@ public final class TransitPreferences implements Serializable {
       this.ignoreRealtimeUpdates = original.ignoreRealtimeUpdates;
       this.includePlannedCancellations = original.includePlannedCancellations;
       this.raptor = original.raptor;
+      this.extraSearchCoachReluctance = original.extraSearchCoachReluctance;
     }
 
     public TransitPreferences original() {
@@ -281,6 +291,11 @@ public final class TransitPreferences implements Serializable {
 
     public Builder withRaptor(Consumer<RaptorPreferences.Builder> body) {
       this.raptor = raptor.copyOf().apply(body).build();
+      return this;
+    }
+
+    public Builder setExtraSearchCoachReluctance(double extraSearchCoachReluctance) {
+      this.extraSearchCoachReluctance = extraSearchCoachReluctance;
       return this;
     }
 

@@ -45,6 +45,7 @@ class TransmodelGraph {
     Map<String, Object> variables,
     String operationName,
     int maxResolves,
+    String etClientName,
     Iterable<Tag> tracingTags
   ) {
     Instrumentation instrumentation = new MaxQueryComplexityInstrumentation(maxResolves);
@@ -64,7 +65,8 @@ class TransmodelGraph {
 
     TransmodelRequestContext transmodelRequestContext = new TransmodelRequestContext(
       router,
-      new RoutingService(router.graph)
+      new RoutingService(router.graph),
+      etClientName
     );
 
     ExecutionInput executionInput = ExecutionInput
@@ -84,6 +86,7 @@ class TransmodelGraph {
     Map<String, Object> variables,
     String operationName,
     int maxResolves,
+    String etClientName,
     Iterable<Tag> tracingTags
   ) {
     ExecutionResult result = getGraphQLExecutionResult(
@@ -92,6 +95,7 @@ class TransmodelGraph {
       variables,
       operationName,
       maxResolves,
+      etClientName,
       tracingTags
     );
 

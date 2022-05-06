@@ -7,10 +7,16 @@ public class TransmodelRequestContext {
 
   private final Router router;
   private final RoutingService routingService;
+  private final String etClientName;
 
-  public TransmodelRequestContext(Router router, RoutingService routingService) {
+  public TransmodelRequestContext(
+    Router router,
+    RoutingService routingService,
+    String etClientName
+  ) {
     this.router = router;
     this.routingService = routingService;
+    this.etClientName = etClientName;
   }
 
   public Router getRouter() {
@@ -19,5 +25,9 @@ public class TransmodelRequestContext {
 
   public RoutingService getRoutingService() {
     return routingService;
+  }
+
+  public String getEtClientName() {
+    return etClientName;
   }
 }

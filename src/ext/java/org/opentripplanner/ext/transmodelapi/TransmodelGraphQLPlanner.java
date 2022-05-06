@@ -304,13 +304,15 @@ public class TransmodelGraphQLPlanner {
         }
       }
 
-      return new RequestModes(
+      var modes = new RequestModes(
         accessMode.get(),
         accessMode.get() == StreetMode.BIKE ? StreetMode.BIKE : StreetMode.WALK,
         egressMode.get(),
         directMode.get(),
         transitModes
       );
+      logPotentialModeProblem(environment, modes);
+      return modes;
     }
     return null;
   }
@@ -329,5 +331,22 @@ public class TransmodelGraphQLPlanner {
     T get() {
       return this.element;
     }
+  }
+
+  void logPotentialModeProblem(DataFetchingEnvironment environment, RequestModes modes) {
+    if (modes.accessMode == StreetMode.NOT_SET) {
+      return;
+    }
+    if (modes.egressMode == StreetMode.NOT_SET) {
+      return;
+    }
+    if (!modes.transitModes.isEmpty()) {
+      return;
+    }
+    LOG.warn(
+      "TransitModes is empty, but access/egress is set. ET-Client: {}, modes: {}",
+      ((TransmodelRequestContext) environment.getContext()).getEtClientName(),
+      modes
+    );
   }
 }

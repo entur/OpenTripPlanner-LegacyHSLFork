@@ -120,12 +120,14 @@ public class TransmodelAPI {
     } else {
       variables = new HashMap<>();
     }
+
     return index.getGraphQLResponse(
       query,
       router,
       variables,
       operationName,
       maxResolves,
+      getEtClientName(headers),
       getTagsFromHeaders(headers)
     );
   }
@@ -144,6 +146,7 @@ public class TransmodelAPI {
       null,
       null,
       maxResolves,
+      getEtClientName(headers),
       getTagsFromHeaders(headers)
     );
   }
@@ -183,6 +186,7 @@ public class TransmodelAPI {
           variables,
           operationName,
           maxResolves,
+          getEtClientName(headers),
           getTagsFromHeaders(headers)
         )
       );
@@ -208,5 +212,10 @@ public class TransmodelAPI {
         return Tag.of(header, value == null ? "__UNKNOWN__" : value);
       })
       .collect(Collectors.toList());
+  }
+
+  private String getEtClientName(HttpHeaders headers) {
+    List<String> names = headers.getRequestHeader("et-client-name");
+    return names == null ? "UNKNOWN" : String.join("|", names);
   }
 }

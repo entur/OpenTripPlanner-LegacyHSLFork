@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.opentripplanner.model.base.ToStringBuilder;
 import org.opentripplanner.model.modes.AllowedTransitMode;
 
 public class RequestModes {
@@ -70,11 +70,12 @@ public class RequestModes {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
-      .append("accessMode", accessMode)
-      .append("egressMode", egressMode)
-      .append("directMode", directMode)
-      .append("transitModes", transitModes)
+    return ToStringBuilder
+      .of(RequestModes.class)
+      .addEnum("accessMode", accessMode)
+      .addEnum("egressMode", egressMode)
+      .addEnum("directMode", directMode)
+      .addCol("transitModes", transitModes)
       .toString();
   }
 }

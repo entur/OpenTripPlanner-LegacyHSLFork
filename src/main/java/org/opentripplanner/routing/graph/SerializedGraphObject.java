@@ -93,10 +93,9 @@ public class SerializedGraphObject implements Serializable {
     return load(source.asInputStream(), source.path());
   }
 
-  public static Graph load(File file) {
+  public static SerializedGraphObject load(File file) {
     try {
-      SerializedGraphObject serObj = load(new FileInputStream(file), file.getAbsolutePath());
-      return serObj == null ? null : serObj.graph;
+      return  load(new FileInputStream(file), file.getAbsolutePath());
     } catch (FileNotFoundException e) {
       LOG.error("Graph file not found: " + file, e);
       throw new OtpAppException(e.getMessage());

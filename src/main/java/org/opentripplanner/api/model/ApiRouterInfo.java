@@ -8,6 +8,7 @@ import org.opentripplanner.api.mapping.TraverseModeMapper;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vehicle_parking.VehicleParkingService;
 import org.opentripplanner.routing.vehicle_rental.VehicleRentalStationService;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.TravelOption;
 import org.opentripplanner.util.TravelOptionsMaker;
 import org.opentripplanner.util.WorldEnvelope;
@@ -31,7 +32,7 @@ public class ApiRouterInfo {
   public List<TravelOption> travelOptions;
 
   /** TODO: Do not pass in the graph here, do this in a mapper instead. */
-  public ApiRouterInfo(String routerId, Graph graph) {
+  public ApiRouterInfo(String routerId, Graph graph, TransitModel transitModel) {
     VehicleRentalStationService vehicleRentalService = graph.getService(
       VehicleRentalStationService.class,
       false
@@ -44,8 +45,8 @@ public class ApiRouterInfo {
     this.routerId = routerId;
     this.polygon = graph.getConvexHull();
     this.buildTime = graph.buildTime;
-    this.transitServiceStarts = graph.getTransitServiceStarts();
-    this.transitServiceEnds = graph.getTransitServiceEnds();
+    this.transitServiceStarts = transitModel.getTransitServiceStarts();
+    this.transitServiceEnds = transitModel.getTransitServiceEnds();
     this.transitModes = TraverseModeMapper.mapToApi(graph.getTransitModes());
     this.envelope = graph.getEnvelope();
     this.hasParkRide = graph.hasParkRide;

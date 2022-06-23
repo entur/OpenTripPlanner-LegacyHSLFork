@@ -180,7 +180,7 @@ public class NearbyStopFinder {
     if (!reverseDirection) {
       routingContext = new RoutingContext(routingRequest, graph, originVertices, null);
     } else {
-      routingContext = new RoutingContext(routingRequest, graph, null, originVertices);
+      routingContext = new RoutingContext(routingRequest, graph,null, originVertices);
     }
 
     /* Add the origin vertices if they are stops */

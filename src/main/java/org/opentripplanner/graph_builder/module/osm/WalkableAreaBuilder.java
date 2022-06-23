@@ -47,6 +47,7 @@ import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.OsmVertex;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.I18NString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +80,8 @@ public class WalkableAreaBuilder {
 
   private final Graph graph;
 
+  private final TransitModel transitModel;
+
   private final OSMDatabase osmdb;
 
   private final WayPropertySet wayPropertySet;
@@ -96,6 +99,7 @@ public class WalkableAreaBuilder {
 
   public WalkableAreaBuilder(
     Graph graph,
+    TransitModel transitModel,
     OSMDatabase osmdb,
     WayPropertySet wayPropertySet,
     Handler handler,
@@ -104,6 +108,7 @@ public class WalkableAreaBuilder {
     boolean platformEntriesLinking
   ) {
     this.graph = graph;
+    this.transitModel = transitModel;
     this.osmdb = osmdb;
     this.wayPropertySet = wayPropertySet;
     this.handler = handler;

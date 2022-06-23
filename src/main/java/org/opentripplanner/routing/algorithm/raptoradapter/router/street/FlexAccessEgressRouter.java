@@ -30,6 +30,7 @@ public class FlexAccessEgressRouter {
 
     FlexRouter flexRouter = new FlexRouter(
       routingContext.graph,
+      routingContext.transitModel,
       params,
       routingContext.opt.getDateTime(),
       routingContext.opt.arriveBy,

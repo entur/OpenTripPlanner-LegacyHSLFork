@@ -68,7 +68,7 @@ public class GtfsRealtimeAlertsUpdater extends PollingGraphUpdater implements Tr
     if (fuzzyTripMatching) {
       this.fuzzyTripMatcher =
         new GtfsRealtimeFuzzyTripMatcher(
-          new RoutingService(graph),
+          new RoutingService(graph, transitModel),
           new DefaultTransitService(transitModel)
         );
     }

@@ -100,7 +100,7 @@ public class PollingStoptimeUpdater extends PollingGraphUpdater {
     if (fuzzyTripMatching) {
       this.fuzzyTripMatcher =
         new GtfsRealtimeFuzzyTripMatcher(
-          new RoutingService(graph),
+          new RoutingService(graph, transitModel),
           new DefaultTransitService(transitModel)
         );
     }

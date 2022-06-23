@@ -46,6 +46,7 @@ import org.opentripplanner.standalone.server.Router;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.site.Stop;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.transit.service.TransitService;
 import org.opentripplanner.util.WorldEnvelope;
 
@@ -56,19 +57,22 @@ public class RoutingService {
 
   private final Graph graph;
 
+  private final TransitModel transitModel;
+
   private final GraphIndex graphIndex;
 
   private final GraphFinder graphFinder;
 
-  public RoutingService(Graph graph) {
+  public RoutingService(Graph graph, TransitModel transitModel) {
     this.graph = graph;
+    this.transitModel = transitModel;
     this.graphIndex = graph.index;
     this.graphFinder = GraphFinder.getInstance(graph);
   }
 
   // TODO We should probably not have the Router as a parameter here
   public RoutingResponse route(RoutingRequest request, Router router) {
-    var zoneId = graph.getTimeZone().toZoneId();
+    var zoneId = transitModel.getTimeZone().toZoneId();
     RoutingWorker worker = new RoutingWorker(router, request, zoneId);
     return worker.route();
   }

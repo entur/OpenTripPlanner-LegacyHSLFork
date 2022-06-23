@@ -168,7 +168,7 @@ public class OpenStreetMapModule implements GraphBuilderModule {
   ) {
     this.issueStore = issueStore;
     OSMDatabase osmdb = new OSMDatabase(issueStore, boardingAreaRefTags);
-    Handler handler = new Handler(graph, osmdb);
+    Handler handler = new Handler(graph, transitModel, osmdb);
     for (OpenStreetMapProvider provider : providers) {
       LOG.info("Gathering OSM from provider: " + provider);
       provider.readOSM(osmdb);
@@ -216,6 +216,8 @@ public class OpenStreetMapModule implements GraphBuilderModule {
 
     private final Graph graph;
 
+    private final TransitModel transitModel;
+
     private final OSMDatabase osmdb;
     // track OSM nodes which are decomposed into multiple graph vertices because they are
     // elevators. later they will be iterated over to build ElevatorEdges between them.
@@ -227,8 +229,9 @@ public class OpenStreetMapModule implements GraphBuilderModule {
      */
     private float bestBikeSafety = 1.0f;
 
-    public Handler(Graph graph, OSMDatabase osmdb) {
+    public Handler(Graph graph, TransitModel transitModel, OSMDatabase osmdb) {
       this.graph = graph;
+      this.transitModel = transitModel;
       this.osmdb = osmdb;
     }
 
@@ -535,6 +538,7 @@ public class OpenStreetMapModule implements GraphBuilderModule {
       List<AreaGroup> areaGroups = groupAreas(osmdb.getWalkableAreas());
       WalkableAreaBuilder walkableAreaBuilder = new WalkableAreaBuilder(
         graph,
+        transitModel,
         osmdb,
         wayPropertySet,
         this,

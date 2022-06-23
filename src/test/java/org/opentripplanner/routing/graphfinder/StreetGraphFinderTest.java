@@ -122,7 +122,7 @@ class StreetGraphFinderTest extends GraphRoutingTest {
 
     routingService = new RoutingService(graph);
     transitService = new DefaultTransitService(graph);
-    graphFinder = new StreetGraphFinder(graph);
+    graphFinder = new StreetGraphFinder(graph, transitModel);
   }
 
   @Test

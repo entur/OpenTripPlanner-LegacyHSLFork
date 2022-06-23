@@ -82,7 +82,7 @@ public class MqttGtfsRealtimeUpdater implements GraphUpdater {
     if (fuzzyTripMatching) {
       snapshotSource.fuzzyTripMatcher =
         new GtfsRealtimeFuzzyTripMatcher(
-          new RoutingService(graph),
+          new RoutingService(graph, transitModel),
           new DefaultTransitService(transitModel)
         );
     }

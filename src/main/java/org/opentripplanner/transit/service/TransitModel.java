@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -27,15 +26,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.opentripplanner.common.geometry.CompactElevationProfile;
-import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
-import org.opentripplanner.common.model.T2;
-import org.opentripplanner.ext.dataoverlay.configuration.DataOverlayParameterBindings;
 import org.opentripplanner.ext.flex.trip.FlexTrip;
 import org.opentripplanner.graph_builder.DataImportIssueStore;
 import org.opentripplanner.graph_builder.issues.NoFutureDates;
-import org.opentripplanner.graph_builder.module.osm.WayPropertySetSource.DrivingDirection;
 import org.opentripplanner.model.FeedInfo;
 import org.opentripplanner.model.FlexLocationGroup;
 import org.opentripplanner.model.FlexStopLocation;
@@ -55,19 +48,12 @@ import org.opentripplanner.model.calendar.impl.CalendarServiceImpl;
 import org.opentripplanner.model.transfer.TransferService;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers.TransitLayerUpdater;
-import org.opentripplanner.routing.core.intersection_model.IntersectionTraversalCostModel;
-import org.opentripplanner.routing.core.intersection_model.SimpleIntersectionTraversalCostModel;
-import org.opentripplanner.routing.graph.GraphIndex;
 import org.opentripplanner.routing.impl.DelegatingTransitAlertServiceImpl;
-import org.opentripplanner.routing.impl.StreetVertexIndex;
-import org.opentripplanner.routing.services.RealtimeVehiclePositionService;
 import org.opentripplanner.routing.services.TransitAlertService;
-import org.opentripplanner.routing.services.notes.StreetNotesService;
 import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.util.ConcurrentPublished;
 import org.opentripplanner.routing.vehicle_parking.VehicleParkingService;
 import org.opentripplanner.routing.vehicle_rental.VehicleRentalStationService;
-import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.basic.WgsCoordinate;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.framework.TransitEntity;
@@ -92,13 +78,6 @@ public class TransitModel implements Serializable {
   private static final Logger LOG = LoggerFactory.getLogger(TransitModel.class);
 
   private static final long serialVersionUID = 1L;
-
-  public static final DrivingDirection DEFAULT_DRIVING_DIRECTION =
-    DrivingDirection.RIGHT_HAND_TRAFFIC;
-
-  public static final IntersectionTraversalCostModel DEFAULT_INTERSECTION_TRAVERSAL_COST_MODEL = new SimpleIntersectionTraversalCostModel(
-    DEFAULT_DRIVING_DIRECTION
-  );
 
   /**
    * Allows a notice element to be attached to an object in the OTP model by its id and then
@@ -133,7 +112,7 @@ public class TransitModel implements Serializable {
   private long transitServiceEnds = 0;
   private GraphBundle bundle;
   private transient CalendarService calendarService;
-  private transient StreetVertexIndex streetIndex;
+
   public transient TransitModelIndex index;
   private transient TimetableSnapshotProvider timetableSnapshotProvider = null;
   private transient TimeZone timeZone = null;
@@ -156,6 +135,7 @@ public class TransitModel implements Serializable {
   public boolean hasStreets = false;
   /** True if GTFS data was loaded into this Graph. */
   public boolean hasTransit = false;
+
   /** True if direct single-edge transfers were generated between transit stops in this Graph. */
   public boolean hasDirectTransfers = false;
   /**
@@ -167,28 +147,8 @@ public class TransitModel implements Serializable {
    * exact_times = 1).
    */
   public boolean hasScheduledService = false;
-  /**
-   * Have bike parks already been linked to the graph. As the linking happens twice if a base graph
-   * is used, we store information on whether bike park linking should be skipped.
-   */
-  public boolean hasLinkedBikeParks = false;
-  /**
-   * The difference in meters between the WGS84 ellipsoid height and geoid height at the graph's
-   * center
-   */
-  public Double ellipsoidToGeoidDifference = 0.0;
-  /**
-   * Does this graph contain elevation data?
-   */
-  public boolean hasElevation = false;
-  /**
-   * If this graph contains elevation data, the minimum value.
-   */
-  public Double minElevation = null;
-  /**
-   * If this graph contains elevation data, the maximum value.
-   */
-  public Double maxElevation = null;
+
+
   /** Parent stops **/
   public Map<FeedScopedId, Station> stationById = new HashMap<>();
   /**
@@ -210,40 +170,18 @@ public class TransitModel implements Serializable {
   public Map<FeedScopedId, FlexStopLocation> locationsById = new HashMap<>();
   public Map<FeedScopedId, FlexLocationGroup> locationGroupsById = new HashMap<>();
   public Map<FeedScopedId, FlexTrip> flexTripsById = new HashMap<>();
-  /** The distance between elevation samples used in CompactElevationProfile. */
-  private double distanceBetweenElevationSamples;
+
+
   /** Data model for Raptor routing, with realtime updates applied (if any). */
   private transient TransitLayer transitLayer;
   public transient TransitLayerUpdater transitLayerUpdater;
 
   private transient TransitAlertService transitAlertService;
 
-  private transient RealtimeVehiclePositionService vehiclePositionService;
-
-  private DrivingDirection drivingDirection = DEFAULT_DRIVING_DIRECTION;
-
-  private IntersectionTraversalCostModel intersectionTraversalCostModel =
-    DEFAULT_INTERSECTION_TRAVERSAL_COST_MODEL;
-
-  /**
-   * Hack. I've tried three different ways of generating unique labels. Previously we were just
-   * tolerating edge label collisions. For some reason we're repeatedly generating splits on the
-   * same edge objects, despite a comment that said it was guaranteed there would only ever be one
-   * split per edge. This is going to fail as soon as we load a base OSM graph and build transit on
-   * top of it.
-   */
-  public long nextSplitNumber = 0;
-
-  /**
-   * DataOverlay Sandbox module parameter bindings configured in the build-config, and needed when
-   * creating the data overlay context when routing.
-   */
-  public DataOverlayParameterBindings dataOverlayParameterBindings;
 
   public TransitModel(TransitModel basedOn) {
     this();
     this.bundle = basedOn.getBundle();
-    this.drivingDirection = basedOn.drivingDirection;
   }
 
   // Constructor for deserialization.
@@ -393,10 +331,9 @@ public class TransitModel implements Serializable {
   }
 
   /**
-   * Perform indexing on timetables, and create transient data structures. This
-   * used to be done in readObject methods upon deserialization, but stand-alone mode now allows
-   * passing graphs from graphbuilder to server in memory, without a round trip through
-   * serialization.
+   * Perform indexing on timetables, and create transient data structures. This used to be done in
+   * readObject methods upon deserialization, but stand-alone mode now allows passing graphs from
+   * graphbuilder to server in memory, without a round trip through serialization.
    */
   public void index() {
     LOG.info("Index graph...");
@@ -555,27 +492,11 @@ public class TransitModel implements Serializable {
     this.noticesByElement.putAll(noticesByElement);
   }
 
-  public double getDistanceBetweenElevationSamples() {
-    return distanceBetweenElevationSamples;
-  }
-
-  public void setDistanceBetweenElevationSamples(double distanceBetweenElevationSamples) {
-    this.distanceBetweenElevationSamples = distanceBetweenElevationSamples;
-    CompactElevationProfile.setDistanceBetweenSamplesM(distanceBetweenElevationSamples);
-  }
-
   public TransitAlertService getTransitAlertService() {
     if (transitAlertService == null) {
       transitAlertService = new DelegatingTransitAlertServiceImpl(this);
     }
     return transitAlertService;
-  }
-
-  public RealtimeVehiclePositionService getVehiclePositionService() {
-    if (vehiclePositionService == null) {
-      vehiclePositionService = new RealtimeVehiclePositionService();
-    }
-    return vehiclePositionService;
   }
 
   /**
@@ -652,36 +573,6 @@ public class TransitModel implements Serializable {
     return getNoticesByElement().values();
   }
 
-  /** Get all stops within a given bounding box. */
-  public Collection<StopLocation> getStopsByBoundingBox(
-    double minLat,
-    double minLon,
-    double maxLat,
-    double maxLon
-  ) {
-    Envelope envelope = new Envelope(
-      new Coordinate(minLon, minLat),
-      new Coordinate(maxLon, maxLat)
-    );
-    return streetIndex
-      .getTransitStopForEnvelope(envelope)
-      .stream()
-      .map(TransitStopVertex::getStop)
-      .collect(Collectors.toList());
-  }
-
-  /** Get all stops within a given radius. Unit: meters. */
-  public List<T2<Stop, Double>> getStopsInRadius(WgsCoordinate center, double radius) {
-    Coordinate coord = new Coordinate(center.longitude(), center.latitude());
-    return streetIndex
-      .getNearbyTransitStops(coord, radius)
-      .stream()
-      .map(v ->
-        new T2<>(v.getStop(), SphericalDistanceLibrary.fastDistance(v.getCoordinate(), coord))
-      )
-      .filter(t -> t.second < radius)
-      .collect(Collectors.toList());
-  }
 
   public Station getStationById(FeedScopedId id) {
     return stationById.get(id);
@@ -752,24 +643,6 @@ public class TransitModel implements Serializable {
 
   public Collection<PathTransfer> getTransfersByStop(StopLocation stop) {
     return transfersByStop.get(stop);
-  }
-
-  public DrivingDirection getDrivingDirection() {
-    return drivingDirection;
-  }
-
-  public void setDrivingDirection(DrivingDirection drivingDirection) {
-    this.drivingDirection = drivingDirection;
-  }
-
-  public IntersectionTraversalCostModel getIntersectionTraversalModel() {
-    return intersectionTraversalCostModel;
-  }
-
-  public void setIntersectionTraversalCostModel(
-    IntersectionTraversalCostModel intersectionTraversalCostModel
-  ) {
-    this.intersectionTraversalCostModel = intersectionTraversalCostModel;
   }
 
   /**

@@ -79,7 +79,7 @@ public class FlexRouter {
         transitModel.getTimeZone(),
         new AlertToLegMapper(transitModel.getTransitAlertService()),
         graph.streetNotesService,
-        transitModel.ellipsoidToGeoidDifference
+        graph.ellipsoidToGeoidDifference
       );
 
     if (transitModel.hasStreets) {

@@ -14,6 +14,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
+import org.opentripplanner.common.model.T2;
 import org.opentripplanner.ext.flex.FlexIndex;
 import org.opentripplanner.graph_builder.DataImportIssueStore;
 import org.opentripplanner.graph_builder.linking.VertexLinker;
@@ -43,9 +44,11 @@ import org.opentripplanner.routing.vehicle_parking.VehicleParkingService;
 import org.opentripplanner.routing.vehicle_rental.VehicleRentalStationService;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.standalone.server.Router;
+import org.opentripplanner.transit.model.basic.WgsCoordinate;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.site.Stop;
+import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.transit.service.TransitService;
 import org.opentripplanner.util.WorldEnvelope;
@@ -178,18 +181,6 @@ public class RoutingService {
     return this.graph.countEdges();
   }
 
-  // /** {@link Graph#index()} */
-  // public void index() {this.graph.index();}
-
-  /** {@link Graph#getCalendarDataService()} */
-  public CalendarServiceData getCalendarDataService() {
-    return this.graph.getCalendarDataService();
-  }
-
-  /** {@link Graph#clearCachedCalenderService()} */
-  public void clearCachedCalenderService() {
-    this.graph.clearCachedCalenderService();
-  }
 
   /** {@link Graph#getStreetIndex()} */
   public StreetVertexIndex getStreetIndex() {
@@ -206,10 +197,6 @@ public class RoutingService {
     return this.graph.removeEdgelessVertices();
   }
 
-  /** {@link Graph#clearTimeZone()} */
-  public void clearTimeZone() {
-    this.graph.clearTimeZone();
-  }
 
   /** {@link Graph#calculateEnvelope()} */
   public void calculateEnvelope() {
@@ -348,5 +335,20 @@ public class RoutingService {
         routingService,
         transitService
       );
+  }
+
+  /** {@link Graph#getStopsByBoundingBox(double, double, double, double)} */
+  public Collection<StopLocation> getStopsByBoundingBox(
+    double minLat,
+    double minLon,
+    double maxLat,
+    double maxLon
+  ) {
+    return this.graph.getStopsByBoundingBox(minLat, minLon, maxLat, maxLon);
+  }
+
+  /** {@link Graph#getStopsInRadius(WgsCoordinate, double)} */
+  public List<T2<Stop, Double>> getStopsInRadius(WgsCoordinate center, double radius) {
+    return this.graph.getStopsInRadius(center, radius);
   }
 }

@@ -657,7 +657,7 @@ public class TransmodelGraphQLSchema {
           )
           .dataFetcher(environment -> {
             return GqlUtil
-              .getTransitService(environment)
+              .getRoutingService(environment)
               .getStopsByBoundingBox(
                 environment.getArgument("minimumLatitude"),
                 environment.getArgument("minimumLongitude"),

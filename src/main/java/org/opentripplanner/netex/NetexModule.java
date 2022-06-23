@@ -66,7 +66,7 @@ public class NetexModule implements GraphBuilderModule {
     HashMap<Class<?>, Object> extra,
     DataImportIssueStore issueStore
   ) {
-    graph.clearTimeZone();
+    transitModel.clearTimeZone();
     CalendarServiceData calendarServiceData = graph.getCalendarDataService();
     boolean hasTransit = false;
     try {
@@ -118,7 +118,7 @@ public class NetexModule implements GraphBuilderModule {
       throw new RuntimeException(e);
     }
 
-    graph.clearCachedCalenderService();
+    transitModel.clearCachedCalenderService();
     graph.putService(CalendarServiceData.class, calendarServiceData);
     transitModel.updateTransitFeedValidity(calendarServiceData, issueStore);
 

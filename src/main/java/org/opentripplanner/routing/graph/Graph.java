@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
@@ -31,9 +30,7 @@ import org.opentripplanner.graph_builder.linking.VertexLinker;
 import org.opentripplanner.graph_builder.module.osm.WayPropertySetSource.DrivingDirection;
 import org.opentripplanner.model.FeedInfo;
 import org.opentripplanner.model.GraphBundle;
-import org.opentripplanner.model.calendar.CalendarService;
 import org.opentripplanner.model.calendar.CalendarServiceData;
-import org.opentripplanner.model.calendar.impl.CalendarServiceImpl;
 import org.opentripplanner.routing.core.intersection_model.IntersectionTraversalCostModel;
 import org.opentripplanner.routing.core.intersection_model.SimpleIntersectionTraversalCostModel;
 import org.opentripplanner.routing.edgetype.StreetEdge;
@@ -88,10 +85,10 @@ public class Graph implements Serializable {
   /** Pre-generated transfers between all stops. */
 
   private GraphBundle bundle;
-  private transient CalendarService calendarService;
+
   private transient StreetVertexIndex streetIndex;
   public transient GraphIndex index;
-  private transient TimeZone timeZone = null;
+
   //Envelope of all OSM and transit vertices. Calculated during build time
   private WorldEnvelope envelope = null;
   //ConvexHull of all the graph vertices. Generated at Graph build time.
@@ -110,16 +107,11 @@ public class Graph implements Serializable {
   /** True if GTFS data was loaded into this Graph. */
   public boolean hasTransit = false;
   /** True if direct single-edge transfers were generated between transit stops in this Graph. */
+  /**
+   * TODO migration
+   */
   public boolean hasDirectTransfers = false;
-  /**
-   * True if frequency-based services exist in this Graph (GTFS frequencies with exact_times = 0).
-   */
-  public boolean hasFrequencyService = false;
-  /**
-   * True if schedule-based services exist in this Graph (including GTFS frequencies with
-   * exact_times = 1).
-   */
-  public boolean hasScheduledService = false;
+
   /**
    * Have bike parks already been linked to the graph. As the linking happens twice if a base graph
    * is used, we store information on whether bike park linking should be skipped.
@@ -384,21 +376,10 @@ public class Graph implements Serializable {
    */
   public void index() {
     LOG.info("Index graph...");
-    streetIndex = new StreetVertexIndex(this);
+    streetIndex = new StreetVertexIndex(this, transitModel);
     LOG.debug("Rebuilding edge and vertex indices.");
-    // TODO: Move this ^ stuff into the graph index
-    this.index = new GraphIndex(this);
+    index = new GraphIndex(this);
     LOG.info("Index graph complete.");
-  }
-
-  public CalendarService getCalendarService() {
-    if (calendarService == null) {
-      CalendarServiceData data = this.getService(CalendarServiceData.class);
-      if (data != null) {
-        this.calendarService = new CalendarServiceImpl(data);
-      }
-    }
-    return this.calendarService;
   }
 
   public CalendarServiceData getCalendarDataService() {
@@ -411,13 +392,9 @@ public class Graph implements Serializable {
     return calendarServiceData;
   }
 
-  public void clearCachedCalenderService() {
-    this.calendarService = null;
-  }
-
   public StreetVertexIndex getStreetIndex() {
     if (this.streetIndex == null) {
-      streetIndex = new StreetVertexIndex(this);
+      streetIndex = new StreetVertexIndex(this, transitModel);
     }
     return this.streetIndex;
   }
@@ -454,14 +431,6 @@ public class Graph implements Serializable {
 
   public void addFeedInfo(FeedInfo info) {
     this.feedInfoForId.put(info.getId(), info);
-  }
-
-  /**
-   * The timezone is cached by the graph. If you've done something to the graph that has the
-   * potential to change the time zone, you should call this to ensure it is reset.
-   */
-  public void clearTimeZone() {
-    this.timeZone = null;
   }
 
   /**
@@ -572,6 +541,7 @@ public class Graph implements Serializable {
 
     return stops.stream().map(index.getStopVertexForStop()::get).collect(Collectors.toSet());
   }
+
 
   public VehicleRentalStationService getVehicleRentalStationService() {
     return getService(VehicleRentalStationService.class);

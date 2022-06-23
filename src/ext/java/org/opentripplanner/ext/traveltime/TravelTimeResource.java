@@ -259,6 +259,7 @@ public class TravelTimeResource {
   ) {
     final Collection<NearbyStop> accessStops = AccessEgressRouter.streetSearch(
       new RoutingContext(accessRequest, router.graph, temporaryVertices),
+      router.transitModel,
       routingRequest.modes.accessMode,
       false
     );

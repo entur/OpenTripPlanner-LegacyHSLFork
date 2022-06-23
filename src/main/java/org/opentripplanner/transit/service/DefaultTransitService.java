@@ -139,22 +139,6 @@ public class DefaultTransitService implements TransitEditorService {
     return this.transitModel.getNotices();
   }
 
-  /** {@link TransitModel#getStopsByBoundingBox(double, double, double, double)} */
-  @Override
-  public Collection<StopLocation> getStopsByBoundingBox(
-    double minLat,
-    double minLon,
-    double maxLat,
-    double maxLon
-  ) {
-    return this.transitModel.getStopsByBoundingBox(minLat, minLon, maxLat, maxLon);
-  }
-
-  /** {@link TransitModel#getStopsInRadius(WgsCoordinate, double)} */
-  @Override
-  public List<T2<Stop, Double>> getStopsInRadius(WgsCoordinate center, double radius) {
-    return this.transitModel.getStopsInRadius(center, radius);
-  }
 
   /** {@link TransitModel#getStationById(FeedScopedId)} */
   @Override
@@ -397,17 +381,17 @@ public class DefaultTransitService implements TransitEditorService {
 
   @Override
   public Collection<GroupOfRoutes> getGroupsOfRoutes() {
-    return graphIndex.getRoutesForGroupOfRoutes().keySet();
+    return transitModelIndex.getRoutesForGroupOfRoutes().keySet();
   }
 
   @Override
   public Collection<Route> getRoutesForGroupOfRoutes(GroupOfRoutes groupOfRoutes) {
-    return graphIndex.getRoutesForGroupOfRoutes().get(groupOfRoutes);
+    return transitModelIndex.getRoutesForGroupOfRoutes().get(groupOfRoutes);
   }
 
   @Override
   public GroupOfRoutes getGroupOfRoutesForId(FeedScopedId id) {
-    return graphIndex.getGroupOfRoutesForId().get(id);
+    return transitModelIndex.getGroupOfRoutesForId().get(id);
   }
 
   /**

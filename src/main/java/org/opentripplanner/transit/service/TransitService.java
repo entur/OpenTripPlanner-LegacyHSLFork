@@ -62,15 +62,6 @@ public interface TransitService {
 
   Collection<Notice> getNotices();
 
-  Collection<StopLocation> getStopsByBoundingBox(
-    double minLat,
-    double minLon,
-    double maxLat,
-    double maxLon
-  );
-
-  List<T2<Stop, Double>> getStopsInRadius(WgsCoordinate center, double radius);
-
   Station getStationById(FeedScopedId id);
 
   MultiModalStation getMultiModalStation(FeedScopedId id);

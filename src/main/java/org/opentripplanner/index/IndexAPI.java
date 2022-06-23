@@ -202,7 +202,7 @@ public class IndexAPI {
 
       radius = Math.min(radius, MAX_STOP_SEARCH_RADIUS);
 
-      return createTransitService()
+      return createRoutingService()
         .getStopsInRadius(new WgsCoordinate(lat, lon), radius)
         .stream()
         .map(it -> StopMapper.mapToApiShort(it.first, it.second.intValue()))
@@ -217,7 +217,7 @@ public class IndexAPI {
         .lessThan("minLat", minLat, "maxLat", maxLat)
         .lessThan("minLon", minLon, "maxLon", maxLon)
         .validate();
-      var stops = createTransitService().getStopsByBoundingBox(minLat, minLon, maxLat, maxLon);
+      var stops = createRoutingService().getStopsByBoundingBox(minLat, minLon, maxLat, maxLon);
       return StopMapper.mapToApiShort(stops);
     }
   }

@@ -35,11 +35,13 @@ public class DirectFlexRouter {
       // Prepare access/egress transfers
       Collection<NearbyStop> accessStops = AccessEgressRouter.streetSearch(
         routingContext,
+        router.transitModel,
         StreetMode.WALK,
         false
       );
       Collection<NearbyStop> egressStops = AccessEgressRouter.streetSearch(
         routingContext,
+        router.transitModel,
         StreetMode.WALK,
         true
       );

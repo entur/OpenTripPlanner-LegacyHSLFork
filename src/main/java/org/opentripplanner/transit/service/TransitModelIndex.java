@@ -29,6 +29,7 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
+import org.opentripplanner.transit.model.network.GroupOfRoutes;
 import org.opentripplanner.transit.model.network.Route;
 import org.opentripplanner.transit.model.organization.Agency;
 import org.opentripplanner.transit.model.organization.Operator;
@@ -60,11 +61,14 @@ public class TransitModelIndex {
   private final Map<ServiceDate, TIntSet> serviceCodesRunningForDate = new HashMap<>();
   private final Map<FeedScopedId, TripOnServiceDate> tripOnServiceDateById = new HashMap<>();
   private final Map<TripIdAndServiceDate, TripOnServiceDate> tripOnServiceDateForTripAndDay = new HashMap<>();
+
+  private final Multimap<GroupOfRoutes, Route> routesForGroupOfRoutes = ArrayListMultimap.create();
+
+  private final Map<FeedScopedId, GroupOfRoutes> groupOfRoutesForId = new HashMap<>();
   private FlexIndex flexIndex = null;
 
   public TransitModelIndex(TransitModel transitModel) {
     LOG.info("GraphIndex init...");
-    CompactElevationProfile.setDistanceBetweenSamplesM(transitModel.getDistanceBetweenElevationSamples());
 
     for (Agency agency : transitModel.getAgencies()) {
       this.agencyForId.put(agency.getId(), agency);
@@ -103,6 +107,12 @@ public class TransitModelIndex {
     }
     for (Route route : patternsForRoute.asMap().keySet()) {
       routeForId.put(route.getId(), route);
+      for (GroupOfRoutes groupOfRoutes : route.getGroupsOfRoutes()) {
+        routesForGroupOfRoutes.put(groupOfRoutes, route);
+      }
+    }
+    for (GroupOfRoutes groupOfRoutes : routesForGroupOfRoutes.keySet()) {
+      groupOfRoutesForId.put(groupOfRoutes.getId(), groupOfRoutes);
     }
     for (MultiModalStation multiModalStation : transitModel.multiModalStationById.values()) {
       for (Station childStation : multiModalStation.getChildStations()) {
@@ -294,4 +304,13 @@ public class TransitModelIndex {
       serviceCodesRunningForDate.put(serviceDate, serviceCodesRunning);
     }
   }
+
+  public Multimap<GroupOfRoutes, Route> getRoutesForGroupOfRoutes() {
+    return routesForGroupOfRoutes;
+  }
+
+  public Map<FeedScopedId, GroupOfRoutes> getGroupOfRoutesForId() {
+    return groupOfRoutesForId;
+  }
+
 }

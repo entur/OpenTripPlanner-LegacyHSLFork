@@ -223,7 +223,7 @@ public class TransitRouter {
         accessRequest.allowKeepingRentedVehicleAtDestination = false;
       }
 
-      var nearbyStops = AccessEgressRouter.streetSearch(routingContext, mode, isEgress);
+      var nearbyStops = AccessEgressRouter.streetSearch(routingContext, router.transitModel, mode, isEgress);
 
       results.addAll(accessEgressMapper.mapNearbyStops(nearbyStops, isEgress));
 
@@ -231,6 +231,7 @@ public class TransitRouter {
       if (OTPFeature.FlexRouting.isOn() && mode == StreetMode.FLEXIBLE) {
         var flexAccessList = FlexAccessEgressRouter.routeAccessEgress(
           routingContext,
+          router.transitModel,
           additionalSearchDays,
           router.routerConfig.flexParameters(request),
           isEgress

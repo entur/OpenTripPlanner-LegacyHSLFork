@@ -193,7 +193,7 @@ class LegacyGraphQLIndex {
     LegacyGraphQLRequestContext requestContext = new LegacyGraphQLRequestContext(
       router,
       new RoutingService(router.graph),
-      new DefaultTransitService(router.graph)
+      new DefaultTransitService(router.transitModel)
     );
 
     ExecutionInput executionInput = ExecutionInput

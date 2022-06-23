@@ -228,7 +228,7 @@ public class LegacyGraphQLRouteImpl implements LegacyGraphQLDataFetchers.LegacyG
   }
 
   private TransitAlertService getAlertService(DataFetchingEnvironment environment) {
-    return getRoutingService(environment).getTransitAlertService();
+    return getTransitService(environment).getTransitAlertService();
   }
 
   private RoutingService getRoutingService(DataFetchingEnvironment environment) {

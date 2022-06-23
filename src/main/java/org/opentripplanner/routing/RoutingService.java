@@ -113,21 +113,6 @@ public class RoutingService {
     return this.graph.getStreetEdges();
   }
 
-  /** {@link Graph#getRealtimeTransitLayer()} */
-  public TransitLayer getRealtimeTransitLayer() {
-    return this.graph.getRealtimeTransitLayer();
-  }
-
-  /** {@link Graph#setRealtimeTransitLayer(TransitLayer)} */
-  public void setRealtimeTransitLayer(TransitLayer realtimeTransitLayer) {
-    this.graph.setRealtimeTransitLayer(realtimeTransitLayer);
-  }
-
-  /** {@link Graph#hasRealtimeTransitLayer()} */
-  public boolean hasRealtimeTransitLayer() {
-    return this.graph.hasRealtimeTransitLayer();
-  }
-
   /** {@link Graph#containsVertex(Vertex)} */
   public boolean containsVertex(Vertex v) {
     return this.graph.containsVertex(v);
@@ -168,20 +153,6 @@ public class RoutingService {
     return this.graph.getExtent();
   }
 
-  /** {@link Graph#getTransferService()} */
-  public TransferService getTransferService() {
-    return this.graph.getTransferService();
-  }
-
-  /** {@link Graph#updateTransitFeedValidity(CalendarServiceData, DataImportIssueStore)} */
-  public void updateTransitFeedValidity(CalendarServiceData data, DataImportIssueStore issueStore) {
-    this.graph.updateTransitFeedValidity(data, issueStore);
-  }
-
-  /** {@link Graph#transitFeedCovers(Instant)} */
-  public boolean transitFeedCovers(Instant time) {
-    return this.graph.transitFeedCovers(time);
-  }
 
   /** {@link Graph#getBundle()} */
   public GraphBundle getBundle() {
@@ -226,19 +197,9 @@ public class RoutingService {
     return this.graph.getLinker();
   }
 
-  /** {@link Graph#getOrCreateServiceIdForDate(ServiceDate)} */
-  public FeedScopedId getOrCreateServiceIdForDate(ServiceDate serviceDate) {
-    return this.graph.getOrCreateServiceIdForDate(serviceDate);
-  }
-
   /** {@link Graph#removeEdgelessVertices()} */
   public int removeEdgelessVertices() {
     return this.graph.removeEdgelessVertices();
-  }
-
-  /** {@link Graph#getTimeZone()} */
-  public TimeZone getTimeZone() {
-    return this.graph.getTimeZone();
   }
 
   /** {@link Graph#clearTimeZone()} */
@@ -281,16 +242,6 @@ public class RoutingService {
     return this.graph.getCenter();
   }
 
-  /** {@link Graph#getTransitServiceStarts()} */
-  public long getTransitServiceStarts() {
-    return this.graph.getTransitServiceStarts();
-  }
-
-  /** {@link Graph#getTransitServiceEnds()} */
-  public long getTransitServiceEnds() {
-    return this.graph.getTransitServiceEnds();
-  }
-
   /** {@link Graph#getDistanceBetweenElevationSamples()} */
   public double getDistanceBetweenElevationSamples() {
     return this.graph.getDistanceBetweenElevationSamples();
@@ -301,10 +252,7 @@ public class RoutingService {
     this.graph.setDistanceBetweenElevationSamples(distanceBetweenElevationSamples);
   }
 
-  /** {@link Graph#getTransitAlertService()} */
-  public TransitAlertService getTransitAlertService() {
-    return this.graph.getTransitAlertService();
-  }
+
 
   public RealtimeVehiclePositionService getVehiclePositionService() {
     return this.graph.getVehiclePositionService();
@@ -313,11 +261,6 @@ public class RoutingService {
   /** {@link Graph#getStopVerticesById(FeedScopedId)} */
   public Set<Vertex> getStopVerticesById(FeedScopedId id) {
     return this.graph.getStopVerticesById(id);
-  }
-
-  /** {@link Graph#getServicesRunningForDate(ServiceDate)} */
-  public BitSet getServicesRunningForDate(ServiceDate date) {
-    return this.graph.getServicesRunningForDate(date);
   }
 
   /** {@link Graph#getVehicleRentalStationService()} */
@@ -362,15 +305,7 @@ public class RoutingService {
     return this.graphIndex.getStopSpatialIndex();
   }
 
-  /** {@link GraphIndex#getServiceCodesRunningForDate()} */
-  public Map<ServiceDate, TIntSet> getServiceCodesRunningForDate() {
-    return this.graphIndex.getServiceCodesRunningForDate();
-  }
 
-  /** {@link GraphIndex#getFlexIndex()} */
-  public FlexIndex getFlexIndex() {
-    return this.graphIndex.getFlexIndex();
-  }
 
   /** {@link GraphFinder#findClosestStops(double, double, double)} */
   public List<NearbyStop> findClosestStops(double lat, double lon, double radiusMeters) {

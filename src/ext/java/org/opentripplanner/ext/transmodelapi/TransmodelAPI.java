@@ -33,6 +33,7 @@ import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.standalone.server.OTPServer;
 import org.opentripplanner.standalone.server.Router;
+import org.opentripplanner.transit.service.TransitModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,14 +73,14 @@ public class TransmodelAPI {
    */
   public static void setUp(
     TransmodelAPIParameters config,
-    Graph graph,
+    TransitModel transitModel,
     RoutingRequest defaultRoutingRequest
   ) {
     if (config.hideFeedId()) {
-      TransitIdMapper.setupFixedFeedId(graph.getAgencies());
+      TransitIdMapper.setupFixedFeedId(transitModel.getAgencies());
     }
     tracingHeaderTags = config.tracingHeaderTags();
-    GqlUtil gqlUtil = new GqlUtil(graph.getTimeZone());
+    GqlUtil gqlUtil = new GqlUtil(transitModel.getTimeZone());
     schema = TransmodelGraphQLSchema.create(defaultRoutingRequest, gqlUtil);
   }
 

@@ -84,7 +84,7 @@ public class GtfsRealtimeFuzzyTripMatcher {
     if (!date.equals(this.date)) {
       this.date = date;
       // TODO: This is slow, we should either precalculate or cache these for all dates in graph
-      this.servicesRunningForDate = routingService.getServicesRunningForDate(date);
+      this.servicesRunningForDate = transitService.getServicesRunningForDate(date);
     }
     for (TripPattern pattern : transitService.getPatternsForRoute().get(route)) {
       if (pattern.getDirection().gtfsCode != direction) continue;

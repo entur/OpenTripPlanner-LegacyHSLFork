@@ -46,7 +46,7 @@ public class OTPServer {
   }
 
   public TransitService createTransitRequestService() {
-    return new DefaultTransitService(router.graph);
+    return new DefaultTransitService(router.transitModel);
   }
 
   /**

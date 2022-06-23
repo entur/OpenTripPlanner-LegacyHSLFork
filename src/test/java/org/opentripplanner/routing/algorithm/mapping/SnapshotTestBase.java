@@ -38,7 +38,6 @@ import org.opentripplanner.api.parameter.ApiRequestMode;
 import org.opentripplanner.api.parameter.QualifiedMode;
 import org.opentripplanner.api.parameter.Qualifier;
 import org.opentripplanner.model.GenericLocation;
-import org.opentripplanner.model.modes.AllowTransitModeFilter;
 import org.opentripplanner.model.plan.Itinerary;
 import org.opentripplanner.model.plan.Leg;
 import org.opentripplanner.routing.RoutingService;
@@ -84,7 +83,7 @@ public abstract class SnapshotTestBase {
     if (router == null) {
       Graph graph = getGraph();
 
-      router = new Router(graph, RouterConfig.DEFAULT, Metrics.globalRegistry);
+      router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
       router.startup();
     }
 

@@ -17,6 +17,7 @@ import org.opentripplanner.routing.fares.FareServiceFactory;
 import org.opentripplanner.routing.fares.impl.DefaultFareServiceFactory;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.standalone.config.BuildConfig;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.OTPFeature;
 
 /**
@@ -61,6 +62,7 @@ public class NetexModule implements GraphBuilderModule {
   @Override
   public void buildGraph(
     Graph graph,
+    TransitModel transitModel,
     HashMap<Class<?>, Object> extra,
     DataImportIssueStore issueStore
   ) {
@@ -79,7 +81,7 @@ public class NetexModule implements GraphBuilderModule {
         for (TripOnServiceDate tripOnServiceDate : transitBuilder
           .getTripOnServiceDates()
           .values()) {
-          graph.getTripOnServiceDates().put(tripOnServiceDate.getId(), tripOnServiceDate);
+          transitModel.getTripOnServiceDates().put(tripOnServiceDate.getId(), tripOnServiceDate);
         }
         calendarServiceData.add(transitBuilder.buildCalendarServiceData());
 
@@ -97,12 +99,12 @@ public class NetexModule implements GraphBuilderModule {
         // TODO OTP2 - Move this into the AddTransitModelEntitiesToGraph
         //           - and make sure thay also work with GTFS feeds - GTFS do no
         //           - have operators and notice assignments.
-        graph.getOperators().addAll(otpService.getAllOperators());
-        graph.addNoticeAssignments(otpService.getNoticeAssignments());
+        transitModel.getOperators().addAll(otpService.getAllOperators());
+        transitModel.addNoticeAssignments(otpService.getNoticeAssignments());
 
         GtfsFeedId feedId = new GtfsFeedId.Builder().id(netexFeedId).build();
 
-        AddTransitModelEntitiesToGraph.addToGraph(feedId, otpService, subwayAccessTime, graph);
+        AddTransitModelEntitiesToGraph.addToGraph(feedId, otpService, subwayAccessTime, graph, transitModel);
 
         new GeometryAndBlockProcessor(
           otpService,
@@ -110,7 +112,7 @@ public class NetexModule implements GraphBuilderModule {
           maxStopToShapeSnapDistance,
           maxInterlineDistance
         )
-          .run(graph, issueStore);
+          .run(graph, transitModel, issueStore);
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -118,7 +120,7 @@ public class NetexModule implements GraphBuilderModule {
 
     graph.clearCachedCalenderService();
     graph.putService(CalendarServiceData.class, calendarServiceData);
-    graph.updateTransitFeedValidity(calendarServiceData, issueStore);
+    transitModel.updateTransitFeedValidity(calendarServiceData, issueStore);
 
     // If the graph's hasTransit flag isn't set to true already, set it based on this module's run
     graph.hasTransit = graph.hasTransit || hasTransit;

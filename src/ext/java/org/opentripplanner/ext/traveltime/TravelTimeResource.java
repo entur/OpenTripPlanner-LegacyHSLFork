@@ -108,7 +108,7 @@ public class TravelTimeResource {
   ) {
     start = System.currentTimeMillis();
     router = otpServer.getRouter();
-    transitLayer = router.graph.getRealtimeTransitLayer();
+    transitLayer = router.transitModel.getRealtimeTransitLayer();
     ZoneId zoneId = transitLayer.getTransitDataZoneId();
     routingRequest = router.copyDefaultRoutingRequest();
     routingRequest.from = LocationStringParser.fromOldStyleString(location);
@@ -137,12 +137,12 @@ public class TravelTimeResource {
 
     requestTransitDataProvider =
       new RaptorRoutingRequestTransitData(
-        router.graph.getTransferService(),
+        router.transitModel.getTransferService(),
         transitLayer,
         startOfTime,
         0,
         (int) Period.between(startDate, endDate).get(ChronoUnit.DAYS),
-        new RoutingRequestTransitDataProviderFilter(routingRequest, router.graph.index),
+        new RoutingRequestTransitDataProviderFilter(routingRequest, router.transitModel.index),
         new RoutingContext(transferRoutingRequest, router.graph, (Vertex) null, null)
       );
   }

@@ -42,6 +42,7 @@ import org.opentripplanner.routing.fares.FareServiceFactory;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.standalone.config.BuildConfig;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.OTPFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +88,7 @@ public class GtfsModule implements GraphBuilderModule {
   @Override
   public void buildGraph(
     Graph graph,
+    TransitModel transitModel,
     HashMap<Class<?>, Object> extra,
     DataImportIssueStore issueStore
   ) {
@@ -129,14 +131,14 @@ public class GtfsModule implements GraphBuilderModule {
         // NB! The calls below have side effects - the builder state is updated!
         createTripPatterns(graph, builder, calendarServiceData.getServiceIds());
 
-        OtpTransitService transitModel = builder.build();
+        OtpTransitService otpTransitService = builder.build();
 
         // if this or previously processed gtfs bundle has transit that has not been filtered out
-        hasTransit = hasTransit || transitModel.hasActiveTransit();
+        hasTransit = hasTransit || otpTransitService.hasActiveTransit();
 
-        addTransitModelToGraph(graph, gtfsBundle, transitModel);
+        addTransitModelToGraph(graph, transitModel, gtfsBundle, otpTransitService);
 
-        createGeometryAndBlockProcessor(gtfsBundle, transitModel).run(graph, issueStore);
+        createGeometryAndBlockProcessor(gtfsBundle, otpTransitService).run(graph, transitModel, issueStore);
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -152,7 +154,7 @@ public class GtfsModule implements GraphBuilderModule {
       org.opentripplanner.model.calendar.CalendarServiceData.class,
       calendarServiceData
     );
-    graph.updateTransitFeedValidity(calendarServiceData, issueStore);
+    transitModel.updateTransitFeedValidity(calendarServiceData, issueStore);
 
     // If the graph's hasTransit flag isn't set to true already, set it based on this module's run
     graph.hasTransit = graph.hasTransit || hasTransit;
@@ -196,14 +198,16 @@ public class GtfsModule implements GraphBuilderModule {
 
   private void addTransitModelToGraph(
     Graph graph,
+    TransitModel transitModel,
     GtfsBundle gtfsBundle,
-    OtpTransitService transitModel
+    OtpTransitService otpTransitService
   ) {
     AddTransitModelEntitiesToGraph.addToGraph(
       gtfsBundle.getFeedId(),
-      transitModel,
+      otpTransitService,
       gtfsBundle.subwayAccessTime,
-      graph
+      graph,
+      transitModel
     );
   }
 

@@ -37,6 +37,9 @@ import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.standalone.config.BuildConfig;
 import org.opentripplanner.standalone.config.S3BucketConfig;
+import org.opentripplanner.transit.service.DefaultTransitService;
+import org.opentripplanner.transit.service.TransitEditorService;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.OTPFeature;
 import org.opentripplanner.util.OtpAppException;
 import org.slf4j.Logger;
@@ -54,10 +57,13 @@ public class GraphBuilder implements Runnable {
 
   private final Graph graph;
 
+  private final TransitModel transitModel;
+
   private boolean hasTransitData = false;
 
   private GraphBuilder(Graph baseGraph) {
     this.graph = baseGraph == null ? new Graph() : baseGraph;
+    this.transitModel = new TransitModel();
   }
 
   /**
@@ -254,7 +260,7 @@ public class GraphBuilder implements Runnable {
     HashMap<Class<?>, Object> extra = new HashMap<>();
 
     for (GraphBuilderModule load : graphBuilderModules) {
-      load.buildGraph(graph, extra, issueStore);
+      load.buildGraph(graph, transitModel, extra, issueStore);
     }
     issueStore.summarize();
     validate();

@@ -30,6 +30,7 @@ import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.LocalizedString;
 import org.opentripplanner.util.NonLocalizedString;
@@ -49,6 +50,9 @@ public class StreetVertexIndex {
 
   private static final Logger LOG = LoggerFactory.getLogger(StreetVertexIndex.class);
   private final Graph graph;
+
+  private final TransitModel transitModel;
+
   private final VertexLinker vertexLinker;
   /**
    * Contains only instances of {@link StreetEdge}
@@ -60,12 +64,13 @@ public class StreetVertexIndex {
   /**
    * Should only be called by the graph.
    */
-  public StreetVertexIndex(Graph graph) {
+  public StreetVertexIndex(Graph graph, TransitModel transitModel) {
     this.graph = graph;
+    this.transitModel = transitModel;
     edgeTree = new HashGridSpatialIndex<>();
     transitStopTree = new HashGridSpatialIndex<>();
     verticesTree = new HashGridSpatialIndex<>();
-    vertexLinker = new VertexLinker(this.graph);
+    vertexLinker = new VertexLinker(graph, transitModel);
     postSetup();
   }
 
@@ -210,7 +215,7 @@ public class StreetVertexIndex {
     if (nonTransitMode.isDriving()) {
       // Fetch coordinate from stop, if not given in request
       if (location.stopId != null && location.getCoordinate() == null) {
-        var coordinate = graph.getCoordinateById(location.stopId);
+        var coordinate = transitModel.getCoordinateById(location.stopId);
         if (coordinate != null) {
           location =
             new GenericLocation(

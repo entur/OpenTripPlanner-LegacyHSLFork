@@ -42,7 +42,7 @@ class VehicleParkingUpdaterTest {
 
     var parameters = new VehicleParkingUpdaterParameters(null, -1, null);
     vehicleParkingUpdater = new VehicleParkingUpdater(parameters, dataSource);
-    vehicleParkingUpdater.setup(graph);
+    vehicleParkingUpdater.setup(graph, );
   }
 
   @Test

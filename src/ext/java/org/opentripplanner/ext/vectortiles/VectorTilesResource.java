@@ -31,12 +31,13 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.standalone.config.VectorTileConfig;
 import org.opentripplanner.standalone.server.OTPServer;
 import org.opentripplanner.standalone.server.Router;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.WorldEnvelope;
 
 @Path("/routers/{ignoreRouterId}/vectorTiles")
 public class VectorTilesResource {
 
-  private static final Map<LayerType, BiFunction<Graph, LayerParameters, LayerBuilder>> layers = new HashMap<>();
+  private static final Map<LayerType, LayerBuilderFactory> layers = new HashMap<>();
   private final OTPServer otpServer;
   private final String ignoreRouterId;
 
@@ -92,7 +93,7 @@ public class VectorTilesResource {
         mvtBuilder.addLayers(
           VectorTilesResource.layers
             .get(LayerType.valueOf(layerParameters.type()))
-            .apply(router.graph, layerParameters)
+            .create(router.graph, router.transitModel, layerParameters)
             .build(envelope, layerParameters)
         );
       }

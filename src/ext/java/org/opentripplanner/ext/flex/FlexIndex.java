@@ -15,6 +15,7 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.network.Route;
 import org.opentripplanner.transit.model.site.StopLocation;
+import org.opentripplanner.transit.service.TransitModel;
 
 public class FlexIndex {
 
@@ -30,11 +31,11 @@ public class FlexIndex {
 
   public Map<FeedScopedId, FlexTrip> tripById = new HashMap<>();
 
-  public FlexIndex(Graph graph) {
-    for (PathTransfer transfer : graph.transfersByStop.values()) {
+  public FlexIndex(TransitModel transitModel) {
+    for (PathTransfer transfer : transitModel.transfersByStop.values()) {
       transfersToStop.put(transfer.to, transfer);
     }
-    for (FlexTrip flexTrip : graph.flexTripsById.values()) {
+    for (FlexTrip flexTrip : transitModel.flexTripsById.values()) {
       routeById.put(flexTrip.getTrip().getRoute().getId(), flexTrip.getTrip().getRoute());
       tripById.put(flexTrip.getTrip().getId(), flexTrip);
       for (StopLocation stop : flexTrip.getStops()) {
@@ -47,12 +48,12 @@ public class FlexIndex {
         }
       }
     }
-    for (FlexLocationGroup flexLocationGroup : graph.locationGroupsById.values()) {
+    for (FlexLocationGroup flexLocationGroup : transitModel.locationGroupsById.values()) {
       for (StopLocation stop : flexLocationGroup.getLocations()) {
         locationGroupsByStop.put(stop, flexLocationGroup);
       }
     }
-    for (FlexStopLocation flexStopLocation : graph.locationsById.values()) {
+    for (FlexStopLocation flexStopLocation : transitModel.locationsById.values()) {
       locationIndex.insert(flexStopLocation.getGeometry().getEnvelopeInternal(), flexStopLocation);
     }
   }

@@ -43,6 +43,7 @@ import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.TestUtils;
 
 /**
@@ -52,6 +53,8 @@ import org.opentripplanner.util.TestUtils;
 public class GeometryAndBlockProcessorTest {
 
   private Graph graph;
+  private TransitModel transitModel;
+
   private GtfsContext context;
   private String feedId;
   private DataImportIssueStore issueStore;
@@ -59,6 +62,7 @@ public class GeometryAndBlockProcessorTest {
   @BeforeEach
   public void setUp() throws Exception {
     graph = new Graph();
+    transitModel = new TransitModel();
 
     this.issueStore = new DataImportIssueStore(true);
 
@@ -67,7 +71,7 @@ public class GeometryAndBlockProcessorTest {
 
     feedId = context.getFeedId().getId();
     GeometryAndBlockProcessor factory = new GeometryAndBlockProcessor(context);
-    factory.run(graph, issueStore);
+    factory.run(graph, transitModel, issueStore);
     graph.putService(CalendarServiceData.class, context.getCalendarServiceData());
 
     String[] stops = {
@@ -129,7 +133,7 @@ public class GeometryAndBlockProcessorTest {
     //Linkers aren't run otherwise
     graph.hasStreets = true;
     graph.hasTransit = true;
-    ttsnm.buildGraph(graph, new HashMap<>());
+    ttsnm.buildGraph(graph, new TransitModel(), new HashMap<>());
   }
 
   @Test

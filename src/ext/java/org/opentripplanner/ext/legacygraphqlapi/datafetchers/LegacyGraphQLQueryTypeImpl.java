@@ -95,7 +95,7 @@ public class LegacyGraphQLQueryTypeImpl
   @Override
   public DataFetcher<Iterable<TransitAlert>> alerts() {
     return environment -> {
-      Collection<TransitAlert> alerts = getRoutingService(environment)
+      Collection<TransitAlert> alerts = getTransitService(environment)
         .getTransitAlertService()
         .getAllAlerts();
       var args = new LegacyGraphQLTypes.LegacyGraphQLQueryTypeAlertsArgs(
@@ -598,7 +598,7 @@ public class LegacyGraphQLQueryTypeImpl
       request.setDateTime(
         environment.getArgument("date"),
         environment.getArgument("time"),
-        context.getRouter().graph.getTimeZone()
+        context.getRouter().transitModel.getTimeZone()
       );
 
       callWith.argument("wheelchair", request::setWheelchairAccessible);

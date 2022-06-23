@@ -9,6 +9,7 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.impl.TransitAlertServiceImpl;
 import org.opentripplanner.routing.services.TransitAlertService;
 import org.opentripplanner.transit.service.DefaultTransitService;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.updater.GtfsRealtimeFuzzyTripMatcher;
 import org.opentripplanner.updater.PollingGraphUpdater;
 import org.opentripplanner.updater.WriteToGraphCallback;
@@ -62,13 +63,13 @@ public class GtfsRealtimeAlertsUpdater extends PollingGraphUpdater implements Tr
   }
 
   @Override
-  public void setup(Graph graph) {
-    TransitAlertService transitAlertService = new TransitAlertServiceImpl(graph);
+  public void setup(Graph graph, TransitModel transitModel) {
+    TransitAlertService transitAlertService = new TransitAlertServiceImpl(transitModel);
     if (fuzzyTripMatching) {
       this.fuzzyTripMatcher =
         new GtfsRealtimeFuzzyTripMatcher(
           new RoutingService(graph),
-          new DefaultTransitService(graph)
+          new DefaultTransitService(transitModel)
         );
     }
     this.transitAlertService = transitAlertService;
@@ -119,7 +120,7 @@ public class GtfsRealtimeAlertsUpdater extends PollingGraphUpdater implements Tr
       }
 
       // Handle update in graph writer runnable
-      saveResultOnGraph.execute(graph -> updateHandler.update(feed));
+      saveResultOnGraph.execute((graph, transitModel) -> updateHandler.update(feed));
 
       lastTimestamp = feedTimestamp;
     } catch (Exception e) {

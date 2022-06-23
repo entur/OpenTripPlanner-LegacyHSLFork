@@ -59,7 +59,7 @@ public class TestIntermediatePlaces {
       FakeGraph.addPerpendicularRoutes(graph);
       FakeGraph.link(graph);
       graph.index();
-      Router router = new Router(graph, RouterConfig.DEFAULT, Metrics.globalRegistry);
+      Router router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
       router.startup();
       TestIntermediatePlaces.graphPathFinder = new GraphPathFinder(router);
       timeZone = graph.getTimeZone();

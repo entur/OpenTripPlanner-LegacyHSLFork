@@ -23,7 +23,7 @@ public class LegacyGraphQLAgencyImpl implements LegacyGraphQLDataFetchers.Legacy
   @Override
   public DataFetcher<Iterable<TransitAlert>> alerts() {
     return environment -> {
-      TransitAlertService alertService = getRoutingService(environment).getTransitAlertService();
+      TransitAlertService alertService = getTransitService(environment).getTransitAlertService();
       var args = new LegacyGraphQLTypes.LegacyGraphQLAgencyAlertsArgs(environment.getArguments());
       Iterable<LegacyGraphQLTypes.LegacyGraphQLAgencyAlertType> types = args.getLegacyGraphQLTypes();
       if (types != null) {

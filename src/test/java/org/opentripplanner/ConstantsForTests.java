@@ -42,6 +42,7 @@ import org.opentripplanner.routing.vertextype.VehicleRentalPlaceVertex;
 import org.opentripplanner.standalone.config.BuildConfig;
 import org.opentripplanner.standalone.config.ConfigLoader;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.NonLocalizedString;
 
 public class ConstantsForTests {
@@ -127,6 +128,7 @@ public class ConstantsForTests {
   public static Graph buildNewPortlandGraph(boolean withElevation) {
     try {
       Graph graph = new Graph();
+      TransitModel transitModel = new TransitModel();
       // Add street data from OSM
       {
         File osmFile = new File(PORTLAND_CENTRAL_OSM);
@@ -135,7 +137,7 @@ public class ConstantsForTests {
         osmModule.staticBikeParkAndRide = true;
         osmModule.staticParkAndRide = true;
         osmModule.skipVisibility = true;
-        osmModule.buildGraph(graph, new HashMap<>());
+        osmModule.buildGraph(graph, transitModel,new HashMap<>());
       }
       // Add transit data from GTFS
       {
@@ -144,14 +146,14 @@ public class ConstantsForTests {
       // Link transit stops to streets
       {
         GraphBuilderModule streetTransitLinker = new StreetLinkerModule();
-        streetTransitLinker.buildGraph(graph, new HashMap<>());
+        streetTransitLinker.buildGraph(graph, transitModel,new HashMap<>());
       }
       // Add elevation data
       if (withElevation) {
         var elevationModule = new ElevationModule(
           new GeotiffGridCoverageFactoryImpl(new File(PORTLAND_NED_WITH_NODATA))
         );
-        elevationModule.buildGraph(graph, new HashMap<>());
+        elevationModule.buildGraph(graph, transitModel,new HashMap<>());
       }
 
       graph.hasStreets = true;
@@ -169,13 +171,14 @@ public class ConstantsForTests {
   public static Graph buildOsmGraph(String osmPath) {
     try {
       var graph = new Graph();
+      var transitModel = new TransitModel();
       // Add street data from OSM
       File osmFile = new File(osmPath);
       OpenStreetMapProvider osmProvider = new OpenStreetMapProvider(osmFile, true);
       OpenStreetMapModule osmModule = new OpenStreetMapModule(osmProvider);
       osmModule.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
       osmModule.skipVisibility = true;
-      osmModule.buildGraph(graph, new HashMap<>());
+      osmModule.buildGraph(graph, transitModel,new HashMap<>());
       return graph;
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -184,12 +187,13 @@ public class ConstantsForTests {
 
   public static Graph buildOsmAndGtfsGraph(String osmPath, String gtfsPath) {
     var graph = buildOsmGraph(osmPath);
+    var transitModel = new TransitModel();
 
     addGtfsToGraph(graph, gtfsPath, new DefaultFareServiceFactory(), null);
 
     // Link transit stops to streets
     GraphBuilderModule streetTransitLinker = new StreetLinkerModule();
-    streetTransitLinker.buildGraph(graph, new HashMap<>());
+    streetTransitLinker.buildGraph(graph, transitModel,new HashMap<>());
     return graph;
   }
 
@@ -206,6 +210,7 @@ public class ConstantsForTests {
   public static Graph buildNewMinimalNetexGraph() {
     try {
       Graph graph = new Graph();
+      var transitModel = new TransitModel();
       // Add street data from OSM
       {
         File osmFile = new File(OSLO_EAST_OSM);
@@ -213,19 +218,19 @@ public class ConstantsForTests {
         OpenStreetMapProvider osmProvider = new OpenStreetMapProvider(osmFile, false);
         OpenStreetMapModule osmModule = new OpenStreetMapModule(osmProvider);
         osmModule.skipVisibility = true;
-        osmModule.buildGraph(graph, new HashMap<>());
+        osmModule.buildGraph(graph, transitModel,new HashMap<>());
       }
       // Add transit data from Netex
       {
         BuildConfig buildParameters = createNetexBuilderParameters();
         List<DataSource> dataSources = Collections.singletonList(NETEX_MINIMAL_DATA_SOURCE);
         NetexModule module = NetexConfig.netexModule(buildParameters, dataSources);
-        module.buildGraph(graph, null);
+        module.buildGraph(graph, transitModel,null);
       }
       // Link transit stops to streets
       {
         GraphBuilderModule streetTransitLinker = new StreetLinkerModule();
-        streetTransitLinker.buildGraph(graph, new HashMap<>());
+        streetTransitLinker.buildGraph(graph, transitModel,new HashMap<>());
       }
       return graph;
     } catch (Exception e) {
@@ -269,7 +274,7 @@ public class ConstantsForTests {
       false
     );
 
-    module.buildGraph(graph, new HashMap<>());
+    module.buildGraph(graph, transitModel,new HashMap<>());
 
     graph.index();
     graph.hasTransit = true;

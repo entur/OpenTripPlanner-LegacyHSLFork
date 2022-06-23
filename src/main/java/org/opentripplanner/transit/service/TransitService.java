@@ -1,6 +1,7 @@
 package org.opentripplanner.transit.service;
 
 import com.google.common.collect.Multimap;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import org.opentripplanner.common.model.T2;
+import org.opentripplanner.ext.flex.FlexIndex;
 import org.opentripplanner.model.FeedInfo;
 import org.opentripplanner.model.FlexStopLocation;
 import org.opentripplanner.model.MultiModalStation;
@@ -23,6 +25,7 @@ import org.opentripplanner.model.TripTimeOnDate;
 import org.opentripplanner.model.calendar.CalendarService;
 import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
+import org.opentripplanner.routing.services.TransitAlertService;
 import org.opentripplanner.routing.stoptimes.ArrivalDeparture;
 import org.opentripplanner.transit.model.basic.WgsCoordinate;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
@@ -159,4 +162,14 @@ public interface TransitService {
   CalendarService getCalendarService();
 
   TimeZone getTimeZone();
+
+  TransitAlertService getTransitAlertService();
+
+  FlexIndex getFlexIndex();
+
+  BitSet getServicesRunningForDate(ServiceDate parseString);
+
+  Long getTransitServiceEnds();
+
+  Long getTransitServiceStarts();
 }

@@ -160,7 +160,7 @@ public class ScheduledDeviatedTripTest extends FlexTest {
   public void flexTripInTransitMode() {
     var feedId = graph.getFeedIds().iterator().next();
 
-    var router = new Router(graph, RouterConfig.DEFAULT, Metrics.globalRegistry);
+    var router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
     router.startup();
 
     // from zone 3 to zone 2

@@ -16,6 +16,7 @@ import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.network.BikeAccess;
 import org.opentripplanner.transit.model.network.MainAndSubMode;
 import org.opentripplanner.transit.model.timetable.Trip;
+import org.opentripplanner.transit.service.TransitModelIndex;
 
 public class RoutingRequestTransitDataProviderFilter implements TransitDataProviderFilter {
 
@@ -47,13 +48,13 @@ public class RoutingRequestTransitDataProviderFilter implements TransitDataProvi
     this.transitModeFilter = AllowTransitModeFilter.of(allowedTransitModes);
   }
 
-  public RoutingRequestTransitDataProviderFilter(RoutingRequest request, GraphIndex graphIndex) {
+  public RoutingRequestTransitDataProviderFilter(RoutingRequest request, TransitModelIndex transitModelIndex) {
     this(
       request.modes.transferMode == StreetMode.BIKE,
       request.wheelchairAccessibility,
       request.includePlannedCancellations,
       request.modes.transitModes,
-      request.getBannedRoutes(graphIndex.getAllRoutes()),
+      request.getBannedRoutes(transitModelIndex.getAllRoutes()),
       request.bannedTrips
     );
   }

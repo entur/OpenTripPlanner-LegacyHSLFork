@@ -36,6 +36,7 @@ import org.opentripplanner.transit.model.organization.Agency;
 import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.transit.model.timetable.Trip;
 import org.opentripplanner.transit.service.DefaultTransitService;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.transit.service.TransitService;
 import org.opentripplanner.updater.GtfsRealtimeFuzzyTripMatcher;
 import org.slf4j.Logger;
@@ -75,7 +76,6 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
    */
   private final TripPatternCache tripPatternCache = new TripPatternCache();
   private final TimeZone timeZone;
-  private final RoutingService routingService;
 
   private final TransitService transitService;
   private final TransitLayerUpdater transitLayerUpdater;
@@ -108,27 +108,24 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
   private final Deduplicator deduplicator;
   private final Map<FeedScopedId, Integer> serviceCodes;
 
-  public static TimetableSnapshotSource ofGraph(final Graph graph) {
+  public static TimetableSnapshotSource ofGraph(final TransitModel transitModel) {
     return new TimetableSnapshotSource(
-      graph.getTimeZone(),
-      new RoutingService(graph),
-      new DefaultTransitService(graph),
-      graph.transitLayerUpdater,
-      graph.deduplicator,
-      graph.getServiceCodes()
+      transitModel.getTimeZone(),
+      new DefaultTransitService(transitModel),
+      transitModel.transitLayerUpdater,
+      transitModel.deduplicator,
+      transitModel.getServiceCodes()
     );
   }
 
   public TimetableSnapshotSource(
     TimeZone timeZone,
-    RoutingService routingService,
     TransitService transitService,
     TransitLayerUpdater transitLayerUpdater,
     Deduplicator deduplicator,
     Map<FeedScopedId, Integer> serviceCodes
   ) {
     this.timeZone = timeZone;
-    this.routingService = routingService;
     this.transitService = transitService;
     this.transitLayerUpdater = transitLayerUpdater;
     this.deduplicator = deduplicator;

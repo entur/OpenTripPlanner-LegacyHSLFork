@@ -23,6 +23,7 @@ import org.opentripplanner.routing.graph.kryosupport.KryoBuilder;
 import org.opentripplanner.standalone.config.BuildConfig;
 import org.opentripplanner.standalone.config.RouterConfig;
 import org.opentripplanner.transit.model.network.SubMode;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.OtpAppException;
 import org.opentripplanner.util.logging.ProgressTracker;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ public class SerializedGraphObject implements Serializable {
   private static final Logger LOG = LoggerFactory.getLogger(SerializedGraphObject.class);
 
   public final Graph graph;
+  public final TransitModel transitModel;
 
   private final Collection<Edge> edges;
 
@@ -62,9 +64,10 @@ public class SerializedGraphObject implements Serializable {
    */
   public final List<SubMode> allTransitSubModes;
 
-  public SerializedGraphObject(Graph graph, BuildConfig buildConfig, RouterConfig routerConfig) {
+  public SerializedGraphObject(Graph graph, TransitModel transitModel, BuildConfig buildConfig, RouterConfig routerConfig) {
     this.graph = graph;
     this.edges = graph.getEdges();
+    this.transitModel = transitModel;
     this.buildConfig = buildConfig;
     this.routerConfig = routerConfig;
     this.allTransitSubModes = SubMode.listAllCachedSubModes();

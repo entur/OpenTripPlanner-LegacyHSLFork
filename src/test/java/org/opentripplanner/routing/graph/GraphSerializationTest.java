@@ -158,7 +158,7 @@ public class GraphSerializationTest {
     File tempFile = TempFile.createTempFile("graph", "pdx");
     SerializedGraphObject serializedObj = new SerializedGraphObject(
       originalGraph,
-      BuildConfig.DEFAULT,
+      transitModel, BuildConfig.DEFAULT,
       RouterConfig.DEFAULT
     );
     serializedObj.save(new FileDataSource(tempFile, FileType.GRAPH));

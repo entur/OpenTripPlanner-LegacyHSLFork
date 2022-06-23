@@ -139,7 +139,7 @@ public class FlexIntegrationTest {
 
     graph = ConstantsForTests.buildOsmGraph(osmPath);
     addGtfsToGraph(graph, List.of(cobblincGtfsPath, martaGtfsPath, flexGtfsPath));
-    router = new Router(graph, RouterConfig.DEFAULT, Metrics.globalRegistry);
+    router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
     router.startup();
 
     service = new RoutingService(graph);

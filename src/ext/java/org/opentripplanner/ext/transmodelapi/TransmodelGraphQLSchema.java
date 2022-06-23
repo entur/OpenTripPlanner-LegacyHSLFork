@@ -1136,7 +1136,7 @@ public class TransmodelGraphQLSchema {
               stream =
                 stream.filter(t ->
                   GqlUtil
-                    .getRoutingService(environment)
+                    .getTransitService(environment)
                     .getFlexIndex()
                     .routeById.containsKey(t.getId())
                 );
@@ -1467,7 +1467,7 @@ public class TransmodelGraphQLSchema {
           )
           .dataFetcher(environment -> {
             Collection<TransitAlert> alerts = GqlUtil
-              .getRoutingService(environment)
+              .getTransitService(environment)
               .getTransitAlertService()
               .getAllAlerts();
             if ((environment.getArgument("authorities") instanceof List)) {
@@ -1506,7 +1506,7 @@ public class TransmodelGraphQLSchema {
           )
           .dataFetcher(environment -> {
             return GqlUtil
-              .getRoutingService(environment)
+              .getTransitService(environment)
               .getTransitAlertService()
               .getAlertById(environment.getArgument("situationNumber"));
           })

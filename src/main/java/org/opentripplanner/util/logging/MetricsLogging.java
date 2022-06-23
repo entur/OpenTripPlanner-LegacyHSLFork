@@ -20,6 +20,7 @@ import java.util.concurrent.ForkJoinPool;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.standalone.server.OTPServer;
 import org.opentripplanner.standalone.server.Router;
+import org.opentripplanner.transit.service.TransitModel;
 
 /**
  * This class is responsible for wiring up various metrics to micrometer, which we use for
@@ -41,11 +42,11 @@ public class MetricsLogging {
     new UptimeMetrics().bindTo(Metrics.globalRegistry);
 
     Router router = otpServer.getRouter();
-    Graph graph = router.graph;
+    TransitModel transitModel = router.transitModel;
 
-    if (graph.getTransitLayer() != null) {
+    if (transitModel.getTransitLayer() != null) {
       new GuavaCacheMetrics(
-        graph.getTransitLayer().getTransferCache().getTransferCache(),
+        transitModel.getTransitLayer().getTransferCache().getTransferCache(),
         "raptorTransfersCache",
         List.of(Tag.of("cache", "raptorTransfers"))
       )
@@ -58,16 +59,16 @@ public class MetricsLogging {
     )
       .bindTo(Metrics.globalRegistry);
 
-    if (graph.updaterManager != null) {
+    if (transitModel.updaterManager != null) {
       new ExecutorServiceMetrics(
-        graph.updaterManager.getUpdaterPool(),
+        transitModel.updaterManager.getUpdaterPool(),
         "graphUpdaters",
         List.of(Tag.of("pool", "graphUpdaters"))
       )
         .bindTo(Metrics.globalRegistry);
 
       new ExecutorServiceMetrics(
-        graph.updaterManager.getScheduler(),
+        transitModel.updaterManager.getScheduler(),
         "graphUpdateScheduler",
         List.of(Tag.of("pool", "graphUpdateScheduler"))
       )

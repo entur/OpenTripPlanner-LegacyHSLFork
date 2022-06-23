@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opentripplanner.common.model.P2;
@@ -304,7 +303,7 @@ public class OpenStreetMapModuleTest {
     loader.buildGraph(graph, extra);
     graph.getStreetIndex();
 
-    Router router = new Router(graph, RouterConfig.DEFAULT, Metrics.globalRegistry);
+    Router router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
     router.startup();
 
     RoutingRequest request = new RoutingRequest(new TraverseModeSet(TraverseMode.WALK));

@@ -7,6 +7,7 @@ import org.opentripplanner.model.Notice;
 import org.opentripplanner.model.TimetableSnapshotProvider;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.services.TransitAlertService;
 import org.opentripplanner.transit.model.framework.TransitEntity;
 import org.opentripplanner.transit.model.network.Route;
 import org.opentripplanner.transit.model.network.TransitMode;
@@ -27,8 +28,9 @@ public interface TransitEditorService extends TransitService {
   void addTransitMode(TransitMode mode);
 
   <T extends TimetableSnapshotProvider> T getOrSetupTimetableSnapshotProvider(
-    Function<Graph, T> creator
+    Function<TransitModel, T> creator
   );
 
   void setTransitLayer(TransitLayer transitLayer);
+
 }

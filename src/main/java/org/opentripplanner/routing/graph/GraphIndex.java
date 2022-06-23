@@ -27,6 +27,7 @@ import org.opentripplanner.model.calendar.CalendarService;
 import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
+import org.opentripplanner.transit.model.network.GroupOfRoutes;
 import org.opentripplanner.transit.model.network.Route;
 import org.opentripplanner.transit.model.organization.Agency;
 import org.opentripplanner.transit.model.organization.Operator;
@@ -46,6 +47,12 @@ public class GraphIndex {
 
   private final Map<Stop, TransitStopVertex> stopVertexForStop = Maps.newHashMap();
   private final HashGridSpatialIndex<TransitStopVertex> stopSpatialIndex = new HashGridSpatialIndex<>();
+  private final Map<ServiceDate, TIntSet> serviceCodesRunningForDate = new HashMap<>();
+  private final Map<FeedScopedId, TripOnServiceDate> tripOnServiceDateById = new HashMap<>();
+  private final Map<TripIdAndServiceDate, TripOnServiceDate> tripOnServiceDateForTripAndDay = new HashMap<>();
+  private final Multimap<GroupOfRoutes, Route> routesForGroupOfRoutes = ArrayListMultimap.create();
+  private final Map<FeedScopedId, GroupOfRoutes> groupOfRoutesForId = new HashMap<>();
+  private FlexIndex flexIndex = null;
 
   public GraphIndex(Graph graph) {
     LOG.info("GraphIndex init...");
@@ -65,6 +72,57 @@ public class GraphIndex {
       Envelope envelope = new Envelope(stopVertex.getCoordinate());
       stopSpatialIndex.insert(envelope, stopVertex);
     }
+    for (TripPattern pattern : graph.tripPatternForId.values()) {
+      patternsForFeedId.put(pattern.getFeedId(), pattern);
+      patternsForRoute.put(pattern.getRoute(), pattern);
+      pattern
+        .scheduledTripsAsStream()
+        .forEach(trip -> {
+          patternForTrip.put(trip, pattern);
+          tripForId.put(trip.getId(), trip);
+        });
+      for (StopLocation stop : pattern.getStops()) {
+        patternsForStopId.put(stop, pattern);
+      }
+    }
+    for (Route route : patternsForRoute.asMap().keySet()) {
+      routeForId.put(route.getId(), route);
+      for (GroupOfRoutes groupOfRoutes : route.getGroupsOfRoutes()) {
+        routesForGroupOfRoutes.put(groupOfRoutes, route);
+      }
+    }
+    for (GroupOfRoutes groupOfRoutes : routesForGroupOfRoutes.keySet()) {
+      groupOfRoutesForId.put(groupOfRoutes.getId(), groupOfRoutes);
+    }
+    for (MultiModalStation multiModalStation : graph.multiModalStationById.values()) {
+      for (Station childStation : multiModalStation.getChildStations()) {
+        multiModalStationForStations.put(childStation, multiModalStation);
+      }
+    }
+
+    for (TripOnServiceDate tripOnServiceDate : graph.tripOnServiceDates.values()) {
+      tripOnServiceDateById.put(tripOnServiceDate.getId(), tripOnServiceDate);
+      tripOnServiceDateForTripAndDay.put(
+        new TripIdAndServiceDate(
+          tripOnServiceDate.getTrip().getId(),
+          tripOnServiceDate.getServiceDate()
+        ),
+        tripOnServiceDate
+      );
+    }
+
+    initalizeServiceCodesForDate(graph);
+
+    if (OTPFeature.FlexRouting.isOn()) {
+      flexIndex = new FlexIndex(graph);
+      for (Route route : flexIndex.routeById.values()) {
+        routeForId.put(route.getId(), route);
+      }
+      for (FlexTrip flexTrip : flexIndex.tripById.values()) {
+        tripForId.put(flexTrip.getId(), flexTrip.getTrip());
+        flexTrip.getStops().stream().forEach(stop -> stopForId.put(stop.getId(), stop));
+      }
+    }
 
     LOG.info("GraphIndex init complete.");
   }
@@ -76,6 +134,14 @@ public class GraphIndex {
   }
 
 
+
+  public Multimap<GroupOfRoutes, Route> getRoutesForGroupOfRoutes() {
+    return routesForGroupOfRoutes;
+  }
+
+  public Map<FeedScopedId, GroupOfRoutes> getGroupOfRoutesForId() {
+    return groupOfRoutesForId;
+  }
 
   public HashGridSpatialIndex<TransitStopVertex> getStopSpatialIndex() {
     return stopSpatialIndex;

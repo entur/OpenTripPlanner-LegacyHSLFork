@@ -46,6 +46,7 @@ import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.site.Stop;
 import org.opentripplanner.transit.model.site.StopLocation;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.MedianCalcForDoubles;
 import org.opentripplanner.util.WorldEnvelope;
 import org.slf4j.Logger;
@@ -87,7 +88,6 @@ public class Graph implements Serializable {
   private GraphBundle bundle;
 
   private transient StreetVertexIndex streetIndex;
-  public transient GraphIndex index;
 
   //Envelope of all OSM and transit vertices. Calculated during build time
   private WorldEnvelope envelope = null;
@@ -104,8 +104,7 @@ public class Graph implements Serializable {
 
   /** True if OSM data was loaded into this Graph. */
   public boolean hasStreets = false;
-  /** True if GTFS data was loaded into this Graph. */
-  public boolean hasTransit = false;
+
   /** True if direct single-edge transfers were generated between transit stops in this Graph. */
   /**
    * TODO migration
@@ -377,8 +376,6 @@ public class Graph implements Serializable {
   public void index() {
     LOG.info("Index graph...");
     streetIndex = new StreetVertexIndex(this, transitModel);
-    LOG.debug("Rebuilding edge and vertex indices.");
-    index = new GraphIndex(this);
     LOG.info("Index graph complete.");
   }
 
@@ -528,19 +525,7 @@ public class Graph implements Serializable {
     return vehiclePositionService;
   }
 
-  /**
-   * @param id Id of Stop, Station, MultiModalStation or GroupOfStations
-   * @return The associated TransitStopVertex or all underlying TransitStopVertices
-   */
-  public Set<Vertex> getStopVerticesById(FeedScopedId id) {
-    var stops = getStopsForId(id);
 
-    if (stops == null) {
-      return null;
-    }
-
-    return stops.stream().map(index.getStopVertexForStop()::get).collect(Collectors.toSet());
-  }
 
 
   public VehicleRentalStationService getVehicleRentalStationService() {

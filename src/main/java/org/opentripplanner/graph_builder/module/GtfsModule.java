@@ -157,7 +157,7 @@ public class GtfsModule implements GraphBuilderModule {
     transitModel.updateTransitFeedValidity(calendarServiceData, issueStore);
 
     // If the graph's hasTransit flag isn't set to true already, set it based on this module's run
-    graph.hasTransit = graph.hasTransit || hasTransit;
+    transitModel.hasTransit = transitModel.hasTransit || hasTransit;
     graph.calculateTransitCenter();
   }
 

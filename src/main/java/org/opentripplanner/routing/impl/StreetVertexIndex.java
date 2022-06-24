@@ -232,7 +232,7 @@ public class StreetVertexIndex {
     } else {
       // Check if Stop/StopCollection is found by FeedScopeId
       if (location.stopId != null) {
-        Set<Vertex> transitStopVertices = graph.getStopVerticesById(location.stopId);
+        Set<Vertex> transitStopVertices = transitModel.getStopVerticesById(location.stopId);
         if (transitStopVertices != null) {
           return transitStopVertices;
         }

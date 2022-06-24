@@ -1,37 +1,26 @@
 package org.opentripplanner.routing;
 
-import gnu.trove.set.TIntSet;
 import java.io.Serializable;
-import java.time.Instant;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TimeZone;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.model.T2;
-import org.opentripplanner.ext.flex.FlexIndex;
-import org.opentripplanner.graph_builder.DataImportIssueStore;
 import org.opentripplanner.graph_builder.linking.VertexLinker;
 import org.opentripplanner.graph_builder.module.osm.WayPropertySetSource.DrivingDirection;
 import org.opentripplanner.model.GraphBundle;
-import org.opentripplanner.model.calendar.CalendarServiceData;
-import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.model.transfer.TransferService;
 import org.opentripplanner.routing.algorithm.RoutingWorker;
-import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.api.response.RoutingResponse;
 import org.opentripplanner.routing.core.intersection_model.IntersectionTraversalCostModel;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.graph.GraphIndex;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.graphfinder.GraphFinder;
 import org.opentripplanner.routing.graphfinder.NearbyStop;
@@ -39,7 +28,6 @@ import org.opentripplanner.routing.graphfinder.PlaceAtDistance;
 import org.opentripplanner.routing.graphfinder.PlaceType;
 import org.opentripplanner.routing.impl.StreetVertexIndex;
 import org.opentripplanner.routing.services.RealtimeVehiclePositionService;
-import org.opentripplanner.routing.services.TransitAlertService;
 import org.opentripplanner.routing.vehicle_parking.VehicleParkingService;
 import org.opentripplanner.routing.vehicle_rental.VehicleRentalStationService;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
@@ -62,14 +50,13 @@ public class RoutingService {
 
   private final TransitModel transitModel;
 
-  private final GraphIndex graphIndex;
+
 
   private final GraphFinder graphFinder;
 
   public RoutingService(Graph graph, TransitModel transitModel) {
     this.graph = graph;
     this.transitModel = transitModel;
-    this.graphIndex = graph.index;
     this.graphFinder = GraphFinder.getInstance(graph);
   }
 
@@ -249,9 +236,9 @@ public class RoutingService {
     return this.graph.getVehiclePositionService();
   }
 
-  /** {@link Graph#getStopVerticesById(FeedScopedId)} */
+  /** {@link TransitModel#getStopVerticesById(FeedScopedId)} */
   public Set<Vertex> getStopVerticesById(FeedScopedId id) {
-    return this.graph.getStopVerticesById(id);
+    return this.transitModel.getStopVerticesById(id);
   }
 
   /** {@link Graph#getVehicleRentalStationService()} */
@@ -286,15 +273,7 @@ public class RoutingService {
     this.graph.setIntersectionTraversalCostModel(intersectionTraversalCostModel);
   }
 
-  /** {@link GraphIndex#getStopVertexForStop()} */
-  public Map<Stop, TransitStopVertex> getStopVertexForStop() {
-    return this.graphIndex.getStopVertexForStop();
-  }
 
-  /** {@link GraphIndex#getStopSpatialIndex()} */
-  public HashGridSpatialIndex<TransitStopVertex> getStopSpatialIndex() {
-    return this.graphIndex.getStopSpatialIndex();
-  }
 
 
 

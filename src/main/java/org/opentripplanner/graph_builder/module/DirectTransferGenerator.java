@@ -16,12 +16,12 @@ import org.opentripplanner.routing.algorithm.raptoradapter.transit.Transfer;
 import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.graph.GraphIndex;
 import org.opentripplanner.routing.graphfinder.NearbyStop;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.site.Stop;
 import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.transit.service.TransitModel;
+import org.opentripplanner.transit.service.TransitModelIndex;
 import org.opentripplanner.util.OTPFeature;
 import org.opentripplanner.util.logging.ProgressTracker;
 import org.slf4j.Logger;
@@ -64,8 +64,8 @@ public class DirectTransferGenerator implements GraphBuilderModule {
     DataImportIssueStore issueStore
   ) {
     /* Initialize graph index which is needed by the nearby stop finder. */
-    if (graph.index == null) {
-      graph.index = new GraphIndex(graph);
+    if (transitModel.index == null) {
+      transitModel.index = new TransitModelIndex(transitModel);
     }
 
     /* The linker will use streets if they are available, or straight-line distance otherwise. */

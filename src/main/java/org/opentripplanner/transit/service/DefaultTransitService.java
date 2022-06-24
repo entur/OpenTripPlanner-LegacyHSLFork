@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.function.Function;
-import org.opentripplanner.common.model.T2;
+import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.ext.flex.FlexIndex;
 import org.opentripplanner.model.FeedInfo;
 import org.opentripplanner.model.FlexStopLocation;
@@ -32,7 +32,7 @@ import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.services.TransitAlertService;
 import org.opentripplanner.routing.stoptimes.ArrivalDeparture;
 import org.opentripplanner.routing.stoptimes.StopTimesHelper;
-import org.opentripplanner.transit.model.basic.WgsCoordinate;
+import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.framework.TransitEntity;
 import org.opentripplanner.transit.model.network.GroupOfRoutes;
@@ -527,6 +527,19 @@ public class DefaultTransitService implements TransitEditorService {
     return transitModel.getTransitServiceStarts();
   }
 
+
+  /** {@link TransitModelIndex#getStopVertexForStop()} */
+  @Override
+  public Map<Stop, TransitStopVertex> getStopVertexForStop() {
+    return transitModelIndex.getStopVertexForStop();
+  }
+
+  /** {@link TransitModelIndex#getStopSpatialIndex()} */
+
+  @Override
+  public HashGridSpatialIndex<TransitStopVertex> getStopSpatialIndex() {
+    return transitModelIndex.getStopSpatialIndex();
+  }
 
 }
 

@@ -45,6 +45,7 @@ import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.site.Stop;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.NonLocalizedString;
 import org.opentripplanner.util.TestUtils;
 
@@ -58,6 +59,7 @@ public class TestHalfEdges {
   private IntersectionVertex br, tr, bl, tl;
   private TransitStopVertex station1;
   private TransitStopVertex station2;
+  private TransitModel transitModel;
 
   public LineString createGeometry(Vertex a, Vertex b) {
     GeometryFactory factory = new GeometryFactory();
@@ -70,6 +72,7 @@ public class TestHalfEdges {
   @BeforeEach
   public void setUp() {
     graph = new Graph();
+    transitModel = new TransitModel();
     // a 0.1 degree x 0.1 degree square
     tl = new IntersectionVertex(graph, "tl", -74.01, 40.01);
     tr = new IntersectionVertex(graph, "tr", -74.0, 40.01);
@@ -622,7 +625,7 @@ public class TestHalfEdges {
   public void testNetworkLinker() {
     int numVerticesBefore = graph.getVertices().size();
     StreetLinkerModule ttsnm = new StreetLinkerModule();
-    ttsnm.buildGraph(graph, new HashMap<>());
+    ttsnm.buildGraph(graph, transitModel, new HashMap<>());
     int numVerticesAfter = graph.getVertices().size();
     assertEquals(4, numVerticesAfter - numVerticesBefore);
     Collection<Edge> outgoing = station1.getOutgoing();

@@ -1013,7 +1013,7 @@ public class LegacyGraphQLQueryTypeImpl
         new Coordinate(args.getLegacyGraphQLMaxLon(), args.getLegacyGraphQLMaxLat())
       );
 
-      Stream<Stop> stopStream = getRoutingService(environment)
+      Stream<Stop> stopStream = getTransitService(environment)
         .getStopSpatialIndex()
         .query(envelope)
         .stream()

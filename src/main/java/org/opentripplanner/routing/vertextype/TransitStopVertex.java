@@ -32,7 +32,7 @@ public class TransitStopVertex extends Vertex {
   private int streetToStopTime = 0;
 
   /**
-   * @param stop  The transit model stop reference. See {@link RoutingService#getStopVertexForStop()}
+   * @param stop  The transit model stop reference. See {@link org.opentripplanner.transit.service.TransitService#getStopVertexForStop()}
    *              for navigation from a Stop to this class.
    * @param modes Set of modes for all Routes using this stop. If {@code null} an empty set is
    *              used.

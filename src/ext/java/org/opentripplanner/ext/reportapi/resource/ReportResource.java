@@ -13,7 +13,6 @@ import javax.ws.rs.core.Response;
 import org.opentripplanner.ext.reportapi.model.BicyleSafetyReport;
 import org.opentripplanner.ext.reportapi.model.TransfersReport;
 import org.opentripplanner.model.transfer.TransferService;
-import org.opentripplanner.routing.graph.GraphIndex;
 import org.opentripplanner.standalone.server.OTPServer;
 import org.opentripplanner.transit.service.TransitModelIndex;
 

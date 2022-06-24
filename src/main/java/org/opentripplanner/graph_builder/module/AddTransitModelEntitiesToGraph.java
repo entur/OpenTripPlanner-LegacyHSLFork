@@ -65,11 +65,11 @@ public class AddTransitModelEntitiesToGraph {
    */
   private AddTransitModelEntitiesToGraph(
     GtfsFeedId feedId,
-    OtpTransitService transitModel,
+    OtpTransitService otpTransitService,
     int subwayAccessTime
   ) {
     this.feedId = feedId;
-    this.otpTransitService = transitModel;
+    this.otpTransitService = otpTransitService;
     this.subwayAccessTime = Math.max(subwayAccessTime, 0);
   }
 

@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
@@ -48,12 +49,14 @@ import org.opentripplanner.model.calendar.impl.CalendarServiceImpl;
 import org.opentripplanner.model.transfer.TransferService;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers.TransitLayerUpdater;
+import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.impl.DelegatingTransitAlertServiceImpl;
 import org.opentripplanner.routing.services.TransitAlertService;
 import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.util.ConcurrentPublished;
 import org.opentripplanner.routing.vehicle_parking.VehicleParkingService;
 import org.opentripplanner.routing.vehicle_rental.VehicleRentalStationService;
+import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.basic.WgsCoordinate;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.framework.TransitEntity;
@@ -104,6 +107,7 @@ public class TransitModel implements Serializable {
   private final HashSet<TransitMode> transitModes = new HashSet<>();
   public final Date buildTime = new Date();
   /** Pre-generated transfers between all stops. */
+
   public final Multimap<StopLocation, PathTransfer> transfersByStop = HashMultimap.create();
   /** Data model for Raptor routing, with realtime updates applied (if any). */
   private final transient ConcurrentPublished<TransitLayer> realtimeTransitLayer = new ConcurrentPublished<>();
@@ -706,4 +710,21 @@ public class TransitModel implements Serializable {
 
     return null;
   }
+
+  /**
+   * @param id Id of Stop, Station, MultiModalStation or GroupOfStations
+   * @return The associated TransitStopVertex or all underlying TransitStopVertices
+   */
+  public Set<Vertex> getStopVerticesById(FeedScopedId id) {
+    var stops = getStopsForId(id);
+
+    if (stops == null) {
+      return null;
+    }
+
+    return stops.stream().map(index.getStopVertexForStop()::get).collect(Collectors.toSet());
+  }
+
+
+
 }

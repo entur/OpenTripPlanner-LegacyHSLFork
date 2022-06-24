@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.common.model.T2;
 import org.opentripplanner.ext.flex.FlexIndex;
 import org.opentripplanner.model.FeedInfo;
@@ -27,6 +28,7 @@ import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.services.TransitAlertService;
 import org.opentripplanner.routing.stoptimes.ArrivalDeparture;
+import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.basic.WgsCoordinate;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.framework.TransitEntity;
@@ -170,4 +172,8 @@ public interface TransitService {
   Long getTransitServiceEnds();
 
   Long getTransitServiceStarts();
+
+  Map<Stop, TransitStopVertex> getStopVertexForStop();
+
+  HashGridSpatialIndex<TransitStopVertex> getStopSpatialIndex();
 }

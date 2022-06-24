@@ -80,7 +80,7 @@ public class TransitModelIndex {
 
     /* We will keep a separate set of all vertices in case some have the same label.
      * Maybe we should just guarantee unique labels. */
-    for (Vertex vertex : transitModel.getVertices()) {
+    for (Vertex vertex : transitModel.getTransitStopVertices()) {
       if (vertex instanceof TransitStopVertex) {
         TransitStopVertex stopVertex = (TransitStopVertex) vertex;
         Stop stop = stopVertex.getStop();

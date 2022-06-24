@@ -89,7 +89,7 @@ public class Router {
     /* Create transit layer for Raptor routing. Here we map the scheduled timetables. */
     /* Realtime updates can be mapped similarly by a recurring operation in a GraphUpdater below. */
     LOG.info("Creating transit layer for Raptor routing.");
-    if (graph.hasTransit && graph.index != null) {
+    if (transitModel.hasTransit && transitModel.index != null) {
       transitModel.setTransitLayer(TransitLayerMapper.map(routerConfig.transitTuningParameters(), transitModel));
       transitModel.setRealtimeTransitLayer(new TransitLayer(transitModel.getTransitLayer()));
       transitModel.transitLayerUpdater =

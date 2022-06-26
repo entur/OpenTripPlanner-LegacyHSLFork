@@ -35,7 +35,6 @@ import org.opentripplanner.graph_builder.services.ned.ElevationGridCoverageFacto
 import org.opentripplanner.openstreetmap.OpenStreetMapProvider;
 import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.standalone.config.BuildConfig;
 import org.opentripplanner.standalone.config.S3BucketConfig;
 import org.opentripplanner.transit.service.TransitModel;
@@ -245,6 +244,9 @@ public class GraphBuilder implements Runnable {
   public Graph getGraph() {
     return graph;
   }
+  public TransitModel getTransitModel() {
+    return transitModel;
+  }
 
   public void run() {
     // Record how long it takes to build the graph, purely for informational purposes.
@@ -282,15 +284,15 @@ public class GraphBuilder implements Runnable {
 
   /**
    * Validates the build. Currently, only checks if the graph has transit data if any transit data
-   * sets were included in the build. If all transit data gets filtered out due to transit period configuration,
-   * for example, then this function will throw a {@link OtpAppException}.
+   * sets were included in the build. If all transit data gets filtered out due to transit period
+   * configuration, for example, then this function will throw a {@link OtpAppException}.
    */
   private void validate() {
     if (hasTransitData() && !transitModel.hasTransit) {
       throw new OtpAppException(
         "The provided transit data have no trips within the configured transit " +
-        "service period. See build config 'transitServiceStart' and " +
-        "'transitServiceEnd'"
+          "service period. See build config 'transitServiceStart' and " +
+          "'transitServiceEnd'"
       );
     }
   }

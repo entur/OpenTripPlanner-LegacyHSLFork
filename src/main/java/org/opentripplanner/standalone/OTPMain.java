@@ -142,6 +142,7 @@ public class OTPMain {
         graphBuilder.run();
         // Hand off the graph to the server as the default graph
         graph = graphBuilder.getGraph();
+        transitModel = graphBuilder.getTransitModel();
       } else {
         throw new IllegalStateException("An error occurred while building the graph.");
       }

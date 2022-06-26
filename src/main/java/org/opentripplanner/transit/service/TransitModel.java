@@ -178,7 +178,7 @@ public class TransitModel implements Serializable {
   public Map<FeedScopedId, FlexLocationGroup> locationGroupsById = new HashMap<>();
   public Map<FeedScopedId, FlexTrip> flexTripsById = new HashMap<>();
 
-  private Map<FeedScopedId, TransitStopVertex> transitStopVertices;
+  private Map<FeedScopedId, TransitStopVertex> transitStopVertices = new HashMap<>();
 
   /** Data model for Raptor routing, with realtime updates applied (if any). */
   private transient TransitLayer transitLayer;

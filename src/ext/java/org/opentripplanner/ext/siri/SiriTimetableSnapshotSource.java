@@ -504,7 +504,9 @@ public class SiriTimetableSnapshotSource implements TimetableSnapshotProvider {
       externalLineRef = lineRef;
     }
 
-    Operator operator = transitModel.index.getOperatorForId().get(new FeedScopedId(feedId, operatorRef));
+    Operator operator = transitModel.index
+      .getOperatorForId()
+      .get(new FeedScopedId(feedId, operatorRef));
     //        Preconditions.checkNotNull(operator, "Operator " + operatorRef + " is unknown");
 
     FeedScopedId tripId = new FeedScopedId(feedId, newServiceJourneyRef);

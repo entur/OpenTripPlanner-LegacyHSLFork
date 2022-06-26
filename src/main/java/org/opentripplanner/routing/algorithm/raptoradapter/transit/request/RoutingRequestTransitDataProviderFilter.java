@@ -47,7 +47,10 @@ public class RoutingRequestTransitDataProviderFilter implements TransitDataProvi
     this.transitModeFilter = AllowTransitModeFilter.of(allowedTransitModes);
   }
 
-  public RoutingRequestTransitDataProviderFilter(RoutingRequest request, TransitModelIndex transitModelIndex) {
+  public RoutingRequestTransitDataProviderFilter(
+    RoutingRequest request,
+    TransitModelIndex transitModelIndex
+  ) {
     this(
       request.modes.transferMode == StreetMode.BIKE,
       request.wheelchairAccessibility,

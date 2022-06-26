@@ -47,15 +47,15 @@ public class ApiRouterInfo {
     this.buildTime = graph.buildTime;
     this.transitServiceStarts = transitModel.getTransitServiceStarts();
     this.transitServiceEnds = transitModel.getTransitServiceEnds();
-    this.transitModes = TraverseModeMapper.mapToApi(graph.getTransitModes());
+    this.transitModes = TraverseModeMapper.mapToApi(transitModel.getTransitModes());
     this.envelope = graph.getEnvelope();
     this.hasParkRide = graph.hasParkRide;
     this.hasBikeSharing = mapHasBikeSharing(vehicleRentalService);
     this.hasBikePark = mapHasBikePark(vehicleParkingService);
     this.hasCarPark = mapHasCarPark(vehicleParkingService);
     this.hasVehicleParking = mapHasVehicleParking(vehicleParkingService);
-    this.travelOptions = TravelOptionsMaker.makeOptions(graph);
-    graph.getCenter().ifPresentOrElse(this::setCenter, this::calculateCenter);
+    this.travelOptions = TravelOptionsMaker.makeOptions(graph, transitModel);
+    transitModel.getCenter().ifPresentOrElse(this::setCenter, this::calculateCenter);
   }
 
   public boolean mapHasBikeSharing(VehicleRentalStationService service) {
@@ -89,7 +89,7 @@ public class ApiRouterInfo {
   }
 
   /**
-   * Set center coordinate from transit center in {@link Graph#calculateTransitCenter()} if transit
+   * Set center coordinate from transit center in {@link TransitModel#calculateTransitCenter()} if transit
    * is used.
    * <p>
    * It is first called when OSM is loaded. Then after transit data is loaded. So that center is set

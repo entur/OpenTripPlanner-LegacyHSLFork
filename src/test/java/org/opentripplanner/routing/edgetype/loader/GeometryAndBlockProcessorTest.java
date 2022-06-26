@@ -72,7 +72,7 @@ public class GeometryAndBlockProcessorTest {
     feedId = context.getFeedId().getId();
     GeometryAndBlockProcessor factory = new GeometryAndBlockProcessor(context);
     factory.run(graph, transitModel, issueStore);
-    graph.putService(CalendarServiceData.class, context.getCalendarServiceData());
+    transitModel.putService(CalendarServiceData.class, context.getCalendarServiceData());
 
     String[] stops = {
       feedId + ":A",
@@ -132,7 +132,7 @@ public class GeometryAndBlockProcessorTest {
     StreetLinkerModule ttsnm = new StreetLinkerModule();
     //Linkers aren't run otherwise
     graph.hasStreets = true;
-    graph.hasTransit = true;
+    transitModel.hasTransit = true;
     ttsnm.buildGraph(graph, new TransitModel(), new HashMap<>());
   }
 

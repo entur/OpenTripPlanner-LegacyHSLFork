@@ -80,13 +80,10 @@ public class TransitModelIndex {
 
     /* We will keep a separate set of all vertices in case some have the same label.
      * Maybe we should just guarantee unique labels. */
-    for (Vertex vertex : transitModel.getTransitStopVertices()) {
-      if (vertex instanceof TransitStopVertex) {
-        TransitStopVertex stopVertex = (TransitStopVertex) vertex;
-        Stop stop = stopVertex.getStop();
-        stopForId.put(stop.getId(), stop);
-        stopVertexForStop.put(stop, stopVertex);
-      }
+    for (TransitStopVertex stopVertex : transitModel.getTransitStopVertices()) {
+      Stop stop = stopVertex.getStop();
+      stopForId.put(stop.getId(), stop);
+      stopVertexForStop.put(stop, stopVertex);
     }
     for (TransitStopVertex stopVertex : stopVertexForStop.values()) {
       Envelope envelope = new Envelope(stopVertex.getCoordinate());
@@ -312,5 +309,4 @@ public class TransitModelIndex {
   public Map<FeedScopedId, GroupOfRoutes> getGroupOfRoutesForId() {
     return groupOfRoutesForId;
   }
-
 }

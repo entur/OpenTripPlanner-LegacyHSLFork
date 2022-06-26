@@ -80,11 +80,12 @@ public class AddTransitModelEntitiesToGraph {
     Graph graph,
     TransitModel transitModel
   ) {
-    new AddTransitModelEntitiesToGraph(feedId, otpTransitService, subwayAccessTime).applyToGraph(graph, transitModel);
+    new AddTransitModelEntitiesToGraph(feedId, otpTransitService, subwayAccessTime)
+      .applyToGraph(graph, transitModel);
   }
 
   private void applyToGraph(Graph graph, TransitModel transitModel) {
-    addStopsToGraphAndGenerateStopVertexes(graph);
+    addStopsToGraphAndGenerateStopVertexes(graph, transitModel);
     addStationsToGraph(transitModel);
     addMultiModalStationsToGraph(transitModel);
     addGroupsOfStationsToGraph(transitModel);
@@ -98,7 +99,7 @@ public class AddTransitModelEntitiesToGraph {
       addLocationsToGraph(transitModel);
       addLocationGroupsToGraph(transitModel);
     }
-    addFeedInfoToGraph(graph);
+    addFeedInfoToGraph(transitModel);
     addAgenciesToGraph(transitModel);
 
     /* Interpret the transfers explicitly defined in transfers.txt. */
@@ -109,13 +110,13 @@ public class AddTransitModelEntitiesToGraph {
     }
   }
 
-  private void addStopsToGraphAndGenerateStopVertexes(Graph graph) {
+  private void addStopsToGraphAndGenerateStopVertexes(Graph graph, TransitModel transitModel) {
     // Compute the set of modes for each stop based on all the TripPatterns it is part of
     Map<StopLocation, Set<TransitMode>> stopModeMap = new HashMap<>();
 
     for (TripPattern pattern : otpTransitService.getTripPatterns()) {
       TransitMode mode = pattern.getMode();
-      graph.addTransitMode(mode);
+      transitModel.addTransitMode(mode);
       for (var stop : pattern.getStops()) {
         Set<TransitMode> set = stopModeMap.computeIfAbsent(stop, s -> new HashSet<>());
         set.add(mode);
@@ -127,6 +128,7 @@ public class AddTransitModelEntitiesToGraph {
     for (Stop stop : otpTransitService.getAllStops()) {
       Set<TransitMode> modes = stopModeMap.get(stop);
       TransitStopVertex stopVertex = new TransitStopVertex(graph, stop, modes);
+      transitModel.addTransitStopVertex(stopVertex.getStop().getId(), stopVertex);
       if (modes != null && modes.contains(TransitMode.SUBWAY)) {
         stopVertex.setStreetToStopTime(subwayAccessTime);
       }
@@ -359,9 +361,9 @@ public class AddTransitModelEntitiesToGraph {
     }
   }
 
-  private void addFeedInfoToGraph(Graph graph) {
+  private void addFeedInfoToGraph(TransitModel transitModel) {
     for (FeedInfo info : otpTransitService.getAllFeedInfos()) {
-      graph.addFeedInfo(info);
+      transitModel.addFeedInfo(info);
     }
   }
 

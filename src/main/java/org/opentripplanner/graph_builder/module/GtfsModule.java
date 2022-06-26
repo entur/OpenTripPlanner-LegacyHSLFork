@@ -101,7 +101,7 @@ public class GtfsModule implements GraphBuilderModule {
     // because the time zone from the first agency is cached
     transitModel.clearTimeZone();
 
-    CalendarServiceData calendarServiceData = graph.getCalendarDataService();
+    CalendarServiceData calendarServiceData = transitModel.getCalendarDataService();
 
     boolean hasTransit = false;
 
@@ -138,7 +138,8 @@ public class GtfsModule implements GraphBuilderModule {
 
         addTransitModelToGraph(graph, transitModel, gtfsBundle, otpTransitService);
 
-        createGeometryAndBlockProcessor(gtfsBundle, otpTransitService).run(graph, transitModel, issueStore);
+        createGeometryAndBlockProcessor(gtfsBundle, otpTransitService)
+          .run(graph, transitModel, issueStore);
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -150,7 +151,7 @@ public class GtfsModule implements GraphBuilderModule {
 
     transitModel.clearCachedCalenderService();
     // We need to save the calendar service data so we can use it later
-    graph.putService(
+    transitModel.putService(
       org.opentripplanner.model.calendar.CalendarServiceData.class,
       calendarServiceData
     );
@@ -158,7 +159,7 @@ public class GtfsModule implements GraphBuilderModule {
 
     // If the graph's hasTransit flag isn't set to true already, set it based on this module's run
     transitModel.hasTransit = transitModel.hasTransit || hasTransit;
-    graph.calculateTransitCenter();
+    transitModel.calculateTransitCenter();
   }
 
   @Override
@@ -193,8 +194,10 @@ public class GtfsModule implements GraphBuilderModule {
       calServiceIds
     );
     buildTPOp.run();
-    transitModel.hasFrequencyService = transitModel.hasFrequencyService || buildTPOp.hasFrequencyBasedTrips();
-    transitModel.hasScheduledService = transitModel.hasScheduledService || buildTPOp.hasScheduledTrips();
+    transitModel.hasFrequencyService =
+      transitModel.hasFrequencyService || buildTPOp.hasFrequencyBasedTrips();
+    transitModel.hasScheduledService =
+      transitModel.hasScheduledService || buildTPOp.hasScheduledTrips();
   }
 
   private void addTransitModelToGraph(

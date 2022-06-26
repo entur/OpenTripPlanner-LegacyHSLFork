@@ -146,7 +146,8 @@ public class SiriETGooglePubsubUpdater implements GraphUpdater {
   public void setup(Graph graph, TransitModel transitModel) throws Exception {
     // TODO OTP2 - This is thread safe, but only because updater setup methods are called sequentially.
     //           - Ideally we should inject the snapshotSource on this class.
-    snapshotSource = transitModel.getOrSetupTimetableSnapshotProvider(SiriTimetableSnapshotSource::new);
+    snapshotSource =
+      transitModel.getOrSetupTimetableSnapshotProvider(SiriTimetableSnapshotSource::new);
   }
 
   @Override
@@ -368,7 +369,12 @@ public class SiriETGooglePubsubUpdater implements GraphUpdater {
         }
 
         var f = saveResultOnGraph.execute((graph, transitModel) ->
-          snapshotSource.applyEstimatedTimetable(transitModel, feedId, false, estimatedTimetableDeliveries)
+          snapshotSource.applyEstimatedTimetable(
+            transitModel,
+            feedId,
+            false,
+            estimatedTimetableDeliveries
+          )
         );
 
         if (!isPrimed()) {

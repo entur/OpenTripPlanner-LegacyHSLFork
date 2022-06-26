@@ -5,7 +5,9 @@ import org.opentripplanner.transit.service.TransitModel;
 
 @FunctionalInterface
 public interface LayerBuilderFactory {
-
-  LayerBuilder create(Graph graph, TransitModel transitModel, VectorTilesResource.LayerParameters layerParameters);
-
+  LayerBuilder create(
+    Graph graph,
+    TransitModel transitModel,
+    VectorTilesResource.LayerParameters layerParameters
+  );
 }

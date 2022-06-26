@@ -24,7 +24,11 @@ public class StationsLayerBuilder extends LayerBuilder<Station> {
   );
   private final TransitModel transitModel;
 
-  public StationsLayerBuilder(Graph graph, TransitModel transitModel, VectorTilesResource.LayerParameters layerParameters) {
+  public StationsLayerBuilder(
+    Graph graph,
+    TransitModel transitModel,
+    VectorTilesResource.LayerParameters layerParameters
+  ) {
     super(
       layerParameters.name(),
       mappers.get(MapperType.valueOf(layerParameters.mapper())).apply(transitModel)

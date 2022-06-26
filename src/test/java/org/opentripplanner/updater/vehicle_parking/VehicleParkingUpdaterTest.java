@@ -19,6 +19,7 @@ import org.opentripplanner.routing.vehicle_parking.VehicleParkingState;
 import org.opentripplanner.routing.vehicle_parking.VehicleParkingTestGraphData;
 import org.opentripplanner.routing.vehicle_parking.VehicleParkingTestUtil;
 import org.opentripplanner.routing.vertextype.VehicleParkingEntranceVertex;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.updater.DataSource;
 import org.opentripplanner.updater.GraphUpdater;
 import org.opentripplanner.updater.GraphUpdaterManager;
@@ -28,6 +29,8 @@ class VehicleParkingUpdaterTest {
 
   private DataSource<VehicleParking> dataSource;
   private Graph graph;
+
+  private TransitModel transitModel;
   private VehicleParkingUpdater vehicleParkingUpdater;
 
   @BeforeEach
@@ -36,13 +39,14 @@ class VehicleParkingUpdaterTest {
     VehicleParkingTestGraphData graphData = new VehicleParkingTestGraphData();
     graphData.initGraph();
     this.graph = graphData.getGraph();
+    this.transitModel = new TransitModel();
 
     dataSource = (DataSource<VehicleParking>) Mockito.mock(DataSource.class);
     when(dataSource.update()).thenReturn(true);
 
     var parameters = new VehicleParkingUpdaterParameters(null, -1, null);
     vehicleParkingUpdater = new VehicleParkingUpdater(parameters, dataSource);
-    vehicleParkingUpdater.setup(graph, );
+    vehicleParkingUpdater.setup(graph, transitModel);
   }
 
   @Test

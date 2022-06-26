@@ -32,5 +32,4 @@ public interface TransitEditorService extends TransitService {
   );
 
   void setTransitLayer(TransitLayer transitLayer);
-
 }

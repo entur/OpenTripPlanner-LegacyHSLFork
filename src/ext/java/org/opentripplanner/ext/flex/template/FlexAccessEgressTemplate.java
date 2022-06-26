@@ -82,7 +82,10 @@ public abstract class FlexAccessEgressTemplate {
    * This method is very much the hot code path in the flex access/egress search so any optimization
    * here will lead to noticeable speedups.
    */
-  public Stream<FlexAccessEgress> createFlexAccessEgressStream(Graph graph, TransitModel transitModel) {
+  public Stream<FlexAccessEgress> createFlexAccessEgressStream(
+    Graph graph,
+    TransitModel transitModel
+  ) {
     if (transferStop instanceof Stop) {
       TransitStopVertex flexVertex = transitModel.index.getStopVertexForStop().get(transferStop);
       return Stream
@@ -134,7 +137,9 @@ public abstract class FlexAccessEgressTemplate {
    * Get the transfers to/from stops in the scheduled transit network from the beginning/end of the
    * flex ride for the access/egress.
    */
-  protected abstract Collection<PathTransfer> getTransfersFromTransferStop(TransitModel transitModel);
+  protected abstract Collection<PathTransfer> getTransfersFromTransferStop(
+    TransitModel transitModel
+  );
 
   /**
    * Get the {@Link Vertex} where the flex ride ends/begins for the access/egress.

@@ -107,7 +107,7 @@ public abstract class SnapshotTestBase {
     RoutingRequest request = router.copyDefaultRoutingRequest();
     request.setDateTime(
       TestUtils.dateInstant(
-        router.graph.getTimeZone().getID(),
+        router.transitModel.getTimeZone().getID(),
         year,
         month,
         day,

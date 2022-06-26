@@ -149,7 +149,7 @@ public class TransitRouter {
       transitSearchTimeZero,
       request
     );
-    FareService fareService = router.graph.getService(FareService.class);
+    FareService fareService = router.transitModel.getService(FareService.class);
 
     for (Path<TripSchedule> path : paths) {
       // Convert the Raptor/Astar paths to OTP API Itineraries
@@ -222,7 +222,12 @@ public class TransitRouter {
         accessRequest.allowKeepingRentedVehicleAtDestination = false;
       }
 
-      var nearbyStops = AccessEgressRouter.streetSearch(routingContext, router.transitModel, mode, isEgress);
+      var nearbyStops = AccessEgressRouter.streetSearch(
+        routingContext,
+        router.transitModel,
+        mode,
+        isEgress
+      );
 
       results.addAll(accessEgressMapper.mapNearbyStops(nearbyStops, isEgress));
 
@@ -262,7 +267,9 @@ public class TransitRouter {
     );
   }
 
-  private TransitDataProviderFilter createRequestTransitDataProviderFilter(TransitModelIndex transitModelIndex) {
+  private TransitDataProviderFilter createRequestTransitDataProviderFilter(
+    TransitModelIndex transitModelIndex
+  ) {
     return new RoutingRequestTransitDataProviderFilter(request, transitModelIndex);
   }
 

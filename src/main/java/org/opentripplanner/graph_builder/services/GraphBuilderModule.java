@@ -12,7 +12,12 @@ public interface GraphBuilderModule {
    * Process whatever inputs were supplied to this module and add the resulting elements to the
    * given graph.
    */
-  void buildGraph(Graph graph, TransitModel transitModel, HashMap<Class<?>, Object> extra, DataImportIssueStore issueStore);
+  void buildGraph(
+    Graph graph,
+    TransitModel transitModel,
+    HashMap<Class<?>, Object> extra,
+    DataImportIssueStore issueStore
+  );
 
   default void buildGraph(Graph graph, TransitModel transitModel, HashMap<Class<?>, Object> extra) {
     buildGraph(graph, transitModel, extra, new DataImportIssueStore(false));

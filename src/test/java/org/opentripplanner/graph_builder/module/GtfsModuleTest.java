@@ -11,19 +11,21 @@ import org.opentripplanner.ConstantsForTests;
 import org.opentripplanner.graph_builder.model.GtfsBundle;
 import org.opentripplanner.model.calendar.ServiceDateInterval;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.transit.service.TransitModel;
 
 class GtfsModuleTest {
 
   @Test
   public void addShapesForFrequencyTrips() {
     var graph = new Graph();
+    var transitModel = new TransitModel();
 
     var bundle = new GtfsBundle(new File(ConstantsForTests.FAKE_GTFS));
     var module = new GtfsModule(List.of(bundle), ServiceDateInterval.unbounded(), null, false);
 
-    module.buildGraph(graph, new HashMap<>());
+    module.buildGraph(graph, transitModel, new HashMap<>());
 
-    var frequencyTripPattern = graph
+    var frequencyTripPattern = transitModel
       .getTripPatterns()
       .stream()
       .filter(p -> !p.getScheduledTimetable().getFrequencyEntries().isEmpty())
@@ -35,7 +37,7 @@ class GtfsModuleTest {
     assertNotNull(tripPattern.getGeometry());
     assertNotNull(tripPattern.getHopGeometry(0));
 
-    var pattern = graph.getTripPatternForId(tripPattern.getId());
+    var pattern = transitModel.getTripPatternForId(tripPattern.getId());
     assertNotNull(pattern.getGeometry());
     assertNotNull(pattern.getHopGeometry(0));
   }

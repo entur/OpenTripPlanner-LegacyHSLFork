@@ -75,7 +75,8 @@ public abstract class AbstractAzureSiriUpdater implements GraphUpdater {
 
   @Override
   public void setup(Graph graph, TransitModel transitModel) throws Exception {
-    snapshotSource = transitModel.getOrSetupTimetableSnapshotProvider(SiriTimetableSnapshotSource::new);
+    snapshotSource =
+      transitModel.getOrSetupTimetableSnapshotProvider(SiriTimetableSnapshotSource::new);
   }
 
   @Override

@@ -29,8 +29,8 @@ class AlternativeLegsTest extends GtfsTest {
 
   @Test
   void testPreviousLegs() throws Exception {
-    var routingService = new RoutingService(graph);
-    var transitService = new DefaultTransitService(graph);
+    var routingService = new RoutingService(graph, transitModel);
+    var transitService = new DefaultTransitService(transitModel);
 
     var originalLeg = new ScheduledTransitLegReference(
       new FeedScopedId(this.feedId.getId(), "1.2"),

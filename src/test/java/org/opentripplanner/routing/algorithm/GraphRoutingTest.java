@@ -55,6 +55,7 @@ import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.organization.Agency;
 import org.opentripplanner.transit.model.site.Entrance;
 import org.opentripplanner.transit.model.site.Stop;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.NonLocalizedString;
 
 public abstract class GraphRoutingTest {
@@ -94,6 +95,7 @@ public abstract class GraphRoutingTest {
   public abstract static class Builder {
 
     private final Graph graph = new Graph();
+    private final TransitModel transitModel = new TransitModel();
 
     public abstract void build();
 
@@ -427,7 +429,7 @@ public abstract class GraphRoutingTest {
 
     // Transit
     public void tripPattern(TripPattern tripPattern) {
-      graph.tripPatternForId.put(tripPattern.getId(), tripPattern);
+      transitModel.tripPatternForId.put(tripPattern.getId(), tripPattern);
     }
 
     public StopTime st(TransitStopVertex s1) {

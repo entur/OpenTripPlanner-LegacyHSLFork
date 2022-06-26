@@ -69,6 +69,7 @@ import org.opentripplanner.transit.model.site.StopCollection;
 import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.updater.GraphUpdaterConfigurator;
 import org.opentripplanner.updater.GraphUpdaterManager;
+import org.opentripplanner.util.MedianCalcForDoubles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +93,11 @@ public class TransitModel implements Serializable {
   private final TransferService transferService = new TransferService();
   /* Ideally we could just get rid of vertex labels, but they're used in tests and graph building. */
 
-  public final transient Deduplicator deduplicator = new Deduplicator();
+  public final transient Deduplicator deduplicator;
+
+  /** List of transit modes that are availible in GTFS data used in this graph **/
+  private final HashSet<TransitMode> transitModes = new HashSet<>();
+
   /**
    * Map from GTFS ServiceIds to integers close to 0. Allows using BitSets instead of
    * {@code Set<Object>}. An empty Map is created before the Graph is built to allow registering IDs
@@ -103,8 +108,7 @@ public class TransitModel implements Serializable {
   private final Collection<Operator> operators = new ArrayList<>();
   private final Collection<String> feedIds = new HashSet<>();
   private final Map<String, FeedInfo> feedInfoForId = new HashMap<>();
-  /** List of transit modes that are availible in GTFS data used in this graph **/
-  private final HashSet<TransitMode> transitModes = new HashSet<>();
+
   public final Date buildTime = new Date();
   /** Pre-generated transfers between all stops. */
 
@@ -114,6 +118,7 @@ public class TransitModel implements Serializable {
   // transit feed validity information in seconds since epoch
   private long transitServiceStarts = Long.MAX_VALUE;
   private long transitServiceEnds = 0;
+
   private GraphBundle bundle;
   private transient CalendarService calendarService;
 
@@ -126,7 +131,6 @@ public class TransitModel implements Serializable {
   private Coordinate center = null;
   /* The preferences that were used for graph building. */
   public Preferences preferences = null;
-
 
   /**
    * Manages all updaters of this graph. Is created by the GraphUpdaterConfigurator when there are
@@ -152,7 +156,6 @@ public class TransitModel implements Serializable {
    */
   public boolean hasScheduledService = false;
 
-
   /** Parent stops **/
   public Map<FeedScopedId, Station> stationById = new HashMap<>();
   /**
@@ -175,6 +178,7 @@ public class TransitModel implements Serializable {
   public Map<FeedScopedId, FlexLocationGroup> locationGroupsById = new HashMap<>();
   public Map<FeedScopedId, FlexTrip> flexTripsById = new HashMap<>();
 
+  private Map<FeedScopedId, TransitStopVertex> transitStopVertices;
 
   /** Data model for Raptor routing, with realtime updates applied (if any). */
   private transient TransitLayer transitLayer;
@@ -182,14 +186,13 @@ public class TransitModel implements Serializable {
 
   private transient TransitAlertService transitAlertService;
 
-
-  public TransitModel(TransitModel basedOn) {
-    this();
-    this.bundle = basedOn.getBundle();
+  public TransitModel(Deduplicator deduplicator) {
+    this.deduplicator = deduplicator;
   }
 
   // Constructor for deserialization.
   public TransitModel() {
+    deduplicator = new Deduplicator();
   }
 
   public TimetableSnapshot getTimetableSnapshot() {
@@ -213,13 +216,12 @@ public class TransitModel implements Serializable {
     } catch (ClassCastException e) {
       throw new IllegalArgumentException(
         "We support only one timetableSnapshotSource, there are two implementation; one for GTFS and one " +
-          "for Netex/Siri. They need to be refactored to work together. This cast will fail if updaters " +
-          "try setup both.",
+        "for Netex/Siri. They need to be refactored to work together. This cast will fail if updaters " +
+        "try setup both.",
         e
       );
     }
   }
-
 
   public TransitLayer getTransitLayer() {
     return transitLayer;
@@ -272,7 +274,6 @@ public class TransitModel implements Serializable {
     }
     return t;
   }
-
 
   public TransferService getTransferService() {
     return transferService;
@@ -548,14 +549,6 @@ public class TransitModel implements Serializable {
     return services;
   }
 
-  public VehicleRentalStationService getVehicleRentalStationService() {
-    return getService(VehicleRentalStationService.class);
-  }
-
-  public VehicleParkingService getVehicleParkingService() {
-    return getService(VehicleParkingService.class);
-  }
-
   public Collection<Notice> getNoticesByEntity(TransitEntity entity) {
     Collection<Notice> res = getNoticesByElement().get(entity);
     return res == null ? Collections.emptyList() : res;
@@ -576,7 +569,6 @@ public class TransitModel implements Serializable {
   public Collection<Notice> getNotices() {
     return getNoticesByElement().values();
   }
-
 
   public Station getStationById(FeedScopedId id) {
     return stationById.get(id);
@@ -679,6 +671,14 @@ public class TransitModel implements Serializable {
     return stopLocations;
   }
 
+  public Collection<TransitStopVertex> getTransitStopVertices() {
+    return transitStopVertices.values();
+  }
+
+  public void addTransitStopVertex(FeedScopedId id, TransitStopVertex stopVertex) {
+    transitStopVertices.put(id, stopVertex);
+  }
+
   private void readObject(ObjectInputStream inputStream)
     throws ClassNotFoundException, IOException {
     inputStream.defaultReadObject();
@@ -725,6 +725,29 @@ public class TransitModel implements Serializable {
     return stops.stream().map(index.getStopVertexForStop()::get).collect(Collectors.toSet());
   }
 
+  /**
+   * Calculates Transit center from median of coordinates of all transitStops if graph has transit.
+   * If it doesn't it isn't calculated. (mean walue of min, max latitude and longitudes are used)
+   * <p>
+   * Transit center is saved in center variable
+   * <p>
+   * This speeds up calculation, but problem is that median needs to have all of
+   * latitudes/longitudes in memory, this can become problematic in large installations. It works
+   * without a problem on New York State.
+   */
+  public void calculateTransitCenter() {
+    if (hasTransit) {
+      var vertices = getTransitStopVertices();
+      var medianCalculator = new MedianCalcForDoubles(vertices.size());
 
+      vertices.forEach(v -> medianCalculator.add(v.getLon()));
+      double lon = medianCalculator.median();
 
+      medianCalculator.reset();
+      vertices.forEach(v -> medianCalculator.add(v.getLat()));
+      double lat = medianCalculator.median();
+
+      this.center = new Coordinate(lon, lat);
+    }
+  }
 }

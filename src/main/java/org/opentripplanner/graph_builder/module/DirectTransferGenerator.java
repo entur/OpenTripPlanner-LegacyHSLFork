@@ -172,7 +172,7 @@ public class DirectTransferGenerator implements GraphBuilderModule {
       nTransfersTotal,
       nLinkedStops
     );
-    graph.hasDirectTransfers = true;
+    transitModel.hasDirectTransfers = true;
   }
 
   @Override

@@ -192,7 +192,7 @@ public class GeometryAndBlockProcessor {
       tableTripPattern.getScheduledTimetable().finish();
     }
 
-    graph.putService(FareService.class, fareServiceFactory.makeFareService());
+    transitModel.putService(FareService.class, fareServiceFactory.makeFareService());
   }
 
   public void setFareServiceFactory(FareServiceFactory fareServiceFactory) {

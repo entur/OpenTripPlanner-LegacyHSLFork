@@ -106,7 +106,8 @@ public class SiriVMUpdater extends PollingGraphUpdater {
     // Only create a realtime data snapshot source if none exists already
     // TODO OTP2 - This is thread safe, but only because updater setup methods are called sequentially.
     //           - Ideally we should inject the snapshotSource on this class.
-    snapshotSource = transitModel.getOrSetupTimetableSnapshotProvider(SiriTimetableSnapshotSource::new);
+    snapshotSource =
+      transitModel.getOrSetupTimetableSnapshotProvider(SiriTimetableSnapshotSource::new);
 
     // Set properties of realtime data snapshot source.
     // TODO OTP2 - this is overwriting these properties if they were specified by other updaters.

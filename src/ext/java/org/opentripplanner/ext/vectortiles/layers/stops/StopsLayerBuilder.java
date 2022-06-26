@@ -23,7 +23,11 @@ public class StopsLayerBuilder extends LayerBuilder<TransitStopVertex> {
   );
   private final TransitModel transitModel;
 
-  public StopsLayerBuilder(Graph graph, TransitModel transitModel, VectorTilesResource.LayerParameters layerParameters) {
+  public StopsLayerBuilder(
+    Graph graph,
+    TransitModel transitModel,
+    VectorTilesResource.LayerParameters layerParameters
+  ) {
     super(
       layerParameters.name(),
       mappers.get(MapperType.valueOf(layerParameters.mapper())).apply(transitModel)

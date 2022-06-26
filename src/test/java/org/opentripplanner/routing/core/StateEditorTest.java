@@ -35,7 +35,6 @@ public class StateEditorTest {
     request.setMode(TraverseMode.CAR);
     request.parkAndRide = true;
     Graph graph = new Graph();
-    graph.index = new GraphIndex(graph);
     var temporaryVertices = new TemporaryVerticesContainer(graph, request);
     RoutingContext routingContext = new RoutingContext(request, graph, temporaryVertices);
     State state = new State(routingContext);

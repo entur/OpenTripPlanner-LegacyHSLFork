@@ -67,7 +67,7 @@ public class NetexModule implements GraphBuilderModule {
     DataImportIssueStore issueStore
   ) {
     transitModel.clearTimeZone();
-    CalendarServiceData calendarServiceData = graph.getCalendarDataService();
+    CalendarServiceData calendarServiceData = transitModel.getCalendarDataService();
     boolean hasTransit = false;
     try {
       for (NetexBundle netexBundle : netexBundles) {
@@ -104,7 +104,13 @@ public class NetexModule implements GraphBuilderModule {
 
         GtfsFeedId feedId = new GtfsFeedId.Builder().id(netexFeedId).build();
 
-        AddTransitModelEntitiesToGraph.addToGraph(feedId, otpService, subwayAccessTime, graph, transitModel);
+        AddTransitModelEntitiesToGraph.addToGraph(
+          feedId,
+          otpService,
+          subwayAccessTime,
+          graph,
+          transitModel
+        );
 
         new GeometryAndBlockProcessor(
           otpService,
@@ -119,12 +125,12 @@ public class NetexModule implements GraphBuilderModule {
     }
 
     transitModel.clearCachedCalenderService();
-    graph.putService(CalendarServiceData.class, calendarServiceData);
+    transitModel.putService(CalendarServiceData.class, calendarServiceData);
     transitModel.updateTransitFeedValidity(calendarServiceData, issueStore);
 
     // If the graph's hasTransit flag isn't set to true already, set it based on this module's run
     transitModel.hasTransit = transitModel.hasTransit || hasTransit;
-    graph.calculateTransitCenter();
+    transitModel.calculateTransitCenter();
   }
 
   @Override

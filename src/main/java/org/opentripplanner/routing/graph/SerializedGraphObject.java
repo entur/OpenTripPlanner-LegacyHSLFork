@@ -64,7 +64,12 @@ public class SerializedGraphObject implements Serializable {
    */
   public final List<SubMode> allTransitSubModes;
 
-  public SerializedGraphObject(Graph graph, TransitModel transitModel, BuildConfig buildConfig, RouterConfig routerConfig) {
+  public SerializedGraphObject(
+    Graph graph,
+    TransitModel transitModel,
+    BuildConfig buildConfig,
+    RouterConfig routerConfig
+  ) {
     this.graph = graph;
     this.edges = graph.getEdges();
     this.transitModel = transitModel;
@@ -95,7 +100,7 @@ public class SerializedGraphObject implements Serializable {
 
   public static SerializedGraphObject load(File file) {
     try {
-      return  load(new FileInputStream(file), file.getAbsolutePath());
+      return load(new FileInputStream(file), file.getAbsolutePath());
     } catch (FileNotFoundException e) {
       LOG.error("Graph file not found: " + file, e);
       throw new OtpAppException(e.getMessage());

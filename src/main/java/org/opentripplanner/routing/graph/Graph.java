@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
@@ -28,9 +27,7 @@ import org.opentripplanner.common.model.T2;
 import org.opentripplanner.ext.dataoverlay.configuration.DataOverlayParameterBindings;
 import org.opentripplanner.graph_builder.linking.VertexLinker;
 import org.opentripplanner.graph_builder.module.osm.WayPropertySetSource.DrivingDirection;
-import org.opentripplanner.model.FeedInfo;
 import org.opentripplanner.model.GraphBundle;
-import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.routing.core.intersection_model.IntersectionTraversalCostModel;
 import org.opentripplanner.routing.core.intersection_model.SimpleIntersectionTraversalCostModel;
 import org.opentripplanner.routing.edgetype.StreetEdge;
@@ -42,12 +39,10 @@ import org.opentripplanner.routing.vehicle_parking.VehicleParkingService;
 import org.opentripplanner.routing.vehicle_rental.VehicleRentalStationService;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.basic.WgsCoordinate;
-import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.site.Stop;
 import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.transit.service.TransitModel;
-import org.opentripplanner.util.MedianCalcForDoubles;
 import org.opentripplanner.util.WorldEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,15 +68,10 @@ public class Graph implements Serializable {
 
   private final Map<Class<?>, Serializable> services = new HashMap<>();
 
-
   /* Ideally we could just get rid of vertex labels, but they're used in tests and graph building. */
   private final Map<String, Vertex> vertices = new ConcurrentHashMap<>();
-  public final transient Deduplicator deduplicator = new Deduplicator();
+  public final transient Deduplicator deduplicator;
 
-  private final Collection<String> feedIds = new HashSet<>();
-  private final Map<String, FeedInfo> feedInfoForId = new HashMap<>();
-  /** List of transit modes that are availible in GTFS data used in this graph **/
-  private final HashSet<TransitMode> transitModes = new HashSet<>();
   public final Date buildTime = new Date();
   /** Pre-generated transfers between all stops. */
 
@@ -93,8 +83,7 @@ public class Graph implements Serializable {
   private WorldEnvelope envelope = null;
   //ConvexHull of all the graph vertices. Generated at Graph build time.
   private Geometry convexHull = null;
-  /** The density center of the graph for determining the initial geographic extent in the client. */
-  private Coordinate center = null;
+
   /* The preferences that were used for graph building. */
   public Preferences preferences = null;
   // TODO OTP2: This is only enabled with static bike rental
@@ -104,12 +93,6 @@ public class Graph implements Serializable {
 
   /** True if OSM data was loaded into this Graph. */
   public boolean hasStreets = false;
-
-  /** True if direct single-edge transfers were generated between transit stops in this Graph. */
-  /**
-   * TODO migration
-   */
-  public boolean hasDirectTransfers = false;
 
   /**
    * Have bike parks already been linked to the graph. As the linking happens twice if a base graph
@@ -160,16 +143,14 @@ public class Graph implements Serializable {
    */
   public DataOverlayParameterBindings dataOverlayParameterBindings;
 
-  public Graph(Graph basedOn) {
-    this();
-    this.bundle = basedOn.getBundle();
-    this.drivingDirection = basedOn.drivingDirection;
+  public Graph(Deduplicator deduplicator) {
+    this.deduplicator = deduplicator;
   }
 
   // Constructor for deserialization.
   public Graph() {
+    this.deduplicator = new Deduplicator();
   }
-
 
   /**
    * Add the given vertex to the graph. Ideally, only vertices should add themselves to the graph,
@@ -184,8 +165,7 @@ public class Graph implements Serializable {
   public void addVertex(Vertex v) {
     Vertex old = vertices.put(v.getLabel(), v);
     if (old != null) {
-      if (old == v) LOG.error("repeatedly added the same vertex: {}", v);
-      else LOG.error(
+      if (old == v) LOG.error("repeatedly added the same vertex: {}", v); else LOG.error(
         "duplicate vertex label in graph (added vertex to graph anyway): {}",
         v
       );
@@ -358,40 +338,19 @@ public class Graph implements Serializable {
   }
 
   /**
-   * Adds mode of transport to transit modes in graph
-   */
-  public void addTransitMode(TransitMode mode) {
-    transitModes.add(mode);
-  }
-
-  public HashSet<TransitMode> getTransitModes() {
-    return transitModes;
-  }
-
-  /**
    * Perform indexing on vertices, edges and create transient data structures. This used to be done
    * in readObject methods upon deserialization, but stand-alone mode now allows passing graphs from
    * graphbuilder to server in memory, without a round trip through serialization.
    */
-  public void index() {
+  public void index(TransitModel transitModel) {
     LOG.info("Index graph...");
     streetIndex = new StreetVertexIndex(this, transitModel);
     LOG.info("Index graph complete.");
   }
 
-  public CalendarServiceData getCalendarDataService() {
-    CalendarServiceData calendarServiceData;
-    if (this.hasService(CalendarServiceData.class)) {
-      calendarServiceData = this.getService(CalendarServiceData.class);
-    } else {
-      calendarServiceData = new CalendarServiceData();
-    }
-    return calendarServiceData;
-  }
-
   public StreetVertexIndex getStreetIndex() {
     if (this.streetIndex == null) {
-      streetIndex = new StreetVertexIndex(this, transitModel);
+      throw new IllegalStateException("StreetIndex not initialized");
     }
     return this.streetIndex;
   }
@@ -400,14 +359,12 @@ public class Graph implements Serializable {
     return getStreetIndex().getVertexLinker();
   }
 
-
   public int removeEdgelessVertices() {
     int removed = 0;
     List<Vertex> toRemove = new LinkedList<>();
-    for (Vertex v : this.getVertices())
-      if (v.getDegreeOut() + v.getDegreeIn() == 0) toRemove.add(
-        v
-      );
+    for (Vertex v : this.getVertices()) if (v.getDegreeOut() + v.getDegreeIn() == 0) toRemove.add(
+      v
+    );
     // avoid concurrent vertex map modification
     for (Vertex v : toRemove) {
       this.remove(v);
@@ -415,19 +372,6 @@ public class Graph implements Serializable {
       LOG.trace("removed edgeless vertex {}", v);
     }
     return removed;
-  }
-
-  public Collection<String> getFeedIds() {
-    return feedIds;
-  }
-
-  public FeedInfo getFeedInfo(String feedId) {
-    return feedInfoForId.get(feedId);
-  }
-
-
-  public void addFeedInfo(FeedInfo info) {
-    this.feedInfoForId.put(info.getId(), info);
   }
 
   /**
@@ -479,36 +423,6 @@ public class Graph implements Serializable {
     return this.envelope;
   }
 
-  /**
-   * Calculates Transit center from median of coordinates of all transitStops if graph has transit.
-   * If it doesn't it isn't calculated. (mean walue of min, max latitude and longitudes are used)
-   * <p>
-   * Transit center is saved in center variable
-   * <p>
-   * This speeds up calculation, but problem is that median needs to have all of
-   * latitudes/longitudes in memory, this can become problematic in large installations. It works
-   * without a problem on New York State.
-   */
-  public void calculateTransitCenter() {
-    if (hasTransit) {
-      var vertices = getVerticesOfType(TransitStopVertex.class);
-      var medianCalculator = new MedianCalcForDoubles(vertices.size());
-
-      vertices.forEach(v -> medianCalculator.add(v.getLon()));
-      double lon = medianCalculator.median();
-
-      medianCalculator.reset();
-      vertices.forEach(v -> medianCalculator.add(v.getLat()));
-      double lat = medianCalculator.median();
-
-      this.center = new Coordinate(lon, lat);
-    }
-  }
-
-  public Optional<Coordinate> getCenter() {
-    return Optional.ofNullable(center);
-  }
-
   public double getDistanceBetweenElevationSamples() {
     return distanceBetweenElevationSamples;
   }
@@ -524,9 +438,6 @@ public class Graph implements Serializable {
     }
     return vehiclePositionService;
   }
-
-
-
 
   public VehicleRentalStationService getVehicleRentalStationService() {
     return getService(VehicleRentalStationService.class);
@@ -585,11 +496,8 @@ public class Graph implements Serializable {
     this.intersectionTraversalCostModel = intersectionTraversalCostModel;
   }
 
-
   private void readObject(ObjectInputStream inputStream)
     throws ClassNotFoundException, IOException {
     inputStream.defaultReadObject();
   }
-
-
 }

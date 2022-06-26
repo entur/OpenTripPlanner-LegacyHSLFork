@@ -31,6 +31,7 @@ import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.site.StopLocation;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.lang.ToStringBuilder;
 
 /**
@@ -51,12 +52,13 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
     );
 
     var graph = graph(false);
-    graph.index();
+    var transitModel = new TransitModel();
+    graph.index(transitModel);
     graph.hasStreets = false;
 
-    generator.buildGraph(graph, null);
+    generator.buildGraph(graph, transitModel, null);
 
-    assertTransfers(graph.transfersByStop);
+    assertTransfers(transitModel.transfersByStop);
   }
 
   @Test
@@ -68,11 +70,12 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
 
     var graph = graph(true);
     graph.hasStreets = false;
+    var transitModel = new TransitModel();
 
-    generator.buildGraph(graph, null);
+    generator.buildGraph(graph, transitModel, null);
 
     assertTransfers(
-      graph.transfersByStop,
+      transitModel.transfersByStop,
       tr(S0, 556, S11),
       tr(S0, 935, S21),
       tr(S11, 751, S21),

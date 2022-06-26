@@ -31,6 +31,7 @@ import org.opentripplanner.routing.impl.GraphPathFinder;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.standalone.config.RouterConfig;
 import org.opentripplanner.standalone.server.Router;
+import org.opentripplanner.transit.service.TransitModel;
 
 /**
  * Tests for planning with intermediate places
@@ -50,6 +51,8 @@ public class TestIntermediatePlaces {
 
   private static Graph graph;
 
+  private static TransitModel transitModel;
+
   private static GraphPathToItineraryMapper graphPathToItineraryMapper;
 
   @BeforeAll
@@ -58,16 +61,16 @@ public class TestIntermediatePlaces {
       graph = FakeGraph.buildGraphNoTransit();
       FakeGraph.addPerpendicularRoutes(graph);
       FakeGraph.link(graph);
-      graph.index();
+      graph.index(transitModel);
       Router router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
       router.startup();
       TestIntermediatePlaces.graphPathFinder = new GraphPathFinder(router);
-      timeZone = graph.getTimeZone();
+      timeZone = transitModel.getTimeZone();
 
       graphPathToItineraryMapper =
         new GraphPathToItineraryMapper(
-          graph.getTimeZone(),
-          new AlertToLegMapper(graph.getTransitAlertService()),
+          transitModel.getTimeZone(),
+          new AlertToLegMapper(transitModel.getTransitAlertService()),
           graph.streetNotesService,
           graph.ellipsoidToGeoidDifference
         );

@@ -79,7 +79,12 @@ public class NearbyStopFinder {
    * @param useStreets if true, search via the street network instead of using straight-line
    *                   distance.
    */
-  public NearbyStopFinder(Graph graph, TransitModel transitModel, Duration durationLimit, boolean useStreets) {
+  public NearbyStopFinder(
+    Graph graph,
+    TransitModel transitModel,
+    Duration durationLimit,
+    boolean useStreets
+  ) {
     this.graph = graph;
     this.transitModel = transitModel;
     this.useStreets = useStreets;
@@ -180,7 +185,7 @@ public class NearbyStopFinder {
     if (!reverseDirection) {
       routingContext = new RoutingContext(routingRequest, graph, originVertices, null);
     } else {
-      routingContext = new RoutingContext(routingRequest, graph,null, originVertices);
+      routingContext = new RoutingContext(routingRequest, graph, null, originVertices);
     }
 
     /* Add the origin vertices if they are stops */

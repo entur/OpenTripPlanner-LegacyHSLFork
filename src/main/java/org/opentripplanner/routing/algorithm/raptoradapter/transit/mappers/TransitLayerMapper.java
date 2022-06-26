@@ -52,7 +52,10 @@ public class TransitLayerMapper {
     this.transitModel = transitModel;
   }
 
-  public static TransitLayer map(TransitTuningParameters tuningParameters, TransitModel transitModel) {
+  public static TransitLayer map(
+    TransitTuningParameters tuningParameters,
+    TransitModel transitModel
+  ) {
     return new TransitLayerMapper(transitModel).map(tuningParameters);
   }
 

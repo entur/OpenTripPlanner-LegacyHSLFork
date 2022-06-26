@@ -50,8 +50,6 @@ public class RoutingService {
 
   private final TransitModel transitModel;
 
-
-
   private final GraphFinder graphFinder;
 
   public RoutingService(Graph graph, TransitModel transitModel) {
@@ -147,7 +145,6 @@ public class RoutingService {
     return this.graph.getExtent();
   }
 
-
   /** {@link Graph#getBundle()} */
   public GraphBundle getBundle() {
     return this.graph.getBundle();
@@ -168,7 +165,6 @@ public class RoutingService {
     return this.graph.countEdges();
   }
 
-
   /** {@link Graph#getStreetIndex()} */
   public StreetVertexIndex getStreetIndex() {
     return this.graph.getStreetIndex();
@@ -183,7 +179,6 @@ public class RoutingService {
   public int removeEdgelessVertices() {
     return this.graph.removeEdgelessVertices();
   }
-
 
   /** {@link Graph#calculateEnvelope()} */
   public void calculateEnvelope() {
@@ -210,16 +205,6 @@ public class RoutingService {
     return this.graph.getEnvelope();
   }
 
-  /** {@link Graph#calculateTransitCenter()} */
-  public void calculateTransitCenter() {
-    this.graph.calculateTransitCenter();
-  }
-
-  /** {@link Graph#getCenter()} */
-  public Optional<Coordinate> getCenter() {
-    return this.graph.getCenter();
-  }
-
   /** {@link Graph#getDistanceBetweenElevationSamples()} */
   public double getDistanceBetweenElevationSamples() {
     return this.graph.getDistanceBetweenElevationSamples();
@@ -229,8 +214,6 @@ public class RoutingService {
   public void setDistanceBetweenElevationSamples(double distanceBetweenElevationSamples) {
     this.graph.setDistanceBetweenElevationSamples(distanceBetweenElevationSamples);
   }
-
-
 
   public RealtimeVehiclePositionService getVehiclePositionService() {
     return this.graph.getVehiclePositionService();
@@ -272,10 +255,6 @@ public class RoutingService {
   ) {
     this.graph.setIntersectionTraversalCostModel(intersectionTraversalCostModel);
   }
-
-
-
-
 
   /** {@link GraphFinder#findClosestStops(double, double, double)} */
   public List<NearbyStop> findClosestStops(double lat, double lon, double radiusMeters) {

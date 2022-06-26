@@ -20,6 +20,7 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
+import org.opentripplanner.transit.service.TransitModel;
 
 /**
  * Verify that OSM ways that represent proposed or as yet unbuilt roads are not used for routing.
@@ -31,6 +32,7 @@ import org.opentripplanner.routing.spt.ShortestPathTree;
 public class UnroutableTest {
 
   private final Graph graph = new Graph();
+  private final TransitModel transitModel = new TransitModel();
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -40,7 +42,7 @@ public class UnroutableTest {
     OpenStreetMapModule osmBuilder = new OpenStreetMapModule(provider);
     osmBuilder.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
     HashMap<Class<?>, Object> extra = Maps.newHashMap();
-    osmBuilder.buildGraph(graph, extra); // TODO get rid of this "extra" thing
+    osmBuilder.buildGraph(graph, transitModel, extra); // TODO get rid of this "extra" thing
   }
 
   /**

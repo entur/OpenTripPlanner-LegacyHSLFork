@@ -53,7 +53,10 @@ public class TransitLayerUpdater {
 
   private final Map<LocalDate, Set<TripPatternForDate>> tripPatternsRunningOnDateMapCache = new HashMap<>();
 
-  public TransitLayerUpdater(TransitModel transitModel, Map<ServiceDate, TIntSet> serviceCodesRunningForDate) {
+  public TransitLayerUpdater(
+    TransitModel transitModel,
+    Map<ServiceDate, TIntSet> serviceCodesRunningForDate
+  ) {
     this.transitModel = transitModel;
     this.serviceCodesRunningForDate = serviceCodesRunningForDate;
   }

@@ -49,7 +49,11 @@ public abstract class GraphUpdaterConfigurator {
 
   private static final Logger LOG = LoggerFactory.getLogger(GraphUpdaterConfigurator.class);
 
-  public static void setupGraph(Graph graph, TransitModel transitModel, UpdatersParameters updatersParameters) {
+  public static void setupGraph(
+    Graph graph,
+    TransitModel transitModel,
+    UpdatersParameters updatersParameters
+  ) {
     List<GraphUpdater> updaters = new ArrayList<>();
 
     updaters.addAll(createUpdatersFromConfig(updatersParameters));
@@ -82,7 +86,11 @@ public abstract class GraphUpdaterConfigurator {
     }
   }
 
-  public static void setupUpdaters(Graph graph, TransitModel transitModel, List<GraphUpdater> updaters) {
+  public static void setupUpdaters(
+    Graph graph,
+    TransitModel transitModel,
+    List<GraphUpdater> updaters
+  ) {
     for (GraphUpdater updater : updaters) {
       try {
         updater.setup(graph, transitModel);

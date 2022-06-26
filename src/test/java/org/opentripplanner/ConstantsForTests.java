@@ -137,23 +137,23 @@ public class ConstantsForTests {
         osmModule.staticBikeParkAndRide = true;
         osmModule.staticParkAndRide = true;
         osmModule.skipVisibility = true;
-        osmModule.buildGraph(graph, transitModel,new HashMap<>());
+        osmModule.buildGraph(graph, transitModel, new HashMap<>());
       }
       // Add transit data from GTFS
       {
-        addGtfsToGraph(graph, PORTLAND_GTFS, new DefaultFareServiceFactory(), "prt");
+        addGtfsToGraph(graph, transitModel, PORTLAND_GTFS, new DefaultFareServiceFactory(), "prt");
       }
       // Link transit stops to streets
       {
         GraphBuilderModule streetTransitLinker = new StreetLinkerModule();
-        streetTransitLinker.buildGraph(graph, transitModel,new HashMap<>());
+        streetTransitLinker.buildGraph(graph, transitModel, new HashMap<>());
       }
       // Add elevation data
       if (withElevation) {
         var elevationModule = new ElevationModule(
           new GeotiffGridCoverageFactoryImpl(new File(PORTLAND_NED_WITH_NODATA))
         );
-        elevationModule.buildGraph(graph, transitModel,new HashMap<>());
+        elevationModule.buildGraph(graph, transitModel, new HashMap<>());
       }
 
       graph.hasStreets = true;
@@ -178,7 +178,7 @@ public class ConstantsForTests {
       OpenStreetMapModule osmModule = new OpenStreetMapModule(osmProvider);
       osmModule.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
       osmModule.skipVisibility = true;
-      osmModule.buildGraph(graph, transitModel,new HashMap<>());
+      osmModule.buildGraph(graph, transitModel, new HashMap<>());
       return graph;
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -189,11 +189,11 @@ public class ConstantsForTests {
     var graph = buildOsmGraph(osmPath);
     var transitModel = new TransitModel();
 
-    addGtfsToGraph(graph, gtfsPath, new DefaultFareServiceFactory(), null);
+    addGtfsToGraph(graph, transitModel, gtfsPath, new DefaultFareServiceFactory(), null);
 
     // Link transit stops to streets
     GraphBuilderModule streetTransitLinker = new StreetLinkerModule();
-    streetTransitLinker.buildGraph(graph, transitModel,new HashMap<>());
+    streetTransitLinker.buildGraph(graph, transitModel, new HashMap<>());
     return graph;
   }
 
@@ -203,7 +203,8 @@ public class ConstantsForTests {
 
   public static Graph buildGtfsGraph(String gtfsPath, FareServiceFactory fareServiceFactory) {
     var graph = new Graph();
-    addGtfsToGraph(graph, gtfsPath, fareServiceFactory, null);
+    var transitModel = new TransitModel();
+    addGtfsToGraph(graph, transitModel, gtfsPath, fareServiceFactory, null);
     return graph;
   }
 
@@ -218,19 +219,19 @@ public class ConstantsForTests {
         OpenStreetMapProvider osmProvider = new OpenStreetMapProvider(osmFile, false);
         OpenStreetMapModule osmModule = new OpenStreetMapModule(osmProvider);
         osmModule.skipVisibility = true;
-        osmModule.buildGraph(graph, transitModel,new HashMap<>());
+        osmModule.buildGraph(graph, transitModel, new HashMap<>());
       }
       // Add transit data from Netex
       {
         BuildConfig buildParameters = createNetexBuilderParameters();
         List<DataSource> dataSources = Collections.singletonList(NETEX_MINIMAL_DATA_SOURCE);
         NetexModule module = NetexConfig.netexModule(buildParameters, dataSources);
-        module.buildGraph(graph, transitModel,null);
+        module.buildGraph(graph, transitModel, null);
       }
       // Link transit stops to streets
       {
         GraphBuilderModule streetTransitLinker = new StreetLinkerModule();
-        streetTransitLinker.buildGraph(graph, transitModel,new HashMap<>());
+        streetTransitLinker.buildGraph(graph, transitModel, new HashMap<>());
       }
       return graph;
     } catch (Exception e) {
@@ -260,6 +261,7 @@ public class ConstantsForTests {
 
   private static void addGtfsToGraph(
     Graph graph,
+    TransitModel transitModel,
     String file,
     FareServiceFactory fareServiceFactory,
     @Nullable String feedId
@@ -274,10 +276,11 @@ public class ConstantsForTests {
       false
     );
 
-    module.buildGraph(graph, transitModel,new HashMap<>());
+    module.buildGraph(graph, transitModel, new HashMap<>());
 
-    graph.index();
-    graph.hasTransit = true;
+    transitModel.index();
+    graph.index(transitModel);
+    transitModel.hasTransit = true;
   }
 
   private static void addPortlandVehicleRentals(Graph graph) {

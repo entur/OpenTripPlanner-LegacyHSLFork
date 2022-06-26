@@ -33,7 +33,9 @@ public class FlexServiceDate {
   boolean isFlexTripRunning(FlexTrip flexTrip, TransitModel transitModel) {
     return (
       servicesRunning != null &&
-      servicesRunning.contains(transitModel.getServiceCodes().get(flexTrip.getTrip().getServiceId()))
+      servicesRunning.contains(
+        transitModel.getServiceCodes().get(flexTrip.getTrip().getServiceId())
+      )
     );
   }
 }

@@ -58,7 +58,12 @@ public class Router {
   /** A graphical window that is used for visualizing search progress (debugging). */
   public GraphVisualizer graphVisualizer = null;
 
-  public Router(Graph graph, TransitModel transitModel, RouterConfig routerConfig, MeterRegistry meterRegistry) {
+  public Router(
+    Graph graph,
+    TransitModel transitModel,
+    RouterConfig routerConfig,
+    MeterRegistry meterRegistry
+  ) {
     this.graph = graph;
     this.transitModel = transitModel;
     this.routerConfig = routerConfig;
@@ -90,7 +95,9 @@ public class Router {
     /* Realtime updates can be mapped similarly by a recurring operation in a GraphUpdater below. */
     LOG.info("Creating transit layer for Raptor routing.");
     if (transitModel.hasTransit && transitModel.index != null) {
-      transitModel.setTransitLayer(TransitLayerMapper.map(routerConfig.transitTuningParameters(), transitModel));
+      transitModel.setTransitLayer(
+        TransitLayerMapper.map(routerConfig.transitTuningParameters(), transitModel)
+      );
       transitModel.setRealtimeTransitLayer(new TransitLayer(transitModel.getTransitLayer()));
       transitModel.transitLayerUpdater =
         new TransitLayerUpdater(transitModel, transitModel.index.getServiceCodesRunningForDate());
@@ -101,7 +108,11 @@ public class Router {
     }
 
     /* Create Graph updater modules from JSON config. */
-    GraphUpdaterConfigurator.setupGraph(this.graph, this.transitModel, routerConfig.updaterConfig());
+    GraphUpdaterConfigurator.setupGraph(
+      this.graph,
+      this.transitModel,
+      routerConfig.updaterConfig()
+    );
 
     /* Compute ellipsoidToGeoidDifference for this Graph */
     try {

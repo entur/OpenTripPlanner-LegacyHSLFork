@@ -26,6 +26,7 @@ import org.opentripplanner.test.support.VariableSource;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.site.Stop;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.NonLocalizedString;
 
 /**
@@ -64,6 +65,7 @@ class OsmBoardingLocationsModuleTest {
   @VariableSource("testCases")
   void addAndLinkBoardingLocations(boolean skipVisibility, Set<String> linkedVertices) {
     var graph = new Graph();
+    var transitModel = new TransitModel();
     var extra = new HashMap<Class<?>, Object>();
 
     var provider = new OpenStreetMapProvider(file, false);
@@ -79,7 +81,7 @@ class OsmBoardingLocationsModuleTest {
     var osmModule = new OpenStreetMapModule(List.of(provider), Set.of("ref", "ref:IFOPT"));
     osmModule.skipVisibility = skipVisibility;
 
-    osmModule.buildGraph(graph, extra);
+    osmModule.buildGraph(graph, transitModel, extra);
 
     var platformVertex = new TransitStopVertex(graph, platform, Set.of(TransitMode.RAIL));
     var busVertex = new TransitStopVertex(graph, busStop, Set.of(TransitMode.BUS));
@@ -91,7 +93,7 @@ class OsmBoardingLocationsModuleTest {
     assertEquals(0, platformVertex.getOutgoing().size());
 
     var boardingLocationsModule = new OsmBoardingLocationsModule();
-    boardingLocationsModule.buildGraph(graph, extra);
+    boardingLocationsModule.buildGraph(graph, transitModel, extra);
 
     var boardingLocations = graph.getVerticesOfType(OsmBoardingLocationVertex.class);
     assertEquals(5, boardingLocations.size()); // 3 nodes connected to the street network, plus one "floating" and one area centroid created by the module

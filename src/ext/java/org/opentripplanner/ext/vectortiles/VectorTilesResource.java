@@ -115,7 +115,13 @@ public class VectorTilesResource {
     @Context HttpHeaders headers,
     @PathParam("layers") String requestedLayers
   ) {
-    return new TileJson(otpServer.getRouter().graph, uri, headers, requestedLayers);
+    return new TileJson(
+      otpServer.getRouter().graph,
+      otpServer.getRouter().transitModel,
+      uri,
+      headers,
+      requestedLayers
+    );
   }
 
   private String getBaseAddress(UriInfo uri, HttpHeaders headers) {
@@ -177,12 +183,18 @@ public class VectorTilesResource {
     public final double[] bounds;
     public final double[] center;
 
-    private TileJson(Graph graph, UriInfo uri, HttpHeaders headers, String layers) {
+    private TileJson(
+      Graph graph,
+      TransitModel transitModel,
+      UriInfo uri,
+      HttpHeaders headers,
+      String layers
+    ) {
       attribution =
-        graph
+        transitModel
           .getFeedIds()
           .stream()
-          .map(graph::getFeedInfo)
+          .map(transitModel::getFeedInfo)
           .filter(Predicate.not(Objects::isNull))
           .map(feedInfo ->
             "<a href='" + feedInfo.getPublisherUrl() + "'>" + feedInfo.getPublisherName() + "</a>"
@@ -210,7 +222,7 @@ public class VectorTilesResource {
         };
 
       center =
-        graph
+        transitModel
           .getCenter()
           .map(coordinate -> new double[] { coordinate.x, coordinate.y, 9 })
           .orElse(null);

@@ -139,7 +139,6 @@ public class DefaultTransitService implements TransitEditorService {
     return this.transitModel.getNotices();
   }
 
-
   /** {@link TransitModel#getStationById(FeedScopedId)} */
   @Override
   public Station getStationById(FeedScopedId id) {
@@ -527,7 +526,6 @@ public class DefaultTransitService implements TransitEditorService {
     return transitModel.getTransitServiceStarts();
   }
 
-
   /** {@link TransitModelIndex#getStopVertexForStop()} */
   @Override
   public Map<Stop, TransitStopVertex> getStopVertexForStop() {
@@ -540,7 +538,4 @@ public class DefaultTransitService implements TransitEditorService {
   public HashGridSpatialIndex<TransitStopVertex> getStopSpatialIndex() {
     return transitModelIndex.getStopSpatialIndex();
   }
-
 }
-
-

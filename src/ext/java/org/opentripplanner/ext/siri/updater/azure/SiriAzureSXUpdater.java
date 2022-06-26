@@ -144,7 +144,9 @@ public class SiriAzureSXUpdater extends AbstractAzureSiriUpdater implements Tran
         return;
       }
 
-      super.saveResultOnGraph.execute((graph, transitModel) -> updateHandler.update(siri.getServiceDelivery()));
+      super.saveResultOnGraph.execute((graph, transitModel) ->
+        updateHandler.update(siri.getServiceDelivery())
+      );
     } catch (JAXBException | XMLStreamException e) {
       LOG.error(e.getLocalizedMessage(), e);
     }

@@ -130,7 +130,9 @@ public class CarRoutingTest {
     var temporaryVertices = new TemporaryVerticesContainer(graph, request);
     final RoutingContext routingContext = new RoutingContext(request, graph, temporaryVertices);
 
-    var gpf = new GraphPathFinder(new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry));
+    var gpf = new GraphPathFinder(
+      new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry)
+    );
     var paths = gpf.graphPathFinderEntryPoint(routingContext);
 
     GraphPathToItineraryMapper graphPathToItineraryMapper = new GraphPathToItineraryMapper(

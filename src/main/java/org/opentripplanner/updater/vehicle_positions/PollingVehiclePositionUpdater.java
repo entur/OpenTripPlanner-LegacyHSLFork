@@ -93,7 +93,11 @@ public class PollingVehiclePositionUpdater extends PollingGraphUpdater {
     return "Streaming vehicle position updater with update source = " + s;
   }
 
-  private static TripPattern getPatternIncludingRealtime(TransitModel transitModel, Trip trip, ServiceDate sd) {
+  private static TripPattern getPatternIncludingRealtime(
+    TransitModel transitModel,
+    Trip trip,
+    ServiceDate sd
+  ) {
     return Optional
       .ofNullable(transitModel.getTimetableSnapshot())
       .map(snapshot -> snapshot.getLastAddedTripPattern(trip.getId(), sd))

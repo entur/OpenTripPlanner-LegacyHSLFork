@@ -98,7 +98,11 @@ public abstract class GtfsTest {
     routingRequest.setWalkBoardCost(30);
     routingRequest.transferSlack = 0;
 
-    RoutingResponse res = new RoutingWorker(router, routingRequest, transitModel.getTimeZone().toZoneId())
+    RoutingResponse res = new RoutingWorker(
+      router,
+      routingRequest,
+      transitModel.getTimeZone().toZoneId()
+    )
       .route();
     List<Itinerary> itineraries = res.getTripPlan().itineraries;
     // Stored in instance field for use in individual tests
@@ -153,12 +157,11 @@ public abstract class GtfsTest {
     graph = new Graph();
     transitModel = new TransitModel();
 
-
     gtfsGraphBuilderImpl.buildGraph(graph, transitModel, null);
     // Set the agency ID to be used for tests to the first one in the feed.
     String agencyId = transitModel.getAgencies().iterator().next().getId().getId();
     System.out.printf("Set the agency ID for this test to %s\n", agencyId);
-    graph.index();
+    graph.index(transitModel);
     router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
     router.startup();
     timetableSnapshotSource = TimetableSnapshotSource.ofGraph(transitModel);

@@ -12,6 +12,7 @@ import java.util.TimeZone;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.opentripplanner.OtpModel;
 import org.opentripplanner.graph_builder.module.FakeGraph;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.model.plan.Itinerary;
@@ -58,8 +59,10 @@ public class TestIntermediatePlaces {
   @BeforeAll
   public static void setUp() {
     try {
-      graph = FakeGraph.buildGraphNoTransit();
-      FakeGraph.addPerpendicularRoutes(graph);
+      OtpModel otpModel = FakeGraph.buildGraphNoTransit();
+      graph = otpModel.graph;
+      transitModel = otpModel.transitModel;
+      FakeGraph.addPerpendicularRoutes(graph, transitModel);
       FakeGraph.link(graph);
       graph.index(transitModel);
       Router router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);

@@ -232,18 +232,18 @@ class VehicleParkingUpdaterTest {
   private void runUpdaterOnce() {
     class GraphUpdaterMock extends GraphUpdaterManager {
 
-      public GraphUpdaterMock(Graph graph, List<GraphUpdater> updaters) {
-        super(graph, updaters);
+      public GraphUpdaterMock(Graph graph, TransitModel transitModel, List<GraphUpdater> updaters) {
+        super(graph, transitModel, updaters);
       }
 
       @Override
       public Future<?> execute(GraphWriterRunnable runnable) {
-        runnable.run(graph);
+        runnable.run(graph, transitModel);
         return Futures.immediateVoidFuture();
       }
     }
 
-    var graphUpdaterManager = new GraphUpdaterMock(graph, List.of(vehicleParkingUpdater));
+    var graphUpdaterManager = new GraphUpdaterMock(graph, transitModel, List.of(vehicleParkingUpdater));
     graphUpdaterManager.startUpdaters();
     graphUpdaterManager.stop();
   }

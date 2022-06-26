@@ -26,6 +26,7 @@ import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.routing.vertextype.TemporaryVertex;
+import org.opentripplanner.transit.service.TransitModel;
 
 public class TemporaryVerticesContainerTest {
 
@@ -33,6 +34,7 @@ public class TemporaryVerticesContainerTest {
   // Given:
   // - a graph with 3 intersections/vertexes
   private final Graph g = new Graph();
+  private final TransitModel transitModel = new TransitModel();
   private final StreetVertex a = new IntersectionVertex(g, "A", 1.0, 1.0);
   private final StreetVertex b = new IntersectionVertex(g, "B", 0.0, 1.0);
   private final StreetVertex c = new IntersectionVertex(g, "C", 1.0, 0.0);
@@ -49,7 +51,8 @@ public class TemporaryVerticesContainerTest {
     createStreetEdge(a, b, "a -> b");
     createStreetEdge(b, a, "b -> a");
     createStreetEdge(a, c, "a -> c");
-    g.index();
+    transitModel.index();
+    g.index(transitModel);
   }
 
   @Test

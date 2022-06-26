@@ -110,7 +110,7 @@ public class CarPickupTest extends GraphRoutingTest {
     //   A <-> B <-> C <-> D <-> E
     //   TS1 <-^           ^-> TE1
 
-    graph =
+    var otpModel =
       graphOf(
         new Builder() {
           @Override
@@ -133,6 +133,7 @@ public class CarPickupTest extends GraphRoutingTest {
           }
         }
       );
+    graph = otpModel.graph;
   }
 
   private void assertPath(Vertex fromVertex, Vertex toVertex, String descriptor) {

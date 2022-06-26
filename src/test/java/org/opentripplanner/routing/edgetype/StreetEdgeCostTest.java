@@ -23,7 +23,7 @@ class StreetEdgeCostTest extends GraphRoutingTest {
   Graph graph;
 
   public StreetEdgeCostTest() {
-    graph =
+    var otpModel =
       graphOf(
         new Builder() {
           @Override
@@ -33,6 +33,7 @@ class StreetEdgeCostTest extends GraphRoutingTest {
           }
         }
       );
+    graph = otpModel.graph;
   }
 
   static Stream<Arguments> walkReluctanceCases = Stream.of(

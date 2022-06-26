@@ -12,6 +12,7 @@ import org.opentripplanner.openstreetmap.OpenStreetMapProvider;
 import org.opentripplanner.routing.edgetype.AreaEdge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
+import org.opentripplanner.transit.service.TransitModel;
 
 public class PlatformLinkerTest {
 
@@ -24,6 +25,7 @@ public class PlatformLinkerTest {
     String stairsEndpointLabel = "osm:node:1028861028";
 
     Graph gg = new Graph();
+    TransitModel transitModel = new TransitModel();
 
     File file = new File(
       URLDecoder.decode(
@@ -34,12 +36,12 @@ public class PlatformLinkerTest {
 
     OpenStreetMapProvider provider = new OpenStreetMapProvider(file, false);
 
-    OpenStreetMapModule loader = new OpenStreetMapModule(provider);
-    loader.platformEntriesLinking = true;
-    loader.skipVisibility = false;
-    loader.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
+    OpenStreetMapModule osmModule = new OpenStreetMapModule(provider);
+    osmModule.platformEntriesLinking = true;
+    osmModule.skipVisibility = false;
+    osmModule.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
 
-    loader.buildGraph(gg, new HashMap<>());
+    osmModule.buildGraph(gg, transitModel, new HashMap<>());
 
     Vertex stairsEndpoint = gg.getVertex(stairsEndpointLabel);
 

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.api.parallel.Resources;
 import org.opentripplanner.ConstantsForTests;
+import org.opentripplanner.OtpModel;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.routing.api.request.RequestModes;
 import org.opentripplanner.routing.api.request.RoutingRequest;
@@ -147,7 +148,7 @@ public class ElevationSnapshotTest extends SnapshotTestBase {
   }
 
   @Override
-  protected Graph getGraph() {
-    return ConstantsForTests.getInstance().getCachedPortlandGraphWithElevation();
+  protected OtpModel getGraph() {
+    return  ConstantsForTests.getInstance().getCachedPortlandGraphWithElevation();
   }
 }

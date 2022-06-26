@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.locationtech.jts.geom.Geometry;
 import org.opentripplanner.ConstantsForTests;
+import org.opentripplanner.OtpModel;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.model.plan.Itinerary;
 import org.opentripplanner.model.plan.WalkStep;
@@ -45,8 +46,9 @@ public class BarrierRoutingTest {
 
   @BeforeAll
   public static void createGraph() {
-    graph = ConstantsForTests.buildOsmGraph(ConstantsForTests.HERRENBERG_BARRIER_GATES_OSM);
-    transitModel = new TransitModel();
+    OtpModel otpModel = ConstantsForTests.buildOsmGraph(ConstantsForTests.HERRENBERG_BARRIER_GATES_OSM);
+    graph = otpModel.graph;
+    transitModel = otpModel.transitModel;
   }
 
   /**

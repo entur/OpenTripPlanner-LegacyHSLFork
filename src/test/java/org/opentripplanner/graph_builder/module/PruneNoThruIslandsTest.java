@@ -15,6 +15,7 @@ import org.opentripplanner.openstreetmap.OpenStreetMapProvider;
 import org.opentripplanner.openstreetmap.model.OSMWithTags;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.transit.service.TransitModel;
 
 public class PruneNoThruIslandsTest {
 
@@ -66,6 +67,7 @@ public class PruneNoThruIslandsTest {
   private static Graph buildOsmGraph(String osmPath) {
     try {
       var graph = new Graph();
+      var transitModel = new TransitModel();
       // Add street data from OSM
       File osmFile = new File(osmPath);
       OpenStreetMapProvider osmProvider = new OpenStreetMapProvider(osmFile, true);
@@ -88,12 +90,12 @@ public class PruneNoThruIslandsTest {
           public void configure() {}
         };
       osmModule.skipVisibility = true;
-      osmModule.buildGraph(graph, new HashMap<>());
+      osmModule.buildGraph(graph, transitModel, new HashMap<>());
       // Prune floating islands and set noThru where necessary
       PruneNoThruIslands pruneNoThruIslands = new PruneNoThruIslands(null);
       pruneNoThruIslands.setPruningThresholdIslandWithoutStops(40);
       pruneNoThruIslands.setPruningThresholdIslandWithStops(5);
-      pruneNoThruIslands.buildGraph(graph, new HashMap<>());
+      pruneNoThruIslands.buildGraph(graph, transitModel, new HashMap<>());
 
       return graph;
     } catch (Exception e) {

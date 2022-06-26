@@ -35,6 +35,7 @@ import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.standalone.config.RouterConfig;
 import org.opentripplanner.standalone.server.Router;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.LocalizedString;
 import org.opentripplanner.util.NonLocalizedString;
 
@@ -50,6 +51,7 @@ public class OpenStreetMapModuleTest {
   @Test
   public void testGraphBuilder() {
     Graph gg = new Graph();
+    TransitModel transitModel = new TransitModel();
 
     File file = new File(
       URLDecoder.decode(getClass().getResource("map.osm.pbf").getFile(), StandardCharsets.UTF_8)
@@ -57,10 +59,10 @@ public class OpenStreetMapModuleTest {
 
     OpenStreetMapProvider provider = new OpenStreetMapProvider(file, true);
 
-    OpenStreetMapModule loader = new OpenStreetMapModule(provider);
-    loader.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
+    OpenStreetMapModule osmModule = new OpenStreetMapModule(provider);
+    osmModule.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
 
-    loader.buildGraph(gg, extra);
+    osmModule.buildGraph(gg, transitModel, extra);
 
     // Kamiennogorska at south end of segment
     Vertex v1 = gg.getVertex("osm:node:280592578");
@@ -110,6 +112,7 @@ public class OpenStreetMapModuleTest {
   @Test
   public void testBuildGraphDetailed() throws Exception {
     Graph gg = new Graph();
+    TransitModel transitModel = new TransitModel();
 
     File file = new File(
       URLDecoder.decode(
@@ -118,10 +121,10 @@ public class OpenStreetMapModuleTest {
       )
     );
     OpenStreetMapProvider provider = new OpenStreetMapProvider(file, true);
-    OpenStreetMapModule loader = new OpenStreetMapModule(provider);
-    loader.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
+    OpenStreetMapModule osmModule = new OpenStreetMapModule(provider);
+    osmModule.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
 
-    loader.buildGraph(gg, extra);
+    osmModule.buildGraph(gg, transitModel, extra);
 
     // These vertices are labeled in the OSM file as having traffic lights.
     IntersectionVertex iv1 = (IntersectionVertex) gg.getVertex("osm:node:1919595918");
@@ -287,6 +290,7 @@ public class OpenStreetMapModuleTest {
    */
   private void testBuildingAreas(boolean skipVisibility) {
     Graph graph = new Graph();
+    TransitModel transitModel = new TransitModel();
 
     File file = new File(
       URLDecoder.decode(
@@ -300,7 +304,7 @@ public class OpenStreetMapModuleTest {
     loader.skipVisibility = skipVisibility;
     loader.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
 
-    loader.buildGraph(graph, extra);
+    loader.buildGraph(graph, transitModel, extra);
     graph.getStreetIndex();
 
     Router router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);

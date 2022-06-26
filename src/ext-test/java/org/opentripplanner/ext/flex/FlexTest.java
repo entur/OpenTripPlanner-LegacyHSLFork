@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.opentripplanner.OtpModel;
 import org.opentripplanner.ext.flex.flexpathcalculator.DirectFlexPathCalculator;
 import org.opentripplanner.graph_builder.model.GtfsBundle;
 import org.opentripplanner.graph_builder.module.FakeGraph;
@@ -16,6 +17,7 @@ import org.opentripplanner.graph_builder.module.GtfsModule;
 import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.model.calendar.ServiceDateInterval;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.OTPFeature;
 
 public abstract class FlexTest {
@@ -37,7 +39,7 @@ public abstract class FlexTest {
   );
   static final FlexParameters params = new FlexParameters(300);
 
-  static Graph buildFlexGraph(String fileName) {
+  static OtpModel buildFlexGraph(String fileName) {
     File file = null;
     try {
       file = FakeGraph.getFileForResource(fileName);
@@ -46,16 +48,18 @@ public abstract class FlexTest {
     }
 
     var graph = new Graph();
+    var transitModel = new TransitModel();
     GtfsBundle gtfsBundle = new GtfsBundle(file);
     GtfsModule module = new GtfsModule(
       List.of(gtfsBundle),
       new ServiceDateInterval(new ServiceDate(2021, 1, 1), new ServiceDate(2022, 1, 1))
     );
     OTPFeature.enableFeatures(Map.of(OTPFeature.FlexRouting, true));
-    module.buildGraph(graph, new HashMap<>());
-    graph.index();
+    module.buildGraph(graph, transitModel, new HashMap<>());
+    transitModel.index();
+    graph.index(transitModel);
     OTPFeature.enableFeatures(Map.of(OTPFeature.FlexRouting, false));
-    assertFalse(graph.flexTripsById.isEmpty());
-    return graph;
+    assertFalse(transitModel.flexTripsById.isEmpty());
+    return new OtpModel(graph, transitModel);
   }
 }

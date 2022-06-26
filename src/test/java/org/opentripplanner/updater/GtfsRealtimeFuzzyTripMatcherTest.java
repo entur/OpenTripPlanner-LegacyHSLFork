@@ -13,11 +13,11 @@ public class GtfsRealtimeFuzzyTripMatcherTest extends GtfsTest {
 
   @Test
   public void testMatch() {
-    String feedId = graph.getFeedIds().iterator().next();
+    String feedId = transitModel.getFeedIds().iterator().next();
 
     GtfsRealtimeFuzzyTripMatcher matcher = new GtfsRealtimeFuzzyTripMatcher(
-      new RoutingService(graph),
-      new DefaultTransitService(graph)
+      new RoutingService(graph, transitModel),
+      new DefaultTransitService(transitModel)
     );
     TripDescriptor trip1 = TripDescriptor
       .newBuilder()

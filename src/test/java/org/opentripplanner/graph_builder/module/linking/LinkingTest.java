@@ -108,11 +108,11 @@ public class LinkingTest {
   @Test
   public void testStopsLinkedIdentically() throws URISyntaxException {
     // build the graph without the added stops
-    Graph g1 = buildGraphNoTransit();
+    Graph g1 = buildGraphNoTransit().graph;
     addRegularStopGrid(g1);
     link(g1);
 
-    Graph g2 = buildGraphNoTransit();
+    Graph g2 = buildGraphNoTransit().graph;
     addExtraStops(g2);
     addRegularStopGrid(g2);
     link(g2);

@@ -20,7 +20,7 @@ public class CarParkAndRideTest extends ParkAndRideTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    graph =
+    var otpModel =
       graphOf(
         new Builder() {
           @Override
@@ -83,6 +83,7 @@ public class CarParkAndRideTest extends ParkAndRideTest {
           }
         }
       );
+    graph = otpModel.graph;
   }
 
   @Test

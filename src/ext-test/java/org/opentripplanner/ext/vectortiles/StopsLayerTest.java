@@ -12,6 +12,7 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.site.Stop;
+import org.opentripplanner.transit.service.TransitModel;
 
 public class StopsLayerTest {
 
@@ -25,9 +26,9 @@ public class StopsLayerTest {
   @Test
   public void digitransitVehicleParkingPropertyMapperTest() {
     Graph graph = mock(Graph.class);
-    graph.index = mock(GraphIndex.class);
+    TransitModel transitModel = mock(TransitModel.class);
 
-    DigitransitStopPropertyMapper mapper = DigitransitStopPropertyMapper.create(graph);
+    DigitransitStopPropertyMapper mapper = DigitransitStopPropertyMapper.create(transitModel);
     Map<String, Object> map = new HashMap<>();
     mapper.map(new TransitStopVertex(graph, stop, null)).forEach(o -> map.put(o.first, o.second));
 

@@ -54,7 +54,7 @@ public class BikeRentalTest extends GraphRoutingTest {
     //   D <-> E1
     //   D <-> T2
 
-    graph =
+    var otpModel =
       graphOf(
         new Builder() {
           @Override
@@ -87,6 +87,7 @@ public class BikeRentalTest extends GraphRoutingTest {
           }
         }
       );
+    graph= otpModel.graph;
   }
 
   // This tests exists to test if the cost of walking with a bike changes

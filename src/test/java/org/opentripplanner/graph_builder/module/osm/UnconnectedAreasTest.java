@@ -18,6 +18,7 @@ import org.opentripplanner.routing.edgetype.StreetVehicleParkingLink;
 import org.opentripplanner.routing.edgetype.VehicleParkingEdge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.VehicleParkingEntranceVertex;
+import org.opentripplanner.transit.service.TransitModel;
 
 public class UnconnectedAreasTest {
 
@@ -145,6 +146,7 @@ public class UnconnectedAreasTest {
 
   private Graph buildOSMGraph(String osmFileName, DataImportIssueStore issueStore) {
     Graph graph = new Graph();
+    TransitModel transitModel = new TransitModel();
     var fileUrl = getClass().getResource(osmFileName);
     Assertions.assertNotNull(fileUrl);
     File file = new File(fileUrl.getFile());
@@ -155,10 +157,10 @@ public class UnconnectedAreasTest {
     loader.staticParkAndRide = true;
     loader.staticBikeParkAndRide = true;
 
-    loader.buildGraph(graph, new HashMap<>(), issueStore);
+    loader.buildGraph(graph, transitModel, new HashMap<>(), issueStore);
 
     StreetLinkerModule streetLinkerModule = new StreetLinkerModule();
-    streetLinkerModule.buildGraph(graph, new HashMap<>(), issueStore);
+    streetLinkerModule.buildGraph(graph, transitModel, new HashMap<>(), issueStore);
 
     return graph;
   }

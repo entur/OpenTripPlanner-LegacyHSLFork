@@ -36,6 +36,6 @@ public class GeometryAndBlockProcessorTest {
 
     GeometryAndBlockProcessor factory = new GeometryAndBlockProcessor(context);
 
-    factory.run(graph);
+    factory.run(graph, transitModel);
   }
 }

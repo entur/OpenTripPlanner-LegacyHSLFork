@@ -28,10 +28,12 @@ import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
+import org.opentripplanner.transit.service.TransitModel;
 
 public class TriangleInequalityTest {
 
   private static Graph graph;
+  private static TransitModel transitModel;
 
   private Vertex start;
   private Vertex end;
@@ -40,6 +42,7 @@ public class TriangleInequalityTest {
   public static void onlyOnce() {
     HashMap<Class<?>, Object> extra = new HashMap<>();
     graph = new Graph();
+    transitModel = new TransitModel();
 
     File file = new File(
       URLDecoder.decode(
@@ -50,9 +53,9 @@ public class TriangleInequalityTest {
     DataSource source = new FileDataSource(file, FileType.OSM);
     OpenStreetMapProvider provider = new OpenStreetMapProvider(source, true);
 
-    OpenStreetMapModule loader = new OpenStreetMapModule(provider);
-    loader.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
-    loader.buildGraph(graph, extra);
+    OpenStreetMapModule osmModule = new OpenStreetMapModule(provider);
+    osmModule.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
+    osmModule.buildGraph(graph, transitModel, extra);
   }
 
   @BeforeEach

@@ -18,7 +18,7 @@ public class BicycleParkAndRideTest extends ParkAndRideTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    graph =
+    var otpModel =
       graphOf(
         new Builder() {
           @Override
@@ -63,6 +63,7 @@ public class BicycleParkAndRideTest extends ParkAndRideTest {
           }
         }
       );
+    graph = otpModel.graph;
   }
 
   // Verify that it is not possible to park at a car-only park

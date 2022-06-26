@@ -33,6 +33,7 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.opentripplanner.ConstantsForTests;
+import org.opentripplanner.OtpModel;
 import org.opentripplanner.api.mapping.ItineraryMapper;
 import org.opentripplanner.api.parameter.ApiRequestMode;
 import org.opentripplanner.api.parameter.QualifiedMode;
@@ -81,16 +82,15 @@ public abstract class SnapshotTestBase {
 
   protected Router getRouter() {
     if (router == null) {
-      Graph graph = getGraph();
-
-      router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
+      OtpModel otpModel = getGraph();
+      router = new Router(otpModel.graph, otpModel.transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
       router.startup();
     }
 
     return router;
   }
 
-  protected Graph getGraph() {
+  protected OtpModel getGraph() {
     return ConstantsForTests.getInstance().getCachedPortlandGraph();
   }
 
@@ -262,7 +262,7 @@ public abstract class SnapshotTestBase {
 
   private List<Itinerary> retrieveItineraries(RoutingRequest request, Router router) {
     long startMillis = System.currentTimeMillis();
-    RoutingService routingService = new RoutingService(router.graph);
+    RoutingService routingService = new RoutingService(router.graph, router.transitModel);
     RoutingResponse response = routingService.route(request, router);
 
     List<Itinerary> itineraries = response.getTripPlan().itineraries;
@@ -272,7 +272,7 @@ public abstract class SnapshotTestBase {
         itineraries,
         startMillis,
         System.currentTimeMillis(),
-        router.graph.getTimeZone()
+        router.transitModel.getTimeZone()
       );
     }
     return itineraries;
@@ -281,7 +281,7 @@ public abstract class SnapshotTestBase {
   private String createDebugUrlForRequest(RoutingRequest request) {
     var dateTime = Instant
       .ofEpochSecond(request.getDateTime().getEpochSecond())
-      .atZone(getRouter().graph.getTimeZone().toZoneId())
+      .atZone(getRouter().transitModel.getTimeZone().toZoneId())
       .toLocalDateTime();
 
     var transitModes = mapModes(request.modes.transitModes);

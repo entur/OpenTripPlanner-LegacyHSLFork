@@ -22,6 +22,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opentripplanner.ConstantsForTests;
+import org.opentripplanner.OtpModel;
 import org.opentripplanner.graph_builder.model.GtfsBundle;
 import org.opentripplanner.graph_builder.module.DirectTransferGenerator;
 import org.opentripplanner.graph_builder.module.GtfsModule;
@@ -35,6 +36,7 @@ import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.standalone.config.RouterConfig;
 import org.opentripplanner.standalone.server.Router;
+import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.OTPFeature;
 
 /**
@@ -47,8 +49,12 @@ public class FlexIntegrationTest {
     .toInstant();
 
   static Graph graph;
+
+  static TransitModel transitModel;
+
   static RoutingService service;
   static Router router;
+
 
   @Test
   public void shouldReturnARouteTransferringFromBusToFlex() {
@@ -137,12 +143,16 @@ public class FlexIntegrationTest {
     var martaGtfsPath = getAbsolutePath(FlexTest.MARTA_BUS_856_GTFS);
     var flexGtfsPath = getAbsolutePath(FlexTest.COBB_FLEX_GTFS);
 
-    graph = ConstantsForTests.buildOsmGraph(osmPath);
-    addGtfsToGraph(graph, List.of(cobblincGtfsPath, martaGtfsPath, flexGtfsPath));
+    OtpModel otpModel = ConstantsForTests.buildOsmGraph(osmPath);
+    graph = otpModel.graph;
+    transitModel = otpModel.transitModel;
+
+
+    addGtfsToGraph(graph, transitModel, List.of(cobblincGtfsPath, martaGtfsPath, flexGtfsPath));
     router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
     router.startup();
 
-    service = new RoutingService(graph);
+    service = new RoutingService(graph, transitModel);
   }
 
   @AfterAll
@@ -158,7 +168,7 @@ public class FlexIntegrationTest {
     }
   }
 
-  private static void addGtfsToGraph(Graph graph, List<String> gtfsFiles) {
+  private static void addGtfsToGraph(Graph graph, TransitModel transitModel, List<String> gtfsFiles) {
     var extra = new HashMap<Class<?>, Object>();
 
     // GTFS
@@ -167,24 +177,25 @@ public class FlexIntegrationTest {
       .map(f -> new GtfsBundle(new File(f)))
       .collect(Collectors.toList());
     GtfsModule gtfsModule = new GtfsModule(gtfsBundles, ServiceDateInterval.unbounded());
-    gtfsModule.buildGraph(graph, extra);
+    gtfsModule.buildGraph(graph, transitModel, extra);
 
     // link stations to streets
     StreetLinkerModule streetLinkerModule = new StreetLinkerModule();
-    streetLinkerModule.buildGraph(graph, extra);
+    streetLinkerModule.buildGraph(graph, transitModel, extra);
 
     // link flex locations to streets
     var flexMapper = new FlexLocationsToStreetEdgesMapper();
-    flexMapper.buildGraph(graph, new HashMap<>());
+    flexMapper.buildGraph(graph, transitModel, new HashMap<>());
 
     // generate direct transfers
     var req = new RoutingRequest();
 
     // we don't have a complete coverage of the entire area so use straight lines for transfers
     var transfers = new DirectTransferGenerator(Duration.ofMinutes(10), List.of(req));
-    transfers.buildGraph(graph, extra);
+    transfers.buildGraph(graph, transitModel, extra);
 
-    graph.index();
+    transitModel.index();
+    graph.index(transitModel);
   }
 
   private Itinerary getItinerary(GenericLocation from, GenericLocation to, int index) {

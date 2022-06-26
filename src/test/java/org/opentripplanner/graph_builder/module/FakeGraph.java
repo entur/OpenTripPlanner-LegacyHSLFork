@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import org.opentripplanner.OtpModel;
 import org.opentripplanner.graph_builder.linking.LinkingDirection;
 import org.opentripplanner.graph_builder.linking.VertexLinker;
 import org.opentripplanner.graph_builder.model.GtfsBundle;
@@ -20,6 +21,7 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.site.Stop;
+import org.opentripplanner.transit.service.TransitModel;
 
 /**
  * Get graphs of Columbus Ohio with real OSM streets and a synthetic transit system for use in
@@ -28,17 +30,18 @@ import org.opentripplanner.transit.model.site.Stop;
 public class FakeGraph {
 
   /** Build a graph in Columbus, OH with no transit */
-  public static Graph buildGraphNoTransit() throws URISyntaxException {
+  public static OtpModel buildGraphNoTransit() throws URISyntaxException {
     Graph gg = new Graph();
+    TransitModel transitModel = new TransitModel();
 
     File file = getFileForResource("columbus.osm.pbf");
     OpenStreetMapProvider provider = new OpenStreetMapProvider(file, false);
 
-    OpenStreetMapModule loader = new OpenStreetMapModule(provider);
-    loader.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
+    OpenStreetMapModule osmModule = new OpenStreetMapModule(provider);
+    osmModule.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
 
-    loader.buildGraph(gg, new HashMap<>());
-    return gg;
+    osmModule.buildGraph(gg, transitModel, new HashMap<>());
+    return new OtpModel(gg, transitModel);
   }
 
   public static File getFileForResource(String resource) throws URISyntaxException {
@@ -49,23 +52,23 @@ public class FakeGraph {
   /**
    * Add many transit lines to a lot of stops. This is only used by InitialStopsTest.
    */
-  public static void addTransitMultipleLines(Graph g) throws URISyntaxException {
+  public static void addTransitMultipleLines(Graph g, TransitModel transitModel) throws URISyntaxException {
     GtfsModule gtfs = new GtfsModule(
       Arrays.asList(new GtfsBundle(getFileForResource("addTransitMultipleLines.gtfs.zip"))),
       ServiceDateInterval.unbounded()
     );
-    gtfs.buildGraph(g, new HashMap<>());
+    gtfs.buildGraph(g, transitModel, new HashMap<>());
   }
 
   /**
    * This introduces a 1MB test resource but is only used by TestIntermediatePlaces.
    */
-  public static void addPerpendicularRoutes(Graph graph) throws URISyntaxException {
+  public static void addPerpendicularRoutes(Graph graph, TransitModel transitModel) throws URISyntaxException {
     GtfsModule gtfs = new GtfsModule(
       Arrays.asList(new GtfsBundle(getFileForResource("addPerpendicularRoutes.gtfs.zip"))),
       ServiceDateInterval.unbounded()
     );
-    gtfs.buildGraph(graph, new HashMap<>());
+    gtfs.buildGraph(graph, transitModel, new HashMap<>());
   }
 
   /** Add a regular grid of stops to the graph */

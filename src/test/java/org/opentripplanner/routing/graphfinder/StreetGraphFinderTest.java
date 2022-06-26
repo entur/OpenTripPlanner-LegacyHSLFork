@@ -36,7 +36,7 @@ class StreetGraphFinderTest extends GraphRoutingTest {
 
   @BeforeEach
   protected void setUp() throws Exception {
-    var graph = graphOf(
+    var otpModel = graphOf(
       new Builder() {
         @Override
         public void build() {
@@ -117,11 +117,12 @@ class StreetGraphFinderTest extends GraphRoutingTest {
       }
     );
 
-    graph.index = new GraphIndex(graph);
+    var graph = otpModel.graph;
+    var transitModel = otpModel.transitModel;
 
-    routingService = new RoutingService(graph);
-    transitService = new DefaultTransitService(graph);
-    graphFinder = new StreetGraphFinder(graph, transitModel);
+    routingService = new RoutingService(graph, transitModel);
+    transitService = new DefaultTransitService(transitModel);
+    graphFinder = new StreetGraphFinder(graph);
   }
 
   @Test

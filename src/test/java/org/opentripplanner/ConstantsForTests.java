@@ -103,8 +103,8 @@ public class ConstantsForTests {
   );
 
   private static ConstantsForTests instance = null;
-  private Graph portlandGraph = null;
-  private Graph portlandGraphWithElevation = null;
+  private OtpModel portlandGraph = null;
+  private OtpModel portlandGraphWithElevation = null;
 
   private ConstantsForTests() {}
 
@@ -125,7 +125,7 @@ public class ConstantsForTests {
   /**
    * Builds a new graph using the Portland test data.
    */
-  public static Graph buildNewPortlandGraph(boolean withElevation) {
+  public static OtpModel buildNewPortlandGraph(boolean withElevation) {
     try {
       Graph graph = new Graph();
       TransitModel transitModel = new TransitModel();
@@ -160,15 +160,16 @@ public class ConstantsForTests {
 
       addPortlandVehicleRentals(graph);
 
-      graph.index();
+      transitModel.index();
+      graph.index(transitModel);
 
-      return graph;
+      return new OtpModel(graph, transitModel);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  public static Graph buildOsmGraph(String osmPath) {
+  public static OtpModel buildOsmGraph(String osmPath) {
     try {
       var graph = new Graph();
       var transitModel = new TransitModel();
@@ -179,36 +180,35 @@ public class ConstantsForTests {
       osmModule.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
       osmModule.skipVisibility = true;
       osmModule.buildGraph(graph, transitModel, new HashMap<>());
-      return graph;
+      return new OtpModel(graph, transitModel);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  public static Graph buildOsmAndGtfsGraph(String osmPath, String gtfsPath) {
-    var graph = buildOsmGraph(osmPath);
-    var transitModel = new TransitModel();
+  public static OtpModel buildOsmAndGtfsGraph(String osmPath, String gtfsPath) {
+    var otpModel = buildOsmGraph(osmPath);
 
-    addGtfsToGraph(graph, transitModel, gtfsPath, new DefaultFareServiceFactory(), null);
+    addGtfsToGraph(otpModel.graph, otpModel.transitModel, gtfsPath, new DefaultFareServiceFactory(), null);
 
     // Link transit stops to streets
     GraphBuilderModule streetTransitLinker = new StreetLinkerModule();
-    streetTransitLinker.buildGraph(graph, transitModel, new HashMap<>());
-    return graph;
+    streetTransitLinker.buildGraph(otpModel.graph, otpModel.transitModel, new HashMap<>());
+    return otpModel;
   }
 
-  public static Graph buildGtfsGraph(String gtfsPath) {
+  public static OtpModel buildGtfsGraph(String gtfsPath) {
     return buildGtfsGraph(gtfsPath, new DefaultFareServiceFactory());
   }
 
-  public static Graph buildGtfsGraph(String gtfsPath, FareServiceFactory fareServiceFactory) {
+  public static OtpModel buildGtfsGraph(String gtfsPath, FareServiceFactory fareServiceFactory) {
     var graph = new Graph();
     var transitModel = new TransitModel();
     addGtfsToGraph(graph, transitModel, gtfsPath, fareServiceFactory, null);
-    return graph;
+    return new OtpModel(graph, transitModel);
   }
 
-  public static Graph buildNewMinimalNetexGraph() {
+  public static OtpModel buildNewMinimalNetexGraph() {
     try {
       Graph graph = new Graph();
       var transitModel = new TransitModel();
@@ -233,7 +233,7 @@ public class ConstantsForTests {
         GraphBuilderModule streetTransitLinker = new StreetLinkerModule();
         streetTransitLinker.buildGraph(graph, transitModel, new HashMap<>());
       }
-      return graph;
+      return new OtpModel(graph, transitModel);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -242,7 +242,7 @@ public class ConstantsForTests {
   /**
    * Returns a cached copy of the Portland graph, which may have been initialized.
    */
-  public synchronized Graph getCachedPortlandGraph() {
+  public synchronized OtpModel getCachedPortlandGraph() {
     if (portlandGraph == null) {
       portlandGraph = buildNewPortlandGraph(false);
     }
@@ -252,7 +252,7 @@ public class ConstantsForTests {
   /**
    * Returns a cached copy of the Portland graph, which may have been initialized.
    */
-  public synchronized Graph getCachedPortlandGraphWithElevation() {
+  public synchronized OtpModel getCachedPortlandGraphWithElevation() {
     if (portlandGraphWithElevation == null) {
       portlandGraphWithElevation = buildNewPortlandGraph(true);
     }

@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.opentripplanner.OtpModel;
 import org.opentripplanner.model.PathTransfer;
 import org.opentripplanner.model.StopPattern;
 import org.opentripplanner.model.TripPattern;
@@ -51,10 +52,12 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
       List.of(new RoutingRequest(RequestModes.of().withTransferMode(StreetMode.WALK).build()))
     );
 
-    var graph = graph(false);
-    var transitModel = new TransitModel();
-    graph.index(transitModel);
+    var otpModel = graph(false);
+    var graph = otpModel.graph;
+    var transitModel = otpModel.transitModel;
     graph.hasStreets = false;
+    transitModel.index();
+    graph.index(transitModel);
 
     generator.buildGraph(graph, transitModel, null);
 
@@ -68,9 +71,10 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
       List.of(new RoutingRequest(RequestModes.of().withTransferMode(StreetMode.WALK).build()))
     );
 
-    var graph = graph(true);
+    var otpModel = graph(true);
+    var graph = otpModel.graph;
     graph.hasStreets = false;
-    var transitModel = new TransitModel();
+    var transitModel = otpModel.transitModel;
 
     generator.buildGraph(graph, transitModel, null);
 
@@ -92,12 +96,14 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
       List.of(new RoutingRequest(RequestModes.of().withTransferMode(StreetMode.WALK).build()))
     );
 
-    var graph = graph(false);
+    var otpModel = graph(false);
+    var graph = otpModel.graph;
     graph.hasStreets = true;
+    var transitModel = otpModel.transitModel;
 
-    generator.buildGraph(graph, null);
+    generator.buildGraph(graph, transitModel, null);
 
-    assertTransfers(graph.transfersByStop);
+    assertTransfers(transitModel.transfersByStop);
   }
 
   @Test
@@ -107,13 +113,15 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
       List.of(new RoutingRequest(RequestModes.of().withTransferMode(StreetMode.WALK).build()))
     );
 
-    var graph = graph(true);
+    var otpModel = graph(true);
+    var graph = otpModel.graph;
     graph.hasStreets = true;
+    var transitModel = otpModel.transitModel;
 
-    generator.buildGraph(graph, null);
+    generator.buildGraph(graph, transitModel, null);
 
     assertTransfers(
-      graph.transfersByStop,
+      transitModel.transfersByStop,
       tr(S0, 100, List.of(V0, V11), S11),
       tr(S0, 100, List.of(V0, V21), S21),
       tr(S11, 100, List.of(V11, V21), S21)
@@ -130,12 +138,14 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
       )
     );
 
-    var graph = graph(false);
+    var otpModel = graph(false);
+    var graph = otpModel.graph;
     graph.hasStreets = true;
+    var transitModel = otpModel.transitModel;
 
-    generator.buildGraph(graph, null);
+    generator.buildGraph(graph, transitModel, null);
 
-    assertTransfers(graph.transfersByStop);
+    assertTransfers(transitModel.transfersByStop);
   }
 
   @Test
@@ -148,13 +158,15 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
       )
     );
 
-    var graph = graph(true);
+    OtpModel otpModel = graph(true);
+    var graph = otpModel.graph;
     graph.hasStreets = true;
+    var transitModel = otpModel.transitModel;
 
-    generator.buildGraph(graph, null);
+    generator.buildGraph(graph, transitModel, null);
 
     assertTransfers(
-      graph.transfersByStop,
+      transitModel.transfersByStop,
       tr(S0, 100, List.of(V0, V11), S11),
       tr(S0, 100, List.of(V0, V21), S21),
       tr(S11, 100, List.of(V11, V21), S21),
@@ -162,7 +174,7 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
     );
   }
 
-  private Graph graph(boolean addPatterns) {
+  private OtpModel graph(boolean addPatterns) {
     return graphOf(
       new Builder() {
         @Override

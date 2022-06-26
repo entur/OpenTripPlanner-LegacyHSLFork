@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.locationtech.jts.geom.Coordinate;
+import org.opentripplanner.OtpModel;
 import org.opentripplanner.common.geometry.GeometryUtils;
 import org.opentripplanner.model.StopTime;
 import org.opentripplanner.model.TripPattern;
@@ -75,8 +76,9 @@ public abstract class GraphRoutingTest {
       .collect(Collectors.joining(" - "));
   }
 
-  protected Graph graphOf(Builder builder) {
-    return builder.graph();
+  protected OtpModel graphOf(Builder builder) {
+    builder.build();
+    return new OtpModel(builder.graph(), builder.transitModel());
   }
 
   protected GraphPath routeParkAndRide(
@@ -100,8 +102,11 @@ public abstract class GraphRoutingTest {
     public abstract void build();
 
     public Graph graph() {
-      build();
       return graph;
+    }
+
+    public TransitModel transitModel() {
+      return transitModel;
     }
 
     public <T> T v(String label) {
@@ -437,5 +442,7 @@ public abstract class GraphRoutingTest {
       st.setStop(s1.getStop());
       return st;
     }
+
+
   }
 }

@@ -301,7 +301,7 @@ public class BikeWalkingTest extends GraphRoutingTest {
     //
     //   TS1 <-> A <-> B <-> C <-> D <-> E <-> F <-> E1 <-> S2
 
-    graph =
+    var otpModel =
       graphOf(
         new Builder() {
           @Override
@@ -330,6 +330,7 @@ public class BikeWalkingTest extends GraphRoutingTest {
           }
         }
       );
+    graph = otpModel.graph;
   }
 
   private void assertBikePath(Vertex fromVertex, Vertex toVertex, String... descriptor) {

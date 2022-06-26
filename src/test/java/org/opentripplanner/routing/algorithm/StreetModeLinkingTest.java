@@ -18,6 +18,7 @@ import org.opentripplanner.routing.core.TemporaryVerticesContainer;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
+import org.opentripplanner.transit.service.TransitModel;
 
 /**
  * This tests linking of GenericLocations to streets for each StreetMode. The test has 5 parallel
@@ -28,6 +29,7 @@ import org.opentripplanner.transit.model._data.TransitModelForTest;
 public class StreetModeLinkingTest extends GraphRoutingTest {
 
   private Graph graph;
+  private TransitModel transitModel;
 
   @Test
   public void testCarLinking() {
@@ -109,7 +111,7 @@ public class StreetModeLinkingTest extends GraphRoutingTest {
 
   @BeforeEach
   protected void setUp() throws Exception {
-    graph =
+    var otpModel =
       graphOf(
         new GraphRoutingTest.Builder() {
           @Override
@@ -154,10 +156,13 @@ public class StreetModeLinkingTest extends GraphRoutingTest {
           }
         }
       );
+    graph = otpModel.graph;
 
     graph.hasStreets = true;
-    graph.index();
-    new StreetLinkerModule().buildGraph(graph, null, new DataImportIssueStore(false));
+    transitModel = otpModel.transitModel;
+    transitModel.index();
+    graph.index(transitModel);
+    new StreetLinkerModule().buildGraph(graph, transitModel, null, new DataImportIssueStore(false));
   }
 
   private void assertLinkedFromTo(

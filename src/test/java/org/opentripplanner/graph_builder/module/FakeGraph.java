@@ -19,6 +19,7 @@ import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.edgetype.StreetTransitStopLink;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
+import org.opentripplanner.routing.vertextype.TransitStopVertexBuilder;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.site.Stop;
 import org.opentripplanner.transit.service.TransitModel;
@@ -72,25 +73,25 @@ public class FakeGraph {
   }
 
   /** Add a regular grid of stops to the graph */
-  public static void addRegularStopGrid(Graph g) {
+  public static void addRegularStopGrid(Graph g, TransitModel transitModel) {
     int count = 0;
     for (double lat = 39.9058; lat < 40.0281; lat += 0.005) {
       for (double lon = -83.1341; lon < -82.8646; lon += 0.005) {
         String id = Integer.toString(count++);
         Stop stop = TransitModelForTest.stop(id).withCoordinate(lat, lon).build();
-        new TransitStopVertex(g, stop, null);
+        new TransitStopVertexBuilder().withGraph(g).withStop(stop).withTransitModel(transitModel).build();
       }
     }
   }
 
   /** add some extra stops to the graph */
-  public static void addExtraStops(Graph g) {
+  public static void addExtraStops(Graph g, TransitModel transitModel) {
     int count = 0;
     double lon = -83;
     for (double lat = 40; lat < 40.01; lat += 0.005) {
       String id = "EXTRA_" + count++;
       Stop stop = TransitModelForTest.stop(id).withCoordinate(lat, lon).build();
-      new TransitStopVertex(g, stop, null);
+      new TransitStopVertexBuilder().withGraph(g).withStop(stop).withTransitModel(transitModel).build();
     }
 
     // add some duplicate stops, identical to the regular stop grid
@@ -98,7 +99,7 @@ public class FakeGraph {
     for (double lat = 39.9058; lat < 40.0281; lat += 0.005) {
       String id = "DUPE_" + count++;
       Stop stop = TransitModelForTest.stop(id).withCoordinate(lat, lon).build();
-      new TransitStopVertex(g, stop, null);
+      new TransitStopVertexBuilder().withGraph(g).withStop(stop).withTransitModel(transitModel).build();
     }
 
     // add some almost duplicate stops
@@ -106,7 +107,7 @@ public class FakeGraph {
     for (double lat = 39.9059; lat < 40.0281; lat += 0.005) {
       String id = "ALMOST_" + count++;
       Stop stop = TransitModelForTest.stop(id).withCoordinate(lat, lon).build();
-      new TransitStopVertex(g, stop, null);
+      new TransitStopVertexBuilder().withGraph(g).withStop(stop).withTransitModel(transitModel).build();
     }
   }
 

@@ -16,6 +16,7 @@ import org.opentripplanner.model.MultiModalStation;
 import org.opentripplanner.model.OtpTransitService;
 import org.opentripplanner.model.Pathway;
 import org.opentripplanner.model.TripPattern;
+import org.opentripplanner.routing.vertextype.TransitStopVertexBuilder;
 import org.opentripplanner.routing.edgetype.ElevatorAlightEdge;
 import org.opentripplanner.routing.edgetype.ElevatorBoardEdge;
 import org.opentripplanner.routing.edgetype.ElevatorHopEdge;
@@ -127,8 +128,7 @@ public class AddTransitModelEntitiesToGraph {
     // It is now possible for these vertices to not be connected to any edges.
     for (Stop stop : otpTransitService.getAllStops()) {
       Set<TransitMode> modes = stopModeMap.get(stop);
-      TransitStopVertex stopVertex = new TransitStopVertex(graph, stop, modes);
-      transitModel.addTransitStopVertex(stopVertex.getStop().getId(), stopVertex);
+      TransitStopVertex stopVertex = new TransitStopVertexBuilder().withStop(stop).withGraph(graph).withTransitModel(transitModel).withModes(modes).build();
       if (modes != null && modes.contains(TransitMode.SUBWAY)) {
         stopVertex.setStreetToStopTime(subwayAccessTime);
       }

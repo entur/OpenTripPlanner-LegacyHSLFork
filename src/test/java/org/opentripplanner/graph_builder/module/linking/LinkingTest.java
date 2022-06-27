@@ -113,14 +113,14 @@ public class LinkingTest {
     OtpModel otpModel1 = buildGraphNoTransit();
     Graph g1 = otpModel1.graph;
     TransitModel transitModel1 = otpModel1.transitModel;
-    addRegularStopGrid(g1);
+    addRegularStopGrid(g1, transitModel1);
     link(g1, transitModel1);
 
     OtpModel otpModel2 = buildGraphNoTransit();
     Graph g2 = otpModel2.graph;
     TransitModel transitModel2 = otpModel2.transitModel;
-    addExtraStops(g2);
-    addRegularStopGrid(g2);
+    addExtraStops(g2, transitModel2);
+    addRegularStopGrid(g2, transitModel2);
     link(g2, transitModel2);
 
     // compare the linkages

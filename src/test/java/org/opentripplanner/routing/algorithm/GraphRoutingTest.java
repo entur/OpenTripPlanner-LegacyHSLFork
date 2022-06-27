@@ -46,6 +46,7 @@ import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.routing.vertextype.TemporaryVertex;
 import org.opentripplanner.routing.vertextype.TransitEntranceVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
+import org.opentripplanner.routing.vertextype.TransitStopVertexBuilder;
 import org.opentripplanner.routing.vertextype.VehicleParkingEntranceVertex;
 import org.opentripplanner.routing.vertextype.VehicleRentalPlaceVertex;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
@@ -231,7 +232,7 @@ public abstract class GraphRoutingTest {
     }
 
     public TransitStopVertex stop(String id, double latitude, double longitude) {
-      return new TransitStopVertex(graph, stopEntity(id, latitude, longitude), null);
+      return new TransitStopVertexBuilder().withGraph(graph).withStop(stopEntity(id, latitude, longitude)).withTransitModel(transitModel).build();
     }
 
     public TransitEntranceVertex entrance(String id, double latitude, double longitude) {

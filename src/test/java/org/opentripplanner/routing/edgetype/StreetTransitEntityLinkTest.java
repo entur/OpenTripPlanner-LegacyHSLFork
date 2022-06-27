@@ -16,13 +16,16 @@ import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.SimpleVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
+import org.opentripplanner.routing.vertextype.TransitStopVertexBuilder;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.site.Stop;
+import org.opentripplanner.transit.service.TransitModel;
 
 class StreetTransitEntityLinkTest {
 
   Graph graph = new Graph();
+  TransitModel transitModel = new TransitModel();
 
   Stop inaccessibleStop = TransitModelForTest.stopForTest(
     "A:inaccessible",
@@ -74,7 +77,7 @@ class StreetTransitEntityLinkTest {
 
   private State traverse(Stop stop, boolean onlyAccessible) {
     var from = new SimpleVertex(graph, "A", 10, 10);
-    var to = new TransitStopVertex(graph, stop, Set.of(TransitMode.RAIL));
+    var to = new TransitStopVertexBuilder().withGraph(graph).withStop(stop).withTransitModel(transitModel).withModes(Set.of(TransitMode.RAIL)).build();
 
     var req = new RoutingRequest();
     WheelchairAccessibilityFeature feature;

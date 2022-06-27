@@ -37,7 +37,7 @@ public class TransitStopVertex extends Vertex {
    * @param modes Set of modes for all Routes using this stop. If {@code null} an empty set is
    *              used.
    */
-  public TransitStopVertex(Graph graph, Stop stop, Set<TransitMode> modes) {
+    TransitStopVertex(Graph graph, Stop stop, Set<TransitMode> modes) {
     super(graph, stop.getId().toString(), stop.getLon(), stop.getLat(), stop.getName());
     this.stop = stop;
     this.modes = modes != null ? modes : new HashSet<>();

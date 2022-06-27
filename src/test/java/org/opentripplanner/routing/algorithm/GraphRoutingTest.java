@@ -78,7 +78,11 @@ public abstract class GraphRoutingTest {
 
   protected OtpModel graphOf(Builder builder) {
     builder.build();
-    return new OtpModel(builder.graph(), builder.transitModel());
+    Graph graph = builder.graph();
+    TransitModel transitModel = builder.transitModel();
+    transitModel.index();
+    graph.index(transitModel);
+    return new OtpModel(graph, transitModel);
   }
 
   protected GraphPath routeParkAndRide(

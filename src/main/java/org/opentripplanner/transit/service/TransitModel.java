@@ -341,15 +341,13 @@ public class TransitModel implements Serializable {
    * graphbuilder to server in memory, without a round trip through serialization.
    */
   public void index() {
-    LOG.info("Index graph...");
-    LOG.debug("Rebuilding edge and vertex indices.");
+    LOG.info("Index transit model...");
     for (TripPattern tp : tripPatternForId.values()) {
       // Skip frequency-based patterns which have no timetable (null)
       if (tp != null) tp.getScheduledTimetable().finish();
     }
-    // TODO: Move this ^ stuff into the graph index
     this.index = new TransitModelIndex(this);
-    LOG.info("Index graph complete.");
+    LOG.info("Index transit model complete.");
   }
 
   public CalendarService getCalendarService() {

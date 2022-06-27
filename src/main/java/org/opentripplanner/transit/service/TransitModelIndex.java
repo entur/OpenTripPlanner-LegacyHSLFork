@@ -68,7 +68,7 @@ public class TransitModelIndex {
   private FlexIndex flexIndex = null;
 
   public TransitModelIndex(TransitModel transitModel) {
-    LOG.info("GraphIndex init...");
+    LOG.info("Transit model index init...");
 
     for (Agency agency : transitModel.getAgencies()) {
       this.agencyForId.put(agency.getId(), agency);
@@ -141,7 +141,7 @@ public class TransitModelIndex {
       }
     }
 
-    LOG.info("GraphIndex init complete.");
+    LOG.info("Transit Model index init complete.");
   }
 
   public Agency getAgencyForId(FeedScopedId id) {

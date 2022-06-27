@@ -160,8 +160,6 @@ public class StreetModeLinkingTest extends GraphRoutingTest {
 
     graph.hasStreets = true;
     transitModel = otpModel.transitModel;
-    transitModel.index();
-    graph.index(transitModel);
     new StreetLinkerModule().buildGraph(graph, transitModel, null, new DataImportIssueStore(false));
   }
 

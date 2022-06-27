@@ -27,8 +27,6 @@ import org.opentripplanner.transit.service.TransitService;
 public class PlaceFinderTraverseVisitor implements TraverseVisitor {
 
   public final List<PlaceAtDistance> placesFound = new ArrayList<>();
-  private final RoutingService routingService;
-
   private final TransitService transitService;
   private final Set<TransitMode> filterByModes;
   private final Set<FeedScopedId> filterByStops;
@@ -63,7 +61,6 @@ public class PlaceFinderTraverseVisitor implements TraverseVisitor {
    * @param maxResults                 Maximum number of results to return.
    */
   public PlaceFinderTraverseVisitor(
-    RoutingService routingService,
     TransitService transitService,
     List<TransitMode> filterByModes,
     List<PlaceType> filterByPlaceTypes,
@@ -73,7 +70,6 @@ public class PlaceFinderTraverseVisitor implements TraverseVisitor {
     int maxResults,
     double radiusMeters
   ) {
-    this.routingService = routingService;
     this.transitService = transitService;
     this.filterByModes = toSet(filterByModes);
     this.filterByStops = toSet(filterByStops);

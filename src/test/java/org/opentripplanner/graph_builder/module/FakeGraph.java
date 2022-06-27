@@ -111,7 +111,10 @@ public class FakeGraph {
   }
 
   /** link the stops in the graph */
-  public static void link(Graph graph) {
+  public static void link(Graph graph, TransitModel transitModel) {
+    transitModel.index();
+    graph.index(transitModel);
+
     VertexLinker linker = graph.getLinker();
 
     for (TransitStopVertex tStop : graph.getVerticesOfType(TransitStopVertex.class)) {

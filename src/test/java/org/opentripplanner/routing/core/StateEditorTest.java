@@ -38,7 +38,7 @@ public class StateEditorTest {
     Graph graph = new Graph();
     TransitModel transitModel = new TransitModel();
     transitModel.index();
-    graph.index(transitModel);
+    graph.index();
     var temporaryVertices = new TemporaryVerticesContainer(graph, request);
     RoutingContext routingContext = new RoutingContext(request, graph, temporaryVertices);
     State state = new State(routingContext);

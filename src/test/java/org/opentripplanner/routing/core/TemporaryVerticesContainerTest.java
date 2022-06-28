@@ -52,7 +52,7 @@ public class TemporaryVerticesContainerTest {
     createStreetEdge(b, a, "b -> a");
     createStreetEdge(a, c, "a -> c");
     transitModel.index();
-    g.index(transitModel);
+    g.index();
   }
 
   @Test

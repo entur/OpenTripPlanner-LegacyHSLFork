@@ -104,7 +104,7 @@ public class SpeedTest {
     }
     TransitModel transitModel = serializedGraphObject.transitModel;
     transitModel.index();
-    graph.index(transitModel);
+    graph.index();
     return new OtpModel(graph, transitModel);
   }
 

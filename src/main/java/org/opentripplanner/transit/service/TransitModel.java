@@ -117,7 +117,7 @@ public class TransitModel implements Serializable {
   public final Multimap<StopLocation, PathTransfer> transfersByStop = HashMultimap.create();
   /** Data model for Raptor routing, with realtime updates applied (if any). */
   private final transient ConcurrentPublished<TransitLayer> realtimeTransitLayer = new ConcurrentPublished<>();
-  private StopModel stopModel;
+  private StopModel stopModel = new StopModel();
   // transit feed validity information in seconds since epoch
   private long transitServiceStarts = Long.MAX_VALUE;
   private long transitServiceEnds = 0;

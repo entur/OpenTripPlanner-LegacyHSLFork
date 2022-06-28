@@ -123,7 +123,7 @@ public class TransitModelIndex {
       }
       for (FlexTrip flexTrip : flexIndex.tripById.values()) {
         tripForId.put(flexTrip.getId(), flexTrip.getTrip());
-        flexTrip.getStops().stream().forEach(stop -> stopForId.put(stop.getId(), stop));
+        flexTrip.getStops().stream().forEach(stop -> transitModel.getStopModel().getStopModelIndex().addStop(stop));
       }
     }
 

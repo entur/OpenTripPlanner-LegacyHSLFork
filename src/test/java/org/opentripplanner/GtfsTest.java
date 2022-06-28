@@ -162,7 +162,7 @@ public abstract class GtfsTest {
     String agencyId = transitModel.getAgencies().iterator().next().getId().getId();
     System.out.printf("Set the agency ID for this test to %s\n", agencyId);
     transitModel.index();
-    graph.index(transitModel);
+    graph.index();
     router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
     router.startup();
     timetableSnapshotSource = TimetableSnapshotSource.ofGraph(transitModel);

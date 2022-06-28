@@ -82,7 +82,7 @@ public abstract class GraphRoutingTest {
     Graph graph = builder.graph();
     TransitModel transitModel = builder.transitModel();
     transitModel.index();
-    graph.index(transitModel);
+    graph.index();
     return new OtpModel(graph, transitModel);
   }
 

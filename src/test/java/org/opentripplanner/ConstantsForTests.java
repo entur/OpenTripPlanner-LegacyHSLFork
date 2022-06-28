@@ -161,7 +161,7 @@ public class ConstantsForTests {
       addPortlandVehicleRentals(graph);
 
       transitModel.index();
-      graph.index(transitModel);
+      graph.index();
 
       return new OtpModel(graph, transitModel);
     } catch (Exception e) {
@@ -280,7 +280,7 @@ public class ConstantsForTests {
     module.buildGraph(graph, transitModel, new HashMap<>());
 
     transitModel.index();
-    graph.index(transitModel);
+    graph.index();
     transitModel.hasTransit = true;
   }
 

@@ -556,7 +556,7 @@ public class TestHalfEdges {
   public void testStreetLocationFinder() {
     RoutingRequest options = new RoutingRequest();
     transitModel.index();
-    graph.index(transitModel);
+    graph.index();
     StreetVertexIndex finder = graph.getStreetIndex();
     Set<DisposableEdgeCollection> tempEdges = new HashSet<>();
     // test that the local stop finder finds stops

@@ -57,7 +57,10 @@ public class StopModel {
 
 
   public StopModelIndex getStopModelIndex() {
-    return null;
+    if(index == null) {
+      index();
+    }
+    return index;
   }
 
 
@@ -113,6 +116,10 @@ public class StopModel {
 
   public Collection<TransitStopVertex> getAllStopVertices() {
     return transitStopVertices.values();
+  }
+
+  public void index() {
+    index = new StopModelIndex(this);
   }
 
   private Collection<StopLocation> getStopsForId(FeedScopedId id) {

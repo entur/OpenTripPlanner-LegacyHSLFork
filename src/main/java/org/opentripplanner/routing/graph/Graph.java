@@ -72,7 +72,7 @@ public class Graph implements Serializable {
   public final transient Deduplicator deduplicator;
 
   public final Date buildTime = new Date();
-  private StopModel stopModel;
+  private StopModel stopModel = new StopModel();
   /** Pre-generated transfers between all stops. */
 
   private GraphBundle bundle;
@@ -346,6 +346,9 @@ public class Graph implements Serializable {
    */
   public void index() {
     LOG.info("Index graph...");
+    //TODO refactoring transit model
+    CompactElevationProfile.setDistanceBetweenSamplesM(getDistanceBetweenElevationSamples());
+    stopModel.index();
     streetIndex = new StreetVertexIndex(this, stopModel);
     LOG.info("Index graph complete.");
   }

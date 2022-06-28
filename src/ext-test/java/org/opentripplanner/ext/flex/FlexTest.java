@@ -57,7 +57,7 @@ public abstract class FlexTest {
     OTPFeature.enableFeatures(Map.of(OTPFeature.FlexRouting, true));
     module.buildGraph(graph, transitModel, new HashMap<>());
     transitModel.index();
-    graph.index(transitModel);
+    graph.index();
     OTPFeature.enableFeatures(Map.of(OTPFeature.FlexRouting, false));
     assertFalse(transitModel.flexTripsById.isEmpty());
     return new OtpModel(graph, transitModel);

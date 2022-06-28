@@ -64,7 +64,7 @@ public class TestIntermediatePlaces {
       transitModel = otpModel.transitModel;
       FakeGraph.addPerpendicularRoutes(graph, transitModel);
       FakeGraph.link(graph, transitModel);
-      graph.index(transitModel);
+      graph.index();
       Router router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
       router.startup();
       TestIntermediatePlaces.graphPathFinder = new GraphPathFinder(router);

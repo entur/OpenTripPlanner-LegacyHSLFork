@@ -6,14 +6,10 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Map;
 import org.locationtech.jts.geom.Envelope;
-import org.opentripplanner.common.geometry.CompactElevationProfile;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
-import org.opentripplanner.ext.flex.FlexIndex;
 import org.opentripplanner.model.FlexLocationGroup;
 import org.opentripplanner.model.FlexStopLocation;
 import org.opentripplanner.model.MultiModalStation;
-import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.site.Station;
@@ -39,14 +35,13 @@ public class StopModelIndex {
 
   public StopModelIndex(StopModel stopModel) {
     LOG.info("StopModelIndex init...");
-    CompactElevationProfile.setDistanceBetweenSamplesM(graph.getDistanceBetweenElevationSamples());
+
 
     /* We will keep a separate set of all vertices in case some have the same label.
      * Maybe we should just guarantee unique labels. */
-    for (TransitStopVertex vertex : stopModel.getAllStopVertices()) {
-        TransitStopVertex stopVertex = (TransitStopVertex) vertex;
-        Stop stop = stopVertex.getStop();
-        stopVertexForStop.put(stop, stopVertex);
+    for (TransitStopVertex stopVertex : stopModel.getAllStopVertices()) {
+      Stop stop = stopVertex.getStop();
+      stopVertexForStop.put(stop, stopVertex);
     }
     for (TransitStopVertex stopVertex : stopVertexForStop.values()) {
       Envelope envelope = new Envelope(stopVertex.getCoordinate());
@@ -99,6 +94,9 @@ public class StopModelIndex {
     return stopForId.get(id);
   }
 
+  public void addStop(StopLocation stopLocation) {
+    stopForId.put(stopLocation.getId(), stopLocation);
+  }
 
   public Map<Station, MultiModalStation> getMultiModalStationForStations() {
     return multiModalStationForStations;
@@ -108,5 +106,6 @@ public class StopModelIndex {
   public Collection<StopLocation> getAllStops() {
     return stopForId.values();
   }
+
 
 }

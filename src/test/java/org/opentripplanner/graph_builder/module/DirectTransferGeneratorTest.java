@@ -57,7 +57,7 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
     var transitModel = otpModel.transitModel;
     graph.hasStreets = false;
     transitModel.index();
-    graph.index(transitModel);
+    graph.index();
 
     generator.buildGraph(graph, transitModel, null);
 

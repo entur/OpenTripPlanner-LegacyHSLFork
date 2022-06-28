@@ -39,7 +39,7 @@ public class CarRoutingTest {
     herrenbergGraph = otpModel.graph;
     herrenbergTransitModel = otpModel.transitModel;
     herrenbergTransitModel.index();
-    herrenbergGraph.index(herrenbergTransitModel);
+    herrenbergGraph.index();
   }
 
   /**

@@ -306,7 +306,7 @@ public class OpenStreetMapModuleTest {
 
     loader.buildGraph(graph, transitModel, extra);
     transitModel.index();
-    graph.index(transitModel);
+    graph.index();
 
     Router router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
     router.startup();

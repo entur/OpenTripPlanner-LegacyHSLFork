@@ -163,10 +163,10 @@ public class DefaultTransitService implements TransitEditorService {
     return this.transitModel.getServiceCodes();
   }
 
-  /** {@link TransitModel#getLocationById(FeedScopedId)} */
+  /** {@link StopModel#getLocationById(FeedScopedId)} */
   @Override
   public FlexStopLocation getLocationById(FeedScopedId id) {
-    return this.transitModel.getLocationById(id);
+    return this.transitModel.getStopModel().getLocationById(id);
   }
 
   /** {@link TransitModel#getAllFlexStopsFlat()} */

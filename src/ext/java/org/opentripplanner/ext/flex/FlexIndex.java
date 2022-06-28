@@ -23,9 +23,7 @@ public class FlexIndex {
 
   public Multimap<StopLocation, FlexTrip> flexTripsByStop = HashMultimap.create();
 
-  public Multimap<StopLocation, FlexLocationGroup> locationGroupsByStop = ArrayListMultimap.create();
 
-  public HashGridSpatialIndex<FlexStopLocation> locationIndex = new HashGridSpatialIndex<>();
 
   public Map<FeedScopedId, Route> routeById = new HashMap<>();
 
@@ -48,14 +46,7 @@ public class FlexIndex {
         }
       }
     }
-    for (FlexLocationGroup flexLocationGroup : transitModel.locationGroupsById.values()) {
-      for (StopLocation stop : flexLocationGroup.getLocations()) {
-        locationGroupsByStop.put(stop, flexLocationGroup);
-      }
-    }
-    for (FlexStopLocation flexStopLocation : transitModel.locationsById.values()) {
-      locationIndex.insert(flexStopLocation.getGeometry().getEnvelopeInternal(), flexStopLocation);
-    }
+
   }
 
   Stream<FlexTrip> getFlexTripsByStop(StopLocation stopLocation) {

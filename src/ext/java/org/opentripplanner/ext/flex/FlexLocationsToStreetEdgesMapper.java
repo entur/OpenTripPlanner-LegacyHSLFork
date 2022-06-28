@@ -27,7 +27,7 @@ public class FlexLocationsToStreetEdgesMapper implements GraphBuilderModule {
     HashMap<Class<?>, Object> extra,
     DataImportIssueStore issueStore
   ) {
-    if (transitModel.locationsById.isEmpty()) {
+    if (transitModel.getStopModel().locationsById.isEmpty()) {
       return;
     }
 
@@ -36,12 +36,12 @@ public class FlexLocationsToStreetEdgesMapper implements GraphBuilderModule {
     ProgressTracker progress = ProgressTracker.track(
       "Add flex locations to street vertices",
       1,
-      transitModel.locationsById.size()
+      transitModel.getStopModel().locationsById.size()
     );
 
     LOG.info(progress.startMessage());
     // TODO: Make this into a parallel stream, first calculate vertices per location and then add them.
-    for (FlexStopLocation flexStopLocation : transitModel.locationsById.values()) {
+    for (FlexStopLocation flexStopLocation : transitModel.getStopModel().locationsById.values()) {
       for (Vertex vertx : streetIndex.getVerticesForEnvelope(
         flexStopLocation.getGeometry().getEnvelopeInternal()
       )) {

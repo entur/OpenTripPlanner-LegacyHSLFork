@@ -1,12 +1,16 @@
 package org.opentripplanner.transit.service;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Map;
 import org.locationtech.jts.geom.Envelope;
 import org.opentripplanner.common.geometry.CompactElevationProfile;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.ext.flex.FlexIndex;
+import org.opentripplanner.model.FlexLocationGroup;
+import org.opentripplanner.model.FlexStopLocation;
 import org.opentripplanner.model.MultiModalStation;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
@@ -28,6 +32,10 @@ public class StopModelIndex {
   private final HashGridSpatialIndex<TransitStopVertex> stopSpatialIndex = new HashGridSpatialIndex<>();
 
   private final Map<Station, MultiModalStation> multiModalStationForStations = Maps.newHashMap();
+
+  public Multimap<StopLocation, FlexLocationGroup> locationGroupsByStop = ArrayListMultimap.create();
+
+  public HashGridSpatialIndex<FlexStopLocation> locationIndex = new HashGridSpatialIndex<>();
 
   public StopModelIndex(StopModel stopModel) {
     LOG.info("StopModelIndex init...");
@@ -61,6 +69,14 @@ public class StopModelIndex {
       for (Station childStation : multiModalStation.getChildStations()) {
         multiModalStationForStations.put(childStation, multiModalStation);
       }
+    }
+    for (FlexLocationGroup flexLocationGroup : stopModel.locationGroupsById.values()) {
+      for (StopLocation stop : flexLocationGroup.getLocations()) {
+        locationGroupsByStop.put(stop, flexLocationGroup);
+      }
+    }
+    for (FlexStopLocation flexStopLocation : stopModel.locationsById.values()) {
+      locationIndex.insert(flexStopLocation.getGeometry().getEnvelopeInternal(), flexStopLocation);
     }
 
 

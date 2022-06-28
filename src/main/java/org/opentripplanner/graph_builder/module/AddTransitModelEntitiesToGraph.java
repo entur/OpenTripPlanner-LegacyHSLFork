@@ -351,13 +351,13 @@ public class AddTransitModelEntitiesToGraph {
 
   private void addLocationsToGraph(TransitModel transitModel) {
     for (FlexStopLocation flexStopLocation : otpTransitService.getAllLocations()) {
-      transitModel.locationsById.put(flexStopLocation.getId(), flexStopLocation);
+      transitModel.getStopModel().locationsById.put(flexStopLocation.getId(), flexStopLocation);
     }
   }
 
   private void addLocationGroupsToGraph(TransitModel transitModel) {
     for (FlexLocationGroup flexLocationGroup : otpTransitService.getAllLocationGroups()) {
-      transitModel.locationGroupsById.put(flexLocationGroup.getId(), flexLocationGroup);
+      transitModel.getStopModel().locationGroupsById.put(flexLocationGroup.getId(), flexLocationGroup);
     }
   }
 

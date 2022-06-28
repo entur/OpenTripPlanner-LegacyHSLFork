@@ -164,7 +164,6 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
     var transitModel = otpModel.transitModel;
 
     generator.buildGraph(graph, transitModel, null);
-
     assertTransfers(
       transitModel.transfersByStop,
       tr(S0, 100, List.of(V0, V11), S11),

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
+import org.opentripplanner.transit.service.TransitModel;
 
 public class StateEditorTest {
 
@@ -35,6 +36,9 @@ public class StateEditorTest {
     request.setMode(TraverseMode.CAR);
     request.parkAndRide = true;
     Graph graph = new Graph();
+    TransitModel transitModel = new TransitModel();
+    transitModel.index();
+    graph.index(transitModel);
     var temporaryVertices = new TemporaryVerticesContainer(graph, request);
     RoutingContext routingContext = new RoutingContext(request, graph, temporaryVertices);
     State state = new State(routingContext);

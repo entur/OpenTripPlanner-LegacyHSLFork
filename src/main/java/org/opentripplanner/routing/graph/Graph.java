@@ -350,7 +350,7 @@ public class Graph implements Serializable {
 
   public StreetVertexIndex getStreetIndex() {
     if (this.streetIndex == null) {
-      index(new TransitModel());
+      throw new IllegalStateException("street index not initialized");
     }
     return this.streetIndex;
   }

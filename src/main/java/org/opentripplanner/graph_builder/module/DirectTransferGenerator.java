@@ -63,9 +63,10 @@ public class DirectTransferGenerator implements GraphBuilderModule {
     HashMap<Class<?>, Object> extra,
     DataImportIssueStore issueStore
   ) {
-    /* Initialize graph index which is needed by the nearby stop finder. */
+    /* Initialize transit model index which is needed by the nearby stop finder. */
     if (transitModel.index == null) {
       transitModel.index = new TransitModelIndex(transitModel);
+      graph.index(transitModel);
     }
 
     /* The linker will use streets if they are available, or straight-line distance otherwise. */

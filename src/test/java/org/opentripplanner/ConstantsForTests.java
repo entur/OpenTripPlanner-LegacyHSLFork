@@ -230,8 +230,9 @@ public class ConstantsForTests {
       }
       // Link transit stops to streets
       {
-        GraphBuilderModule streetTransitLinker = new StreetLinkerModule();
-        streetTransitLinker.buildGraph(graph, transitModel, new HashMap<>());
+        GraphBuilderModule streetLinkerModule = new StreetLinkerModule();
+
+        streetLinkerModule.buildGraph(graph, transitModel, new HashMap<>());
       }
       return new OtpModel(graph, transitModel);
     } catch (Exception e) {

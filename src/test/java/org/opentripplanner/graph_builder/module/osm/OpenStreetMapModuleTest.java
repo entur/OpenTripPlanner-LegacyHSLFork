@@ -305,7 +305,8 @@ public class OpenStreetMapModuleTest {
     loader.setDefaultWayPropertySetSource(new DefaultWayPropertySetSource());
 
     loader.buildGraph(graph, transitModel, extra);
-    graph.getStreetIndex();
+    transitModel.index();
+    graph.index(transitModel);
 
     Router router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
     router.startup();

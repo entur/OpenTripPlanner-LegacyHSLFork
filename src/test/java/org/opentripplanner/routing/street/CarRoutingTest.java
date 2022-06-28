@@ -38,6 +38,8 @@ public class CarRoutingTest {
     OtpModel otpModel = ConstantsForTests.buildOsmGraph(ConstantsForTests.HERRENBERG_OSM);
     herrenbergGraph = otpModel.graph;
     herrenbergTransitModel = otpModel.transitModel;
+    herrenbergTransitModel.index();
+    herrenbergGraph.index(herrenbergTransitModel);
   }
 
   /**

@@ -130,7 +130,9 @@ public class NetexModule implements GraphBuilderModule {
 
     // If the graph's hasTransit flag isn't set to true already, set it based on this module's run
     transitModel.hasTransit = transitModel.hasTransit || hasTransit;
-    transitModel.calculateTransitCenter();
+    if(hasTransit) {
+      transitModel.calculateTransitCenter();
+    }
   }
 
   @Override

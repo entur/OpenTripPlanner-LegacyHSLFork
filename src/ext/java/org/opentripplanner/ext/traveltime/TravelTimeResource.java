@@ -285,7 +285,7 @@ public class TravelTimeResource {
       if (onBoardTime != unreachedTime) {
         StopLocation stopLocation = transitLayer.getStopIndex().stopByIndex(i);
         if (stopLocation instanceof Stop stop) {
-          Vertex v = router.transitModel.index.getStopVertexForStop().get(stop);
+          Vertex v = router.transitModel.getStopModel().getStopVertexForStop().get(stop);
           if (v != null) {
             Instant time = startOfTime.plusSeconds(onBoardTime).toInstant();
             State s = new State(v, time, routingContext, stateData.clone());

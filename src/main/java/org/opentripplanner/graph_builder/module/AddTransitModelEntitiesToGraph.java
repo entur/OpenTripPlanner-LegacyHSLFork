@@ -16,7 +16,6 @@ import org.opentripplanner.model.MultiModalStation;
 import org.opentripplanner.model.OtpTransitService;
 import org.opentripplanner.model.Pathway;
 import org.opentripplanner.model.TripPattern;
-import org.opentripplanner.routing.vertextype.TransitStopVertexBuilder;
 import org.opentripplanner.routing.edgetype.ElevatorAlightEdge;
 import org.opentripplanner.routing.edgetype.ElevatorBoardEdge;
 import org.opentripplanner.routing.edgetype.ElevatorHopEdge;
@@ -30,6 +29,7 @@ import org.opentripplanner.routing.vertextype.TransitBoardingAreaVertex;
 import org.opentripplanner.routing.vertextype.TransitEntranceVertex;
 import org.opentripplanner.routing.vertextype.TransitPathwayNodeVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
+import org.opentripplanner.routing.vertextype.TransitStopVertexBuilder;
 import org.opentripplanner.transit.model.basic.WheelchairAccessibility;
 import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.organization.Agency;
@@ -140,19 +140,19 @@ public class AddTransitModelEntitiesToGraph {
 
   private void addStationsToGraph(TransitModel transitModel) {
     for (Station station : otpTransitService.getAllStations()) {
-      transitModel.stationById.put(station.getId(), station);
+      transitModel.getStopModel().addStation(station);
     }
   }
 
   private void addMultiModalStationsToGraph(TransitModel transitModel) {
     for (MultiModalStation multiModalStation : otpTransitService.getAllMultiModalStations()) {
-      transitModel.multiModalStationById.put(multiModalStation.getId(), multiModalStation);
+      transitModel.getStopModel().addMultiModalStation(multiModalStation);
     }
   }
 
   private void addGroupsOfStationsToGraph(TransitModel transitModel) {
-    for (GroupOfStations groupOfStations : otpTransitService.getAllGroupsOfStations()) {
-      transitModel.groupOfStationsById.put(groupOfStations.getId(), groupOfStations);
+    for (GroupOfStations groupOfStation : otpTransitService.getAllGroupsOfStations()) {
+      transitModel.getStopModel().addGroupsOfStations(groupOfStation);
     }
   }
 
@@ -281,8 +281,8 @@ public class AddTransitModelEntitiesToGraph {
     double levels = 1;
     if (
       fromVertexLevelIndex != null &&
-      toVertexLevelIndex != null &&
-      !fromVertexLevelIndex.equals(toVertexLevelIndex)
+        toVertexLevelIndex != null &&
+        !fromVertexLevelIndex.equals(toVertexLevelIndex)
     ) {
       levels = Math.abs(fromVertexLevelIndex - toVertexLevelIndex);
     }
@@ -378,9 +378,10 @@ public class AddTransitModelEntitiesToGraph {
   }
 
   private void addFlexTripsToGraph(TransitModel transitModel) {
-    for (FlexTrip flexTrip : otpTransitService.getAllFlexTrips()) transitModel.flexTripsById.put(
-      flexTrip.getId(),
-      flexTrip
-    );
+    for (FlexTrip flexTrip : otpTransitService.getAllFlexTrips())
+      transitModel.flexTripsById.put(
+        flexTrip.getId(),
+        flexTrip
+      );
   }
 }

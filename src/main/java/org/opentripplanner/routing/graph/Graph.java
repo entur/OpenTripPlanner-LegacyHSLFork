@@ -39,10 +39,9 @@ import org.opentripplanner.routing.vehicle_parking.VehicleParkingService;
 import org.opentripplanner.routing.vehicle_rental.VehicleRentalStationService;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.basic.WgsCoordinate;
-import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.site.Stop;
 import org.opentripplanner.transit.model.site.StopLocation;
-import org.opentripplanner.transit.service.TransitModel;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.util.WorldEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +72,7 @@ public class Graph implements Serializable {
   public final transient Deduplicator deduplicator;
 
   public final Date buildTime = new Date();
+  private StopModel stopModel;
   /** Pre-generated transfers between all stops. */
 
   private GraphBundle bundle;
@@ -143,7 +143,8 @@ public class Graph implements Serializable {
    */
   public DataOverlayParameterBindings dataOverlayParameterBindings;
 
-  public Graph(Deduplicator deduplicator) {
+  public Graph(StopModel stopModel, Deduplicator deduplicator) {
+    this.stopModel = stopModel;
     this.deduplicator = deduplicator;
   }
 
@@ -165,7 +166,8 @@ public class Graph implements Serializable {
   public void addVertex(Vertex v) {
     Vertex old = vertices.put(v.getLabel(), v);
     if (old != null) {
-      if (old == v) LOG.error("repeatedly added the same vertex: {}", v); else LOG.error(
+      if (old == v) LOG.error("repeatedly added the same vertex: {}", v);
+      else LOG.error(
         "duplicate vertex label in graph (added vertex to graph anyway): {}",
         v
       );
@@ -342,15 +344,15 @@ public class Graph implements Serializable {
    * in readObject methods upon deserialization, but stand-alone mode now allows passing graphs from
    * graphbuilder to server in memory, without a round trip through serialization.
    */
-  public void index(TransitModel transitModel) {
+  public void index() {
     LOG.info("Index graph...");
-    streetIndex = new StreetVertexIndex(this, transitModel);
+    streetIndex = new StreetVertexIndex(this, stopModel);
     LOG.info("Index graph complete.");
   }
 
   public StreetVertexIndex getStreetIndex() {
     if (this.streetIndex == null) {
-      throw new IllegalStateException("street index not initialized");
+      index();
     }
     return this.streetIndex;
   }
@@ -362,9 +364,10 @@ public class Graph implements Serializable {
   public int removeEdgelessVertices() {
     int removed = 0;
     List<Vertex> toRemove = new LinkedList<>();
-    for (Vertex v : this.getVertices()) if (v.getDegreeOut() + v.getDegreeIn() == 0) toRemove.add(
-      v
-    );
+    for (Vertex v : this.getVertices())
+      if (v.getDegreeOut() + v.getDegreeIn() == 0) toRemove.add(
+        v
+      );
     // avoid concurrent vertex map modification
     for (Vertex v : toRemove) {
       this.remove(v);
@@ -494,6 +497,10 @@ public class Graph implements Serializable {
     IntersectionTraversalCostModel intersectionTraversalCostModel
   ) {
     this.intersectionTraversalCostModel = intersectionTraversalCostModel;
+  }
+
+  public StopModel getStopModel() {
+    return stopModel;
   }
 
   private void readObject(ObjectInputStream inputStream)

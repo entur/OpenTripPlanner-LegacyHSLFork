@@ -38,6 +38,7 @@ public class StationsLayerBuilder extends LayerBuilder<Station> {
 
   protected List<Geometry> getGeometries(Envelope query) {
     return transitModel
+      .getStopModel()
       .getStations()
       .stream()
       .map(station -> {

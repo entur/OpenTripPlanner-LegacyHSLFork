@@ -219,9 +219,9 @@ public class RoutingService {
     return this.graph.getVehiclePositionService();
   }
 
-  /** {@link TransitModel#getStopVerticesById(FeedScopedId)} */
+  /** {@link org.opentripplanner.transit.service.StopModel#getStopVerticesById(FeedScopedId)} */
   public Set<Vertex> getStopVerticesById(FeedScopedId id) {
-    return this.transitModel.getStopVerticesById(id);
+    return this.transitModel.getStopModel().getStopVerticesById(id);
   }
 
   /** {@link Graph#getVehicleRentalStationService()} */

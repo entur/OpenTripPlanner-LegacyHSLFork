@@ -9,18 +9,19 @@ import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.SplitterVertex;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 
 class FlexLocationAdder {
 
-  static void addFlexLocations(StreetEdge edge, SplitterVertex v0, TransitModel transitModel) {
+  static void addFlexLocations(StreetEdge edge, SplitterVertex v0, StopModel stopModel) {
     if (
-      transitModel.index != null &&
+      stopModel.getStopModelIndex() != null &&
       edge.getPermission().allows(StreetTraversalPermission.PEDESTRIAN_AND_CAR)
     ) {
       Point p = GeometryUtils.getGeometryFactory().createPoint(v0.getCoordinate());
       Envelope env = p.getEnvelopeInternal();
-      for (FlexStopLocation location : transitModel.index.getFlexIndex().locationIndex.query(env)) {
+      for (FlexStopLocation location : stopModel.getStopModelIndex().getFlexIndex().locationIndex.query(env)) {
         if (!location.getGeometry().disjoint(p)) {
           if (v0.flexStopLocations == null) {
             v0.flexStopLocations = new HashSet<>();

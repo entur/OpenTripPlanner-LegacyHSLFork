@@ -223,6 +223,7 @@ public class VectorTilesResource {
 
       center =
         transitModel
+          .getStopModel()
           .getCenter()
           .map(coordinate -> new double[] { coordinate.x, coordinate.y, 9 })
           .orElse(null);

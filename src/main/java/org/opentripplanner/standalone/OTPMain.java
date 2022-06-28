@@ -171,7 +171,7 @@ public class OTPMain {
 
     // Index graph for travel search
     transitModel.index();
-    graph.index(transitModel);
+    graph.index();
 
     // publishing the config version info make it available to the APIs
     app.setOtpConfigVersionsOnServerInfo();

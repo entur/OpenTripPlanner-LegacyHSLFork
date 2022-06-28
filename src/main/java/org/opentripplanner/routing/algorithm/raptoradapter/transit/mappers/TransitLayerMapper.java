@@ -77,7 +77,7 @@ public class TransitLayerMapper {
 
     LOG.info("Mapping transitLayer from Graph...");
 
-    stopIndex = new StopIndexForRaptor(transitModel.index.getAllStops(), tuningParameters);
+    stopIndex = new StopIndexForRaptor(transitModel.getStopModel().getStopModelIndex().getAllStops(), tuningParameters);
 
     Collection<TripPattern> allTripPatterns = transitModel.tripPatternForId.values();
     TripPatternMapper tripPatternMapper = new TripPatternMapper();

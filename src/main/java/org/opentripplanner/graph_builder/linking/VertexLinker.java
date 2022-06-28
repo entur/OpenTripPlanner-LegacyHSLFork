@@ -25,6 +25,7 @@ import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.SplitterVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.routing.vertextype.TemporarySplitterVertex;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.OTPFeature;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public class VertexLinker {
 
   private final Graph graph;
 
-  private final TransitModel transitModel;
+  private final StopModel stopModel;
 
   // TODO Temporary code until we refactor WalkableAreaBuilder  (#3152)
   private Boolean addExtraEdgesToAreas = false;
@@ -73,12 +74,12 @@ public class VertexLinker {
    * Construct a new VertexLinker. NOTE: Only one VertexLinker should be active on a graph at any
    * given time.
    */
-  public VertexLinker(Graph graph, TransitModel transitModel) {
+  public VertexLinker(Graph graph, StopModel stopModel) {
     for (StreetEdge se : graph.getEdgesOfType(StreetEdge.class)) {
       streetSpatialIndex.insert(se.getGeometry(), se, Scope.PERMANENT);
     }
     this.graph = graph;
-    this.transitModel = transitModel;
+    this.stopModel = stopModel;
   }
 
   public void linkVertexPermanently(
@@ -387,7 +388,7 @@ public class VertexLinker {
 
       // TODO Consider moving this code
       if (OTPFeature.FlexRouting.isOn()) {
-        FlexLocationAdder.addFlexLocations(edge, v0, transitModel);
+        FlexLocationAdder.addFlexLocations(edge, v0, stopModel);
       }
 
       return v0;

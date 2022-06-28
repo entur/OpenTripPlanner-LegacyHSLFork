@@ -55,7 +55,7 @@ public class OsmBoardingLocationsModule implements GraphBuilderModule {
     DataImportIssueStore issueStore
   ) {
     transitModel.index();
-    graph.index(transitModel);
+    graph.index();
     var streetIndex = graph.getStreetIndex();
     LOG.info("Improving boarding locations by checking OSM entities...");
     int successes = 0;

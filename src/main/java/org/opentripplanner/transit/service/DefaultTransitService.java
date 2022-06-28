@@ -139,22 +139,22 @@ public class DefaultTransitService implements TransitEditorService {
     return this.transitModel.getNotices();
   }
 
-  /** {@link TransitModel#getStationById(FeedScopedId)} */
+  /** {@link StopModel#getStationById(FeedScopedId)} */
   @Override
   public Station getStationById(FeedScopedId id) {
-    return this.transitModel.getStationById(id);
+    return this.transitModel.getStopModel().getStationById(id);
   }
 
-  /** {@link TransitModel#getMultiModalStation(FeedScopedId)} */
+  /** {@link StopModel#getMultiModalStation(FeedScopedId)} */
   @Override
   public MultiModalStation getMultiModalStation(FeedScopedId id) {
-    return this.transitModel.getMultiModalStation(id);
+    return this.transitModel.getStopModel().getMultiModalStation(id);
   }
 
-  /** {@link TransitModel#getStations()} */
+  /** {@link StopModel#getStations()} */
   @Override
   public Collection<Station> getStations() {
-    return this.transitModel.getStations();
+    return this.transitModel.getStopModel().getStations();
   }
 
   /** {@link TransitModel#getServiceCodes()} */
@@ -181,10 +181,10 @@ public class DefaultTransitService implements TransitEditorService {
     return this.transitModelIndex.getAgencyForId(id);
   }
 
-  /** {@link TransitModelIndex#getStopForId(FeedScopedId)} */
+  /** {@link StopModelIndex#getStopForId(FeedScopedId)} */
   @Override
   public StopLocation getStopForId(FeedScopedId id) {
-    return this.transitModelIndex.getStopForId(id);
+    return this.transitModel.getStopModel().getStopModelIndex().getStopForId(id);
   }
 
   /** {@link TransitModelIndex#getRouteForId(FeedScopedId)} */
@@ -232,10 +232,10 @@ public class DefaultTransitService implements TransitEditorService {
     return this.transitModelIndex.getOperatorForId();
   }
 
-  /** {@link TransitModelIndex#getAllStops()} */
+  /** {@link StopModelIndex#getAllStops()} */
   @Override
   public Collection<StopLocation> getAllStops() {
-    return this.transitModelIndex.getAllStops();
+    return this.transitModel.getStopModel().getStopModelIndex().getAllStops();
   }
 
   /** {@link TransitModelIndex#getTripForId()} */
@@ -268,10 +268,10 @@ public class DefaultTransitService implements TransitEditorService {
     return this.transitModelIndex.getPatternsForRoute();
   }
 
-  /** {@link TransitModelIndex#getMultiModalStationForStations()} */
+  /** {@link StopModelIndex#getMultiModalStationForStations()} */
   @Override
   public Map<Station, MultiModalStation> getMultiModalStationForStations() {
-    return this.transitModelIndex.getMultiModalStationForStations();
+    return this.transitModel.getStopModel().getStopModelIndex().getMultiModalStationForStations();
   }
 
   /**
@@ -526,16 +526,16 @@ public class DefaultTransitService implements TransitEditorService {
     return transitModel.getTransitServiceStarts();
   }
 
-  /** {@link TransitModelIndex#getStopVertexForStop()} */
+  /** {@link StopModelIndex#getStopVertexForStop()} */
   @Override
   public Map<Stop, TransitStopVertex> getStopVertexForStop() {
-    return transitModelIndex.getStopVertexForStop();
+    return transitModel.getStopModel().getStopVertexForStop();
   }
 
-  /** {@link TransitModelIndex#getStopSpatialIndex()} */
+  /** {@link StopModelIndex#getStopSpatialIndex()} */
 
   @Override
   public HashGridSpatialIndex<TransitStopVertex> getStopSpatialIndex() {
-    return transitModelIndex.getStopSpatialIndex();
+    return transitModel.getStopModel().getStopModelIndex().getStopSpatialIndex();
   }
 }

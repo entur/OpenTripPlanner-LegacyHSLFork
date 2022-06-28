@@ -36,7 +36,7 @@ public class StopsLayerBuilder extends LayerBuilder<TransitStopVertex> {
   }
 
   protected List<Geometry> getGeometries(Envelope query) {
-    return transitModel.index
+    return transitModel
       .getStopSpatialIndex()
       .query(query)
       .stream()

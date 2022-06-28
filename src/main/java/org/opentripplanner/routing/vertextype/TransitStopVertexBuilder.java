@@ -38,7 +38,7 @@ public class TransitStopVertexBuilder {
     Objects.requireNonNull(transitModel);
     Objects.requireNonNull(stop);
     TransitStopVertex stopVertex = new TransitStopVertex(graph, stop, modes);
-    transitModel.addTransitStopVertex(stopVertex.getStop().getId(), stopVertex);
+    transitModel.getStopModel().addTransitStopVertex(stopVertex.getStop().getId(), stopVertex);
     return stopVertex;
   }
 }

@@ -30,6 +30,7 @@ import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.I18NString;
 import org.opentripplanner.util.LocalizedString;
@@ -51,7 +52,7 @@ public class StreetVertexIndex {
   private static final Logger LOG = LoggerFactory.getLogger(StreetVertexIndex.class);
   private final Graph graph;
 
-  private final TransitModel transitModel;
+  private final StopModel stopModel;
 
   private final VertexLinker vertexLinker;
   /**
@@ -64,13 +65,13 @@ public class StreetVertexIndex {
   /**
    * Should only be called by the graph.
    */
-  public StreetVertexIndex(Graph graph, TransitModel transitModel) {
+  public StreetVertexIndex(Graph graph, StopModel stopModel) {
     this.graph = graph;
-    this.transitModel = transitModel;
+    this.stopModel = stopModel;
     edgeTree = new HashGridSpatialIndex<>();
     transitStopTree = new HashGridSpatialIndex<>();
     verticesTree = new HashGridSpatialIndex<>();
-    vertexLinker = new VertexLinker(graph, transitModel);
+    vertexLinker = new VertexLinker(graph, stopModel);
     postSetup();
   }
 
@@ -218,7 +219,7 @@ public class StreetVertexIndex {
     if (nonTransitMode.isDriving()) {
       // Fetch coordinate from stop, if not given in request
       if (location.stopId != null && location.getCoordinate() == null) {
-        var coordinate = transitModel.getCoordinateById(location.stopId);
+        var coordinate = stopModel.getCoordinateById(location.stopId);
         if (coordinate != null) {
           location =
             new GenericLocation(
@@ -232,7 +233,7 @@ public class StreetVertexIndex {
     } else {
       // Check if Stop/StopCollection is found by FeedScopeId
       if (location.stopId != null) {
-        Set<Vertex> transitStopVertices = transitModel.getStopVerticesById(location.stopId);
+        Set<Vertex> transitStopVertices = stopModel.getStopVerticesById(location.stopId);
         if (transitStopVertices != null) {
           return transitStopVertices;
         }

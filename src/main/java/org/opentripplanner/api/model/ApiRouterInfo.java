@@ -55,7 +55,7 @@ public class ApiRouterInfo {
     this.hasCarPark = mapHasCarPark(vehicleParkingService);
     this.hasVehicleParking = mapHasVehicleParking(vehicleParkingService);
     this.travelOptions = TravelOptionsMaker.makeOptions(graph, transitModel);
-    transitModel.getCenter().ifPresentOrElse(this::setCenter, this::calculateCenter);
+    transitModel.getStopModel().getCenter().ifPresentOrElse(this::setCenter, this::calculateCenter);
   }
 
   public boolean mapHasBikeSharing(VehicleRentalStationService service) {

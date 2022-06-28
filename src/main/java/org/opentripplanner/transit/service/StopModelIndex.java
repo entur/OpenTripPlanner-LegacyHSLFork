@@ -1,0 +1,96 @@
+package org.opentripplanner.transit.service;
+
+import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Map;
+import org.locationtech.jts.geom.Envelope;
+import org.opentripplanner.common.geometry.CompactElevationProfile;
+import org.opentripplanner.common.geometry.HashGridSpatialIndex;
+import org.opentripplanner.ext.flex.FlexIndex;
+import org.opentripplanner.model.MultiModalStation;
+import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.graph.Vertex;
+import org.opentripplanner.routing.vertextype.TransitStopVertex;
+import org.opentripplanner.transit.model.framework.FeedScopedId;
+import org.opentripplanner.transit.model.site.Station;
+import org.opentripplanner.transit.model.site.Stop;
+import org.opentripplanner.transit.model.site.StopLocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class StopModelIndex {
+
+  private static final Logger LOG = LoggerFactory.getLogger(StopModelIndex.class);
+
+  // TODO: consistently key on model object or id string
+
+  private final Map<Stop, TransitStopVertex> stopVertexForStop = Maps.newHashMap();
+  private final HashGridSpatialIndex<TransitStopVertex> stopSpatialIndex = new HashGridSpatialIndex<>();
+
+  private final Map<Station, MultiModalStation> multiModalStationForStations = Maps.newHashMap();
+
+  public StopModelIndex(StopModel stopModel) {
+    LOG.info("StopModelIndex init...");
+    CompactElevationProfile.setDistanceBetweenSamplesM(graph.getDistanceBetweenElevationSamples());
+
+    /* We will keep a separate set of all vertices in case some have the same label.
+     * Maybe we should just guarantee unique labels. */
+    for (TransitStopVertex vertex : stopModel.getAllStopVertices()) {
+        TransitStopVertex stopVertex = (TransitStopVertex) vertex;
+        Stop stop = stopVertex.getStop();
+        stopVertexForStop.put(stop, stopVertex);
+    }
+    for (TransitStopVertex stopVertex : stopVertexForStop.values()) {
+      Envelope envelope = new Envelope(stopVertex.getCoordinate());
+      stopSpatialIndex.insert(envelope, stopVertex);
+    }
+
+    /* We will keep a separate set of all vertices in case some have the same label.
+     * Maybe we should just guarantee unique labels. */
+    for (TransitStopVertex stopVertex : stopModel.getTransitStopVertices()) {
+      Stop stop = stopVertex.getStop();
+      stopForId.put(stop.getId(), stop);
+      stopVertexForStop.put(stop, stopVertex);
+    }
+    for (TransitStopVertex stopVertex : stopVertexForStop.values()) {
+      Envelope envelope = new Envelope(stopVertex.getCoordinate());
+      stopSpatialIndex.insert(envelope, stopVertex);
+    }
+
+    for (MultiModalStation multiModalStation : stopModel.getAllMultiModalStations()) {
+      for (Station childStation : multiModalStation.getChildStations()) {
+        multiModalStationForStations.put(childStation, multiModalStation);
+      }
+    }
+
+
+    LOG.info("StopModelIndex init complete.");
+  }
+
+
+  public Map<Stop, TransitStopVertex> getStopVertexForStop() {
+    return stopVertexForStop;
+  }
+
+
+  public HashGridSpatialIndex<TransitStopVertex> getStopSpatialIndex() {
+    return stopSpatialIndex;
+  }
+
+  private final Map<FeedScopedId, StopLocation> stopForId = Maps.newHashMap();
+
+  public StopLocation getStopForId(FeedScopedId id) {
+    return stopForId.get(id);
+  }
+
+
+  public Map<Station, MultiModalStation> getMultiModalStationForStations() {
+    return multiModalStationForStations;
+  }
+
+
+  public Collection<StopLocation> getAllStops() {
+    return stopForId.values();
+  }
+
+}

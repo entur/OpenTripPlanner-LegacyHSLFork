@@ -48,16 +48,16 @@ public class TransitModelIndex {
   // TODO: consistently key on model object or id string
   private final Map<FeedScopedId, Agency> agencyForId = Maps.newHashMap();
   private final Map<FeedScopedId, Operator> operatorForId = Maps.newHashMap();
-  private final Map<FeedScopedId, StopLocation> stopForId = Maps.newHashMap();
+
   private final Map<FeedScopedId, Trip> tripForId = Maps.newHashMap();
   private final Map<FeedScopedId, Route> routeForId = Maps.newHashMap();
-  private final Map<Stop, TransitStopVertex> stopVertexForStop = Maps.newHashMap();
+
   private final Map<Trip, TripPattern> patternForTrip = Maps.newHashMap();
   private final Multimap<String, TripPattern> patternsForFeedId = ArrayListMultimap.create();
   private final Multimap<Route, TripPattern> patternsForRoute = ArrayListMultimap.create();
   private final Multimap<StopLocation, TripPattern> patternsForStopId = ArrayListMultimap.create();
-  private final Map<Station, MultiModalStation> multiModalStationForStations = Maps.newHashMap();
-  private final HashGridSpatialIndex<TransitStopVertex> stopSpatialIndex = new HashGridSpatialIndex<>();
+
+
   private final Map<ServiceDate, TIntSet> serviceCodesRunningForDate = new HashMap<>();
   private final Map<FeedScopedId, TripOnServiceDate> tripOnServiceDateById = new HashMap<>();
   private final Map<TripIdAndServiceDate, TripOnServiceDate> tripOnServiceDateForTripAndDay = new HashMap<>();
@@ -78,17 +78,7 @@ public class TransitModelIndex {
       this.operatorForId.put(operator.getId(), operator);
     }
 
-    /* We will keep a separate set of all vertices in case some have the same label.
-     * Maybe we should just guarantee unique labels. */
-    for (TransitStopVertex stopVertex : transitModel.getTransitStopVertices()) {
-      Stop stop = stopVertex.getStop();
-      stopForId.put(stop.getId(), stop);
-      stopVertexForStop.put(stop, stopVertex);
-    }
-    for (TransitStopVertex stopVertex : stopVertexForStop.values()) {
-      Envelope envelope = new Envelope(stopVertex.getCoordinate());
-      stopSpatialIndex.insert(envelope, stopVertex);
-    }
+
     for (TripPattern pattern : transitModel.tripPatternForId.values()) {
       patternsForFeedId.put(pattern.getFeedId(), pattern);
       patternsForRoute.put(pattern.getRoute(), pattern);
@@ -111,11 +101,7 @@ public class TransitModelIndex {
     for (GroupOfRoutes groupOfRoutes : routesForGroupOfRoutes.keySet()) {
       groupOfRoutesForId.put(groupOfRoutes.getId(), groupOfRoutes);
     }
-    for (MultiModalStation multiModalStation : transitModel.multiModalStationById.values()) {
-      for (Station childStation : multiModalStation.getChildStations()) {
-        multiModalStationForStations.put(childStation, multiModalStation);
-      }
-    }
+
 
     for (TripOnServiceDate tripOnServiceDate : transitModel.tripOnServiceDates.values()) {
       tripOnServiceDateById.put(tripOnServiceDate.getId(), tripOnServiceDate);
@@ -148,9 +134,7 @@ public class TransitModelIndex {
     return agencyForId.get(id);
   }
 
-  public StopLocation getStopForId(FeedScopedId id) {
-    return stopForId.get(id);
-  }
+
 
   public Route getRouteForId(FeedScopedId id) {
     return routeForId.get(id);
@@ -213,9 +197,6 @@ public class TransitModelIndex {
     return operatorForId;
   }
 
-  public Collection<StopLocation> getAllStops() {
-    return stopForId.values();
-  }
 
   public Map<FeedScopedId, Trip> getTripForId() {
     return tripForId;
@@ -233,9 +214,6 @@ public class TransitModelIndex {
     return routeForId.values();
   }
 
-  public Map<Stop, TransitStopVertex> getStopVertexForStop() {
-    return stopVertexForStop;
-  }
 
   public Map<Trip, TripPattern> getPatternForTrip() {
     return patternForTrip;
@@ -249,13 +227,7 @@ public class TransitModelIndex {
     return patternsForRoute;
   }
 
-  public Map<Station, MultiModalStation> getMultiModalStationForStations() {
-    return multiModalStationForStations;
-  }
 
-  public HashGridSpatialIndex<TransitStopVertex> getStopSpatialIndex() {
-    return stopSpatialIndex;
-  }
 
   public Map<ServiceDate, TIntSet> getServiceCodesRunningForDate() {
     return serviceCodesRunningForDate;

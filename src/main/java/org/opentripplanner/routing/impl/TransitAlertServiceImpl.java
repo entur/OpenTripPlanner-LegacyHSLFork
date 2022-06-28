@@ -60,7 +60,7 @@ public class TransitAlertServiceImpl implements TransitAlertService {
     if (result.isEmpty()) {
       // Search for alerts on parent-stop
       if (transitModel != null && transitModel.index != null) {
-        var quay = transitModel.index.getStopForId(stopId);
+        var quay = transitModel.getStopModel().getStopModelIndex().getStopForId(stopId);
         if (quay != null) {
           // TODO - SIRI: Add alerts from parent- and multimodal-stops
           /*

@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import gnu.trove.set.hash.TIntHashSet;
+import io.netty.resolver.dns.DnsNameResolver;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.locationtech.jts.geom.Coordinate;
+import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.ext.flex.trip.FlexTrip;
 import org.opentripplanner.graph_builder.DataImportIssueStore;
 import org.opentripplanner.graph_builder.issues.NoFutureDates;
@@ -115,6 +117,7 @@ public class TransitModel implements Serializable {
   public final Multimap<StopLocation, PathTransfer> transfersByStop = HashMultimap.create();
   /** Data model for Raptor routing, with realtime updates applied (if any). */
   private final transient ConcurrentPublished<TransitLayer> realtimeTransitLayer = new ConcurrentPublished<>();
+  private StopModel stopModel;
   // transit feed validity information in seconds since epoch
   private long transitServiceStarts = Long.MAX_VALUE;
   private long transitServiceEnds = 0;
@@ -127,8 +130,7 @@ public class TransitModel implements Serializable {
   private transient TimeZone timeZone = null;
   //Envelope of all OSM and transit vertices. Calculated during build time
 
-  /** The density center of the graph for determining the initial geographic extent in the client. */
-  private Coordinate center = null;
+
   /* The preferences that were used for graph building. */
   public Preferences preferences = null;
 
@@ -156,17 +158,7 @@ public class TransitModel implements Serializable {
    */
   public boolean hasScheduledService = false;
 
-  /** Parent stops **/
-  public Map<FeedScopedId, Station> stationById = new HashMap<>();
-  /**
-   * Optional level above parent stops (only supported in NeTEx)
-   */
-  public Map<FeedScopedId, MultiModalStation> multiModalStationById = new HashMap<>();
-  /**
-   * Optional grouping that can contain both stations and multimodal stations (only supported in
-   * NeTEx)
-   */
-  public Map<FeedScopedId, GroupOfStations> groupOfStationsById = new HashMap<>();
+
   /**
    * TripPatterns used to be reached through hop edges, but we're not creating on-board transit
    * vertices/edges anymore.
@@ -178,7 +170,7 @@ public class TransitModel implements Serializable {
   public Map<FeedScopedId, FlexLocationGroup> locationGroupsById = new HashMap<>();
   public Map<FeedScopedId, FlexTrip> flexTripsById = new HashMap<>();
 
-  private Map<FeedScopedId, TransitStopVertex> transitStopVertices = new HashMap<>();
+
 
   /** Data model for Raptor routing, with realtime updates applied (if any). */
   private transient TransitLayer transitLayer;
@@ -186,7 +178,8 @@ public class TransitModel implements Serializable {
 
   private transient TransitAlertService transitAlertService;
 
-  public TransitModel(Deduplicator deduplicator) {
+  public TransitModel(StopModel stopModel, Deduplicator deduplicator) {
+    this.stopModel = stopModel;
     this.deduplicator = deduplicator;
   }
 
@@ -475,9 +468,6 @@ public class TransitModel implements Serializable {
     this.timeZone = null;
   }
 
-  public Optional<Coordinate> getCenter() {
-    return Optional.ofNullable(center);
-  }
 
   public long getTransitServiceStarts() {
     return transitServiceStarts;
@@ -502,37 +492,7 @@ public class TransitModel implements Serializable {
     return transitAlertService;
   }
 
-  /**
-   * @param id Id of Stop, Station, MultiModalStation or GroupOfStations
-   * @return The coordinate for the transit entity
-   */
-  public WgsCoordinate getCoordinateById(FeedScopedId id) {
-    // GroupOfStations
-    GroupOfStations groupOfStations = groupOfStationsById.get(id);
-    if (groupOfStations != null) {
-      return groupOfStations.getCoordinate();
-    }
 
-    // Multimodal station
-    MultiModalStation multiModalStation = multiModalStationById.get(id);
-    if (multiModalStation != null) {
-      return multiModalStation.getCoordinate();
-    }
-
-    // Station
-    Station station = stationById.get(id);
-    if (station != null) {
-      return station.getCoordinate();
-    }
-
-    // Single stop
-    var stop = index.getStopForId(id);
-    if (stop != null) {
-      return stop.getCoordinate();
-    }
-
-    return null;
-  }
 
   /** An OBA Service Date is a local date without timezone, only year month and day. */
   public BitSet getServicesRunningForDate(ServiceDate date) {
@@ -568,23 +528,13 @@ public class TransitModel implements Serializable {
     return getNoticesByElement().values();
   }
 
-  public Station getStationById(FeedScopedId id) {
-    return stationById.get(id);
-  }
 
-  public MultiModalStation getMultiModalStation(FeedScopedId id) {
-    return multiModalStationById.get(id);
-  }
-
-  public Collection<Station> getStations() {
-    return stationById.values();
-  }
 
   /**
    * Finds a {@link StopLocation} by id.
    */
   public StopLocation getStopLocationById(FeedScopedId id) {
-    var stop = index.getStopForId(id);
+    var stop = stopModel.getStopModelIndex().getStopForId(id);
     if (stop != null) {
       return stop;
     }
@@ -596,40 +546,16 @@ public class TransitModel implements Serializable {
       .orElse(null);
   }
 
-  /**
-   * Finds a {@link StopCollection} by id.
-   */
-  public StopCollection getStopCollectionById(FeedScopedId id) {
-    var station = stationById.get(id);
-    if (station != null) {
-      return station;
-    }
 
-    var groupOfStations = groupOfStationsById.get(id);
-    if (groupOfStations != null) {
-      return groupOfStations;
-    }
-
-    return multiModalStationById.get(id);
-  }
 
   /**
    * Returns all {@link StopLocation}s present in this graph, including normal and flex locations.
    */
   public Stream<StopLocation> getAllStopLocations() {
-    return Stream.concat(index.getAllStops().stream(), getAllFlexStopsFlat().stream());
+    return Stream.concat(getStopModel().getStopModelIndex().getAllStops().stream(), getAllFlexStopsFlat().stream());
   }
 
-  /**
-   * Returns all {@link StopCollection}s present in this graph, including stations, group of
-   * stations and multimodal stations.
-   */
-  public Stream<StopCollection> getAllStopCollections() {
-    return Stream.concat(
-      stationById.values().stream(),
-      Stream.concat(groupOfStationsById.values().stream(), multiModalStationById.values().stream())
-    );
-  }
+
 
   public Map<FeedScopedId, Integer> getServiceCodes() {
     return serviceCodes;
@@ -669,83 +595,27 @@ public class TransitModel implements Serializable {
     return stopLocations;
   }
 
-  public Collection<TransitStopVertex> getTransitStopVertices() {
-    return transitStopVertices.values();
+  public void calculateTransitCenter() {
+    stopModel.calculateTransitCenter();
   }
 
-  public void addTransitStopVertex(FeedScopedId id, TransitStopVertex stopVertex) {
-    transitStopVertices.put(id, stopVertex);
+  public StopModel getStopModel() {
+    return stopModel;
   }
+
+  public HashGridSpatialIndex<TransitStopVertex> getStopSpatialIndex() {
+    return stopModel.getStopModelIndex().getStopSpatialIndex();
+  }
+
 
   private void readObject(ObjectInputStream inputStream)
     throws ClassNotFoundException, IOException {
     inputStream.defaultReadObject();
   }
 
-  private Collection<StopLocation> getStopsForId(FeedScopedId id) {
-    // GroupOfStations
-    GroupOfStations groupOfStations = groupOfStationsById.get(id);
-    if (groupOfStations != null) {
-      return groupOfStations.getChildStops();
-    }
 
-    // Multimodal station
-    MultiModalStation multiModalStation = multiModalStationById.get(id);
-    if (multiModalStation != null) {
-      return multiModalStation.getChildStops();
-    }
 
-    // Station
-    Station station = stationById.get(id);
-    if (station != null) {
-      return station.getChildStops();
-    }
-    // Single stop
-    var stop = index.getStopForId(id);
-    if (stop != null) {
-      return Collections.singleton(stop);
-    }
 
-    return null;
-  }
 
-  /**
-   * @param id Id of Stop, Station, MultiModalStation or GroupOfStations
-   * @return The associated TransitStopVertex or all underlying TransitStopVertices
-   */
-  public Set<Vertex> getStopVerticesById(FeedScopedId id) {
-    var stops = getStopsForId(id);
 
-    if (stops == null) {
-      return null;
-    }
-
-    return stops.stream().map(index.getStopVertexForStop()::get).collect(Collectors.toSet());
-  }
-
-  /**
-   * Calculates Transit center from median of coordinates of all transitStops if graph has transit.
-   * If it doesn't it isn't calculated. (mean walue of min, max latitude and longitudes are used)
-   * <p>
-   * Transit center is saved in center variable
-   * <p>
-   * This speeds up calculation, but problem is that median needs to have all of
-   * latitudes/longitudes in memory, this can become problematic in large installations. It works
-   * without a problem on New York State.
-   */
-  public void calculateTransitCenter() {
-    if (hasTransit) {
-      var vertices = getTransitStopVertices();
-      var medianCalculator = new MedianCalcForDoubles(vertices.size());
-
-      vertices.forEach(v -> medianCalculator.add(v.getLon()));
-      double lon = medianCalculator.median();
-
-      medianCalculator.reset();
-      vertices.forEach(v -> medianCalculator.add(v.getLat()));
-      double lat = medianCalculator.median();
-
-      this.center = new Coordinate(lon, lat);
-    }
-  }
 }

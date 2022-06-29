@@ -117,7 +117,7 @@ public class TransitModel implements Serializable {
   public final Multimap<StopLocation, PathTransfer> transfersByStop = HashMultimap.create();
   /** Data model for Raptor routing, with realtime updates applied (if any). */
   private final transient ConcurrentPublished<TransitLayer> realtimeTransitLayer = new ConcurrentPublished<>();
-  private StopModel stopModel = new StopModel();
+  private StopModel stopModel;
   // transit feed validity information in seconds since epoch
   private long transitServiceStarts = Long.MAX_VALUE;
   private long transitServiceEnds = 0;
@@ -338,6 +338,9 @@ public class TransitModel implements Serializable {
       // Skip frequency-based patterns which have no timetable (null)
       if (tp != null) tp.getScheduledTimetable().finish();
     }
+    this.getStopModel().index();
+    // TODO refactoring transit model
+    // the transit model indexing updates the stop model index (flex stops added to the stop index)
     this.index = new TransitModelIndex(this);
     LOG.info("Index transit model complete.");
   }

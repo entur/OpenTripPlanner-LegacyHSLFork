@@ -36,12 +36,14 @@ import org.opentripplanner.routing.edgetype.VehicleRentalEdge;
 import org.opentripplanner.routing.fares.FareServiceFactory;
 import org.opentripplanner.routing.fares.impl.DefaultFareServiceFactory;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.vehicle_rental.RentalVehicleType;
 import org.opentripplanner.routing.vehicle_rental.VehicleRentalStation;
 import org.opentripplanner.routing.vertextype.VehicleRentalPlaceVertex;
 import org.opentripplanner.standalone.config.BuildConfig;
 import org.opentripplanner.standalone.config.ConfigLoader;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.NonLocalizedString;
 
@@ -127,8 +129,10 @@ public class ConstantsForTests {
    */
   public static OtpModel buildNewPortlandGraph(boolean withElevation) {
     try {
-      Graph graph = new Graph();
-      TransitModel transitModel = new TransitModel();
+      var deduplicator = new Deduplicator();
+      var stopModel = new StopModel();
+      var graph = new Graph(stopModel, deduplicator);
+      var transitModel = new TransitModel(stopModel, deduplicator);
       // Add street data from OSM
       {
         File osmFile = new File(PORTLAND_CENTRAL_OSM);
@@ -171,8 +175,10 @@ public class ConstantsForTests {
 
   public static OtpModel buildOsmGraph(String osmPath) {
     try {
-      var graph = new Graph();
-      var transitModel = new TransitModel();
+      var deduplicator = new Deduplicator();
+      var stopModel = new StopModel();
+      var graph = new Graph(stopModel, deduplicator);
+      var transitModel = new TransitModel(stopModel, deduplicator);
       // Add street data from OSM
       File osmFile = new File(osmPath);
       OpenStreetMapProvider osmProvider = new OpenStreetMapProvider(osmFile, true);
@@ -202,16 +208,20 @@ public class ConstantsForTests {
   }
 
   public static OtpModel buildGtfsGraph(String gtfsPath, FareServiceFactory fareServiceFactory) {
-    var graph = new Graph();
-    var transitModel = new TransitModel();
+    var deduplicator = new Deduplicator();
+    var stopModel = new StopModel();
+    var graph = new Graph(stopModel, deduplicator);
+    var transitModel = new TransitModel(stopModel, deduplicator);
     addGtfsToGraph(graph, transitModel, gtfsPath, fareServiceFactory, null);
     return new OtpModel(graph, transitModel);
   }
 
   public static OtpModel buildNewMinimalNetexGraph() {
     try {
-      Graph graph = new Graph();
-      var transitModel = new TransitModel();
+      var deduplicator = new Deduplicator();
+      var stopModel = new StopModel();
+      var graph = new Graph(stopModel, deduplicator);
+      var transitModel = new TransitModel(stopModel, deduplicator);
       // Add street data from OSM
       {
         File osmFile = new File(OSLO_EAST_OSM);

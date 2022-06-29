@@ -32,9 +32,11 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.impl.GraphPathFinder;
 import org.opentripplanner.routing.spt.GraphPath;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.standalone.config.RouterConfig;
 import org.opentripplanner.standalone.server.Router;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.LocalizedString;
 import org.opentripplanner.util.NonLocalizedString;
@@ -50,8 +52,10 @@ public class OpenStreetMapModuleTest {
 
   @Test
   public void testGraphBuilder() {
-    Graph gg = new Graph();
-    TransitModel transitModel = new TransitModel();
+    var deduplicator = new Deduplicator();
+    var stopModel = new StopModel();
+    var gg = new Graph(stopModel, deduplicator);
+    var transitModel = new TransitModel(stopModel, deduplicator);
 
     File file = new File(
       URLDecoder.decode(getClass().getResource("map.osm.pbf").getFile(), StandardCharsets.UTF_8)
@@ -111,8 +115,10 @@ public class OpenStreetMapModuleTest {
    */
   @Test
   public void testBuildGraphDetailed() throws Exception {
-    Graph gg = new Graph();
-    TransitModel transitModel = new TransitModel();
+    var deduplicator = new Deduplicator();
+    var stopModel = new StopModel();
+    var gg = new Graph(stopModel, deduplicator);
+    var transitModel = new TransitModel(stopModel, deduplicator);
 
     File file = new File(
       URLDecoder.decode(
@@ -289,8 +295,10 @@ public class OpenStreetMapModuleTest {
    * @param skipVisibility if true visibility calculations are skipped
    */
   private void testBuildingAreas(boolean skipVisibility) {
-    Graph graph = new Graph();
-    TransitModel transitModel = new TransitModel();
+    var deduplicator = new Deduplicator();
+    var stopModel = new StopModel();
+    var graph = new Graph(stopModel, deduplicator);
+    var transitModel = new TransitModel(stopModel, deduplicator);
 
     File file = new File(
       URLDecoder.decode(

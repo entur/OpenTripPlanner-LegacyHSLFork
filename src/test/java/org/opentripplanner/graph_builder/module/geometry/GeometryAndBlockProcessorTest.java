@@ -7,6 +7,8 @@ import org.opentripplanner.gtfs.GtfsContext;
 import org.opentripplanner.gtfs.GtfsContextBuilder;
 import org.opentripplanner.gtfs.MockGtfs;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.trippattern.Deduplicator;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 
 public class GeometryAndBlockProcessorTest {
@@ -27,8 +29,10 @@ public class GeometryAndBlockProcessorTest {
     );
 
     GtfsFeedId feedId = new GtfsFeedId.Builder().id("FEED").build();
-    Graph graph = new Graph();
-    TransitModel transitModel = new TransitModel();
+    var deduplicator = new Deduplicator();
+    var stopModel = new StopModel();
+    var graph = new Graph(stopModel, deduplicator);
+    var transitModel = new TransitModel(stopModel, deduplicator);
 
     GtfsContext context = new GtfsContextBuilder(feedId, gtfs.read())
       .withIssueStoreAndDeduplicator(graph)

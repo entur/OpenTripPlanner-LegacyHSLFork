@@ -17,7 +17,9 @@ import org.opentripplanner.openstreetmap.OpenStreetMapProvider;
 import org.opentripplanner.routing.edgetype.StreetVehicleParkingLink;
 import org.opentripplanner.routing.edgetype.VehicleParkingEdge;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.vertextype.VehicleParkingEntranceVertex;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 
 public class UnconnectedAreasTest {
@@ -145,8 +147,10 @@ public class UnconnectedAreasTest {
   }
 
   private Graph buildOSMGraph(String osmFileName, DataImportIssueStore issueStore) {
-    Graph graph = new Graph();
-    TransitModel transitModel = new TransitModel();
+    var deduplicator = new Deduplicator();
+    var stopModel = new StopModel();
+    var graph = new Graph(stopModel, deduplicator);
+    var transitModel = new TransitModel(stopModel, deduplicator);
     var fileUrl = getClass().getResource(osmFileName);
     Assertions.assertNotNull(fileUrl);
     File file = new File(fileUrl.getFile());

@@ -15,6 +15,8 @@ import org.opentripplanner.openstreetmap.OpenStreetMapProvider;
 import org.opentripplanner.openstreetmap.model.OSMWithTags;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.trippattern.Deduplicator;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 
 public class PruneNoThruIslandsTest {
@@ -66,8 +68,10 @@ public class PruneNoThruIslandsTest {
 
   private static Graph buildOsmGraph(String osmPath) {
     try {
-      var graph = new Graph();
-      var transitModel = new TransitModel();
+      var deduplicator = new Deduplicator();
+      var stopModel = new StopModel();
+      var graph = new Graph(stopModel, deduplicator);
+      var transitModel = new TransitModel(stopModel, deduplicator);
       // Add street data from OSM
       File osmFile = new File(osmPath);
       OpenStreetMapProvider osmProvider = new OpenStreetMapProvider(osmFile, true);

@@ -7,6 +7,7 @@ import static org.opentripplanner.transit.model.basic.WheelchairAccessibility.NO
 import static org.opentripplanner.transit.model.basic.WheelchairAccessibility.POSSIBLE;
 
 import java.util.Set;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.api.request.WheelchairAccessibilityFeature;
@@ -14,18 +15,20 @@ import org.opentripplanner.routing.api.request.WheelchairAccessibilityRequest;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.vertextype.SimpleVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertexBuilder;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.site.Stop;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 
 class StreetTransitEntityLinkTest {
 
-  Graph graph = new Graph();
-  TransitModel transitModel = new TransitModel();
+  Graph graph;
+  TransitModel transitModel;
 
   Stop inaccessibleStop = TransitModelForTest.stopForTest(
     "A:inaccessible",
@@ -52,6 +55,14 @@ class StreetTransitEntityLinkTest {
     null,
     NO_INFORMATION
   );
+
+  @BeforeAll
+  void setup() {
+    var deduplicator = new Deduplicator();
+    var stopModel = new StopModel();
+    graph = new Graph(stopModel, deduplicator);
+    transitModel = new TransitModel(stopModel, deduplicator);
+  }
 
   @Test
   void disallowInaccessibleStop() {

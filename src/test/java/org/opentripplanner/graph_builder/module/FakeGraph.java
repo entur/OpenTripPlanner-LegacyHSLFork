@@ -18,10 +18,12 @@ import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.edgetype.StreetTransitStopLink;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertexBuilder;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.site.Stop;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 
 /**
@@ -32,8 +34,10 @@ public class FakeGraph {
 
   /** Build a graph in Columbus, OH with no transit */
   public static OtpModel buildGraphNoTransit() throws URISyntaxException {
-    Graph gg = new Graph();
-    TransitModel transitModel = new TransitModel();
+    var deduplicator = new Deduplicator();
+    var stopModel = new StopModel();
+    var gg = new Graph(stopModel, deduplicator);
+    var transitModel = new TransitModel(stopModel, deduplicator);
 
     File file = getFileForResource("columbus.osm.pbf");
     OpenStreetMapProvider provider = new OpenStreetMapProvider(file, false);

@@ -11,14 +11,18 @@ import org.opentripplanner.ConstantsForTests;
 import org.opentripplanner.graph_builder.model.GtfsBundle;
 import org.opentripplanner.model.calendar.ServiceDateInterval;
 import org.opentripplanner.routing.graph.Graph;
+import org.opentripplanner.routing.trippattern.Deduplicator;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 
 class GtfsModuleTest {
 
   @Test
   public void addShapesForFrequencyTrips() {
-    var graph = new Graph();
-    var transitModel = new TransitModel();
+    var deduplicator = new Deduplicator();
+    var stopModel = new StopModel();
+    var graph = new Graph(stopModel, deduplicator);
+    var transitModel = new TransitModel(stopModel, deduplicator);
 
     var bundle = new GtfsBundle(new File(ConstantsForTests.FAKE_GTFS));
     var module = new GtfsModule(List.of(bundle), ServiceDateInterval.unbounded(), null, false);

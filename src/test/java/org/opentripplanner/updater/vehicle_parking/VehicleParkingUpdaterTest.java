@@ -38,8 +38,8 @@ class VehicleParkingUpdaterTest {
   public void setup() {
     VehicleParkingTestGraphData graphData = new VehicleParkingTestGraphData();
     graphData.initGraph();
-    this.graph = graphData.getGraph();
-    this.transitModel = new TransitModel();
+    graph = graphData.getGraph();
+    transitModel = graphData.getTransitModel();
     transitModel.index();
     graph.index();
 

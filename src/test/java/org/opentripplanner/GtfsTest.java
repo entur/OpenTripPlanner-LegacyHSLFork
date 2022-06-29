@@ -30,9 +30,11 @@ import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.impl.TransitAlertServiceImpl;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.standalone.config.RouterConfig;
 import org.opentripplanner.standalone.server.Router;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.updater.alerts.AlertsUpdateHandler;
 import org.opentripplanner.updater.stoptime.TimetableSnapshotSource;
@@ -154,8 +156,10 @@ public abstract class GtfsTest {
     );
 
     alertsUpdateHandler = new AlertsUpdateHandler();
-    graph = new Graph();
-    transitModel = new TransitModel();
+    var deduplicator = new Deduplicator();
+    var stopModel = new StopModel();
+    graph = new Graph(stopModel, deduplicator);
+    transitModel = new TransitModel(stopModel, deduplicator);
 
     gtfsGraphBuilderImpl.buildGraph(graph, transitModel, null);
     // Set the agency ID to be used for tests to the first one in the feed.

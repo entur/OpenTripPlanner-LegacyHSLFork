@@ -13,6 +13,7 @@ import org.opentripplanner.model.FlexLocationGroup;
 import org.opentripplanner.model.FlexStopLocation;
 import org.opentripplanner.model.GroupOfStations;
 import org.opentripplanner.model.MultiModalStation;
+import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.basic.WgsCoordinate;
@@ -22,10 +23,13 @@ import org.opentripplanner.transit.model.site.Stop;
 import org.opentripplanner.transit.model.site.StopCollection;
 import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.util.MedianCalcForDoubles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class StopModel {
 
+  private static final Logger LOG = LoggerFactory.getLogger(StopModel.class);
 
   /** Parent stops **/
   private Map<FeedScopedId, Station> stationById = new HashMap<>();
@@ -49,7 +53,7 @@ public class StopModel {
 
   public Map<FeedScopedId, FlexLocationGroup> locationGroupsById = new HashMap<>();
 
-  private StopModelIndex index;
+  private transient StopModelIndex index;
 
   public Map<Stop, TransitStopVertex> getStopVertexForStop() {
     return index.getStopVertexForStop();
@@ -57,6 +61,7 @@ public class StopModel {
 
 
   public StopModelIndex getStopModelIndex() {
+    //TODO refactoring transit model
     if(index == null) {
       index();
     }
@@ -119,7 +124,9 @@ public class StopModel {
   }
 
   public void index() {
+    LOG.info("Index stop model graph...");
     index = new StopModelIndex(this);
+    LOG.info("Index stop model complete.");
   }
 
   private Collection<StopLocation> getStopsForId(FeedScopedId id) {

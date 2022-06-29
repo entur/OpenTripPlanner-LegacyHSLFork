@@ -36,8 +36,8 @@ import org.opentripplanner.transit.service.TransitModel;
 
 public class TimetableSnapshotSourceTest {
 
-  static Graph graph = new Graph();
-  static TransitModel transitModel = new TransitModel();
+  static Graph graph;
+  static TransitModel transitModel;
   private static final boolean fullDataset = false;
   private static final ServiceDate serviceDate = new ServiceDate();
   private static byte[] cancellation;

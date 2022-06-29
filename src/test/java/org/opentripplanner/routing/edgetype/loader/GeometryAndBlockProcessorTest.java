@@ -41,8 +41,10 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.routing.spt.ShortestPathTree;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.TestUtils;
 
@@ -61,9 +63,10 @@ public class GeometryAndBlockProcessorTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    graph = new Graph();
-    transitModel = new TransitModel();
-
+    var deduplicator = new Deduplicator();
+    var stopModel = new StopModel();
+    graph = new Graph(stopModel, deduplicator);
+    transitModel = new TransitModel(stopModel, deduplicator);
     this.issueStore = new DataImportIssueStore(true);
 
     context =
@@ -133,7 +136,7 @@ public class GeometryAndBlockProcessorTest {
     //Linkers aren't run otherwise
     graph.hasStreets = true;
     transitModel.hasTransit = true;
-    ttsnm.buildGraph(graph, new TransitModel(), new HashMap<>());
+    ttsnm.buildGraph(graph, transitModel, new HashMap<>());
   }
 
   @Test

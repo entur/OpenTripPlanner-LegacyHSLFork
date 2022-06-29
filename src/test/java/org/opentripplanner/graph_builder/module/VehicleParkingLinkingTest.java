@@ -33,7 +33,7 @@ public class VehicleParkingLinkingTest {
     VehicleParkingTestGraphData graphData = new VehicleParkingTestGraphData();
     graphData.initGraph();
     graph = graphData.getGraph();
-    transitModel = new TransitModel();
+    transitModel = graphData.getTransitModel();
     A = graphData.getAVertex();
     B = graphData.getBVertex();
   }

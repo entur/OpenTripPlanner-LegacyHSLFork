@@ -33,6 +33,7 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.location.TemporaryStreetLocation;
 import org.opentripplanner.routing.spt.GraphPath;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.vehicle_parking.VehicleParking;
 import org.opentripplanner.routing.vehicle_parking.VehicleParking.VehicleParkingEntranceCreator;
 import org.opentripplanner.routing.vehicle_parking.VehicleParkingHelper;
@@ -57,6 +58,7 @@ import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.organization.Agency;
 import org.opentripplanner.transit.model.site.Entrance;
 import org.opentripplanner.transit.model.site.Stop;
+import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.NonLocalizedString;
 
@@ -101,8 +103,15 @@ public abstract class GraphRoutingTest {
 
   public abstract static class Builder {
 
-    private final Graph graph = new Graph();
-    private final TransitModel transitModel = new TransitModel();
+    private final Graph graph ;
+    private final TransitModel transitModel;
+
+    protected Builder() {
+      var deduplicator = new Deduplicator();
+      var stopModel = new StopModel();
+      graph = new Graph(stopModel, deduplicator);
+      transitModel = new TransitModel(stopModel, deduplicator);
+    }
 
     public abstract void build();
 

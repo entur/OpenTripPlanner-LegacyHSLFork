@@ -35,8 +35,7 @@ public class TemporaryVerticesContainerTest {
   private final GeometryFactory gf = GeometryUtils.getGeometryFactory();
   // Given:
   // - a graph with 3 intersections/vertexes
-  private Graph g;
-  private TransitModel transitModel;
+  private Graph g = new Graph(new StopModel(), new Deduplicator());
   private final StreetVertex a = new IntersectionVertex(g, "A", 1.0, 1.0);
   private final StreetVertex b = new IntersectionVertex(g, "B", 0.0, 1.0);
   private final StreetVertex c = new IntersectionVertex(g, "C", 1.0, 0.0);
@@ -50,16 +49,9 @@ public class TemporaryVerticesContainerTest {
   // - and some roads
   @BeforeEach
   public void setup() {
-
-    var deduplicator = new Deduplicator();
-    var stopModel = new StopModel();
-    g = new Graph(stopModel, deduplicator);
-    transitModel = new TransitModel(stopModel, deduplicator);
-
     createStreetEdge(a, b, "a -> b");
     createStreetEdge(b, a, "b -> a");
     createStreetEdge(a, c, "a -> c");
-    transitModel.index();
     g.index();
   }
 

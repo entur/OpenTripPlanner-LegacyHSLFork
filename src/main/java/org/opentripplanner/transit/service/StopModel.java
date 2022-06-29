@@ -1,5 +1,6 @@
 package org.opentripplanner.transit.service;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import org.opentripplanner.util.MedianCalcForDoubles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StopModel {
+public class StopModel implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(StopModel.class);
 
@@ -54,6 +55,12 @@ public class StopModel {
 
   public Map<Stop, TransitStopVertex> getStopVertexForStop() {
     return index.getStopVertexForStop();
+  }
+
+  public void index() {
+    LOG.info("Index stop model...");
+    index = new StopModelIndex(this);
+    LOG.info("Index stop model complete.");
   }
 
   public StopModelIndex getStopModelIndex() {
@@ -116,12 +123,6 @@ public class StopModel {
 
   public Collection<TransitStopVertex> getAllStopVertices() {
     return transitStopVertices.values();
-  }
-
-  public void index() {
-    LOG.info("Index stop model...");
-    index = new StopModelIndex(this);
-    LOG.info("Index stop model complete.");
   }
 
   private Collection<StopLocation> getStopsForId(FeedScopedId id) {

@@ -62,14 +62,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A graph is really just one or more indexes into a set of vertexes. It used to keep edgelists for
- * each vertex, but those are in the vertex now.
+ * Repository holding references to Transit entity.
  */
 public class TransitModel implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(TransitModel.class);
 
   private static final long serialVersionUID = 1L;
+
+  private final Collection<Agency> agencies = new ArrayList<>();
+  private final Collection<Operator> operators = new ArrayList<>();
+  private final Collection<String> feedIds = new HashSet<>();
+  private final Map<String, FeedInfo> feedInfoForId = new HashMap<>();
 
   /**
    * Allows a notice element to be attached to an object in the OTP model by its id and then
@@ -79,9 +83,6 @@ public class TransitModel implements Serializable {
   private final Multimap<TransitEntity, Notice> noticesByElement = HashMultimap.create();
   private final Map<Class<?>, Serializable> services = new HashMap<>();
   private final TransferService transferService = new TransferService();
-  /* Ideally we could just get rid of vertex labels, but they're used in tests and graph building. */
-
-  public final transient Deduplicator deduplicator;
 
   /** List of transit modes that are availible in GTFS data used in this graph **/
   private final HashSet<TransitMode> transitModes = new HashSet<>();
@@ -92,32 +93,24 @@ public class TransitModel implements Serializable {
    * from multiple feeds.
    */
   private final Map<FeedScopedId, Integer> serviceCodes = Maps.newHashMap();
-  private final Collection<Agency> agencies = new ArrayList<>();
-  private final Collection<Operator> operators = new ArrayList<>();
-  private final Collection<String> feedIds = new HashSet<>();
-  private final Map<String, FeedInfo> feedInfoForId = new HashMap<>();
 
-  public final Date buildTime = new Date();
   /** Pre-generated transfers between all stops. */
-
   public final Multimap<StopLocation, PathTransfer> transfersByStop = HashMultimap.create();
-  /** Data model for Raptor routing, with realtime updates applied (if any). */
-  private final transient ConcurrentPublished<TransitLayer> realtimeTransitLayer = new ConcurrentPublished<>();
+
   private StopModel stopModel;
   // transit feed validity information in seconds since epoch
   private long transitServiceStarts = Long.MAX_VALUE;
   private long transitServiceEnds = 0;
 
-  private GraphBundle bundle;
+  /** Data model for Raptor routing, with realtime updates applied (if any). */
+  private final transient ConcurrentPublished<TransitLayer> realtimeTransitLayer = new ConcurrentPublished<>();
+
+  public final transient Deduplicator deduplicator;
   private transient CalendarService calendarService;
 
   public transient TransitModelIndex index;
   private transient TimetableSnapshotProvider timetableSnapshotProvider = null;
   private transient TimeZone timeZone = null;
-  //Envelope of all OSM and transit vertices. Calculated during build time
-
-  /* The preferences that were used for graph building. */
-  public Preferences preferences = null;
 
   /**
    * Manages all updaters of this graph. Is created by the GraphUpdaterConfigurator when there are
@@ -165,6 +158,24 @@ public class TransitModel implements Serializable {
   // Constructor for deserialization.
   public TransitModel() {
     deduplicator = new Deduplicator();
+  }
+
+  /**
+   * Perform indexing on timetables, and create transient data structures. This used to be done in
+   * readObject methods upon deserialization, but stand-alone mode now allows passing graphs from
+   * graphbuilder to server in memory, without a round trip through serialization.
+   */
+  public void index() {
+    LOG.info("Index transit model...");
+    for (TripPattern tp : tripPatternForId.values()) {
+      // Skip frequency-based patterns which have no timetable (null)
+      if (tp != null) tp.getScheduledTimetable().finish();
+    }
+    this.getStopModel().index();
+    // TODO refactoring transit model
+    // the transit model indexing updates the stop model index (flex stops added to the stop index)
+    this.index = new TransitModelIndex(this);
+    LOG.info("Index transit model complete.");
   }
 
   public TimetableSnapshot getTimetableSnapshot() {
@@ -288,14 +299,6 @@ public class TransitModel implements Serializable {
     return t >= this.transitServiceStarts && t < this.transitServiceEnds;
   }
 
-  public GraphBundle getBundle() {
-    return bundle;
-  }
-
-  public void setBundle(GraphBundle bundle) {
-    this.bundle = bundle;
-  }
-
   /**
    * Adds mode of transport to transit modes in graph
    */
@@ -305,24 +308,6 @@ public class TransitModel implements Serializable {
 
   public HashSet<TransitMode> getTransitModes() {
     return transitModes;
-  }
-
-  /**
-   * Perform indexing on timetables, and create transient data structures. This used to be done in
-   * readObject methods upon deserialization, but stand-alone mode now allows passing graphs from
-   * graphbuilder to server in memory, without a round trip through serialization.
-   */
-  public void index() {
-    LOG.info("Index transit model...");
-    for (TripPattern tp : tripPatternForId.values()) {
-      // Skip frequency-based patterns which have no timetable (null)
-      if (tp != null) tp.getScheduledTimetable().finish();
-    }
-    this.getStopModel().index();
-    // TODO refactoring transit model
-    // the transit model indexing updates the stop model index (flex stops added to the stop index)
-    this.index = new TransitModelIndex(this);
-    LOG.info("Index transit model complete.");
   }
 
   public CalendarService getCalendarService() {

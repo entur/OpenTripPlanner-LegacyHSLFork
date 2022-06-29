@@ -18,7 +18,7 @@ import org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers.Trans
 import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.standalone.config.RouterConfig;
-import org.opentripplanner.transit.raptor.rangeraptor.configure.RaptorConfig;
+import org.opentripplanner.transit.raptor.configure.RaptorConfig;
 import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.updater.GraphUpdaterConfigurator;
 import org.opentripplanner.util.ElevationUtils;
@@ -69,7 +69,7 @@ public class Router {
     this.routerConfig = routerConfig;
     this.defaultRoutingRequest = routerConfig.routingRequestDefaults();
     this.meterRegistry = meterRegistry;
-    this.raptorConfig = new RaptorConfig<>(routerConfig.raptorTuningParameters(), meterRegistry);
+    this.raptorConfig = new RaptorConfig<>(routerConfig.raptorTuningParameters());
   }
 
   /*

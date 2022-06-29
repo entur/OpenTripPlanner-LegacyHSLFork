@@ -50,7 +50,7 @@ public class StopModelIndex {
 
     /* We will keep a separate set of all vertices in case some have the same label.
      * Maybe we should just guarantee unique labels. */
-    for (TransitStopVertex stopVertex : stopModel.getTransitStopVertices()) {
+    for (TransitStopVertex stopVertex : stopModel.getAllStopVertices()) {
       Stop stop = stopVertex.getStop();
       stopForId.put(stop.getId(), stop);
       stopVertexForStop.put(stop, stopVertex);

@@ -334,6 +334,8 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
       return () -> {
         var matched = transfersByStop.values().stream().filter(this::matches).findFirst();
 
+
+
         if (matched.isPresent()) {
           assertTrue(true, "Found transfer for " + this);
           matchedTransfers.add(matched.get());

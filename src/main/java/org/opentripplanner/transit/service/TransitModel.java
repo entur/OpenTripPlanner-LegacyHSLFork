@@ -141,8 +141,7 @@ public class TransitModel implements Serializable {
    * @see GraphUpdaterConfigurator
    */
   public transient GraphUpdaterManager updaterManager = null;
-  /** True if OSM data was loaded into this Graph. */
-  public boolean hasStreets = false;
+
   /** True if GTFS data was loaded into this Graph. */
   public boolean hasTransit = false;
 
@@ -158,7 +157,6 @@ public class TransitModel implements Serializable {
    */
   public boolean hasScheduledService = false;
 
-
   /**
    * TripPatterns used to be reached through hop edges, but we're not creating on-board transit
    * vertices/edges anymore.
@@ -166,10 +164,7 @@ public class TransitModel implements Serializable {
   public Map<FeedScopedId, TripPattern> tripPatternForId = Maps.newHashMap();
   public Map<FeedScopedId, TripOnServiceDate> tripOnServiceDates = Maps.newHashMap();
 
-
   public Map<FeedScopedId, FlexTrip> flexTripsById = new HashMap<>();
-
-
 
   /** Data model for Raptor routing, with realtime updates applied (if any). */
   private transient TransitLayer transitLayer;

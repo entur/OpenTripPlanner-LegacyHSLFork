@@ -124,7 +124,7 @@ public class StopModel {
   }
 
   public void index() {
-    LOG.info("Index stop model graph...");
+    LOG.info("Index stop model...");
     index = new StopModelIndex(this);
     LOG.info("Index stop model complete.");
   }
@@ -197,10 +197,6 @@ public class StopModel {
     return multiModalStationById.get(id);
   }
 
-  public Collection<TransitStopVertex> getTransitStopVertices() {
-    return transitStopVertices.values();
-  }
-
   public void addTransitStopVertex(FeedScopedId id, TransitStopVertex stopVertex) {
     transitStopVertices.put(id, stopVertex);
   }
@@ -216,7 +212,7 @@ public class StopModel {
    * without a problem on New York State.
    */
   public void calculateTransitCenter() {
-    var vertices = getTransitStopVertices();
+    var vertices = getAllStopVertices();
     var medianCalculator = new MedianCalcForDoubles(vertices.size());
 
     vertices.forEach(v -> medianCalculator.add(v.getLon()));

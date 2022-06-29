@@ -82,7 +82,7 @@ public class FlexRouter {
         graph.ellipsoidToGeoidDifference
       );
 
-    if (transitModel.hasStreets) {
+    if (graph.hasStreets) {
       this.accessFlexPathCalculator = new StreetFlexPathCalculator(graph, false);
       this.egressFlexPathCalculator = new StreetFlexPathCalculator(graph, true);
     } else {

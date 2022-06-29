@@ -73,7 +73,6 @@ public class Graph implements Serializable {
 
   public final Date buildTime = new Date();
   private StopModel stopModel;
-  /** Pre-generated transfers between all stops. */
 
   private GraphBundle bundle;
 
@@ -345,11 +344,11 @@ public class Graph implements Serializable {
    * graphbuilder to server in memory, without a round trip through serialization.
    */
   public void index() {
-    LOG.info("Index street graph...");
+    LOG.info("Index street model...");
     //TODO refactoring transit model
     CompactElevationProfile.setDistanceBetweenSamplesM(getDistanceBetweenElevationSamples());
     streetIndex = new StreetVertexIndex(this, stopModel);
-    LOG.info("Index street graph complete.");
+    LOG.info("Index street model complete.");
   }
 
   public StreetVertexIndex getStreetIndex() {

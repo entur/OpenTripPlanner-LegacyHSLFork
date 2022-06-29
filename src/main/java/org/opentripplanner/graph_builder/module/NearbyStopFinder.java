@@ -70,7 +70,7 @@ public class NearbyStopFinder {
    * the graph.
    */
   public NearbyStopFinder(Graph graph, TransitModel transitModel, Duration durationLimit) {
-    this(graph, transitModel, durationLimit, transitModel.hasStreets);
+    this(graph, transitModel, durationLimit, graph.hasStreets);
   }
 
   /**

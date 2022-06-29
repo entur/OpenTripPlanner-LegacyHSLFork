@@ -424,7 +424,7 @@ public class StreetVertexIndex {
 
   @SuppressWarnings("rawtypes")
   private void postSetup() {
-    var progress = ProgressTracker.track("Index steet graph", 1000, graph.getVertices().size());
+    var progress = ProgressTracker.track("Index street vertex", 1000, graph.getVertices().size());
     LOG.info(progress.startMessage());
 
     for (Vertex gv : graph.getVertices()) {

@@ -76,7 +76,11 @@ public class LinkStopToPlatformTest {
 
     Stop stop = TransitModelForTest.stop("TestStop").withCoordinate(59.13545, 10.22213).build();
 
-    TransitStopVertex stopVertex = new TransitStopVertexBuilder().withGraph(graph).withStop(stop).withTransitModel(transitModel).build();
+    TransitStopVertex stopVertex = new TransitStopVertexBuilder()
+      .withGraph(graph)
+      .withStop(stop)
+      .withTransitModel(transitModel)
+      .build();
   }
 
   /**

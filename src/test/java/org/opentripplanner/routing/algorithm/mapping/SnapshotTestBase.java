@@ -45,7 +45,6 @@ import org.opentripplanner.routing.RoutingService;
 import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.response.RoutingResponse;
-import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.standalone.config.RouterConfig;
 import org.opentripplanner.standalone.server.Router;
 import org.opentripplanner.transit.model.network.MainAndSubMode;
@@ -83,7 +82,13 @@ public abstract class SnapshotTestBase {
   protected Router getRouter() {
     if (router == null) {
       OtpModel otpModel = getGraph();
-      router = new Router(otpModel.graph, otpModel.transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
+      router =
+        new Router(
+          otpModel.graph,
+          otpModel.transitModel,
+          RouterConfig.DEFAULT,
+          Metrics.globalRegistry
+        );
       router.startup();
     }
 

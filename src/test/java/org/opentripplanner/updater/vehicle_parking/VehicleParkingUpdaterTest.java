@@ -243,7 +243,11 @@ class VehicleParkingUpdaterTest {
       }
     }
 
-    var graphUpdaterManager = new GraphUpdaterMock(graph, transitModel, List.of(vehicleParkingUpdater));
+    var graphUpdaterManager = new GraphUpdaterMock(
+      graph,
+      transitModel,
+      List.of(vehicleParkingUpdater)
+    );
     graphUpdaterManager.startUpdaters();
     graphUpdaterManager.stop();
   }

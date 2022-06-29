@@ -35,7 +35,6 @@ public class BicycleRoutingTest {
     OtpModel otpModel = ConstantsForTests.buildOsmGraph(ConstantsForTests.HERRENBERG_OSM);
     herrenbergGraph = otpModel.graph;
     herrenbergTransitModel = otpModel.transitModel;
-
   }
 
   /**
@@ -47,10 +46,20 @@ public class BicycleRoutingTest {
     var mozartStr = new GenericLocation(48.59713, 8.86107);
     var fritzLeharStr = new GenericLocation(48.59696, 8.85806);
 
-    var polyline1 = computePolyline(herrenbergGraph, herrenbergTransitModel, mozartStr, fritzLeharStr);
+    var polyline1 = computePolyline(
+      herrenbergGraph,
+      herrenbergTransitModel,
+      mozartStr,
+      fritzLeharStr
+    );
     assertThatPolylinesAreEqual(polyline1, "_srgHutau@h@B|@Jf@BdAG?\\JT@jA?DSp@_@fFsAT{@DBpC");
 
-    var polyline2 = computePolyline(herrenbergGraph, herrenbergTransitModel, fritzLeharStr, mozartStr);
+    var polyline2 = computePolyline(
+      herrenbergGraph,
+      herrenbergTransitModel,
+      fritzLeharStr,
+      mozartStr
+    );
     assertThatPolylinesAreEqual(polyline2, "{qrgH{aau@CqCz@ErAU^gFRq@?EAkAKUeACg@A_AM_AEDQF@H?");
   }
 
@@ -63,14 +72,29 @@ public class BicycleRoutingTest {
     var schiessmauer = new GenericLocation(48.59737, 8.86350);
     var zeppelinStr = new GenericLocation(48.59972, 8.86239);
 
-    var polyline1 = computePolyline(herrenbergGraph, herrenbergTransitModel, schiessmauer, zeppelinStr);
+    var polyline1 = computePolyline(
+      herrenbergGraph,
+      herrenbergTransitModel,
+      schiessmauer,
+      zeppelinStr
+    );
     assertThatPolylinesAreEqual(polyline1, "otrgH{cbu@S_AU_AmAdAyApAGDs@h@_@\\_ClBe@^?S");
 
-    var polyline2 = computePolyline(herrenbergGraph, herrenbergTransitModel, zeppelinStr, schiessmauer);
+    var polyline2 = computePolyline(
+      herrenbergGraph,
+      herrenbergTransitModel,
+      zeppelinStr,
+      schiessmauer
+    );
     assertThatPolylinesAreEqual(polyline2, "ccsgH{|au@?Rd@_@~BmB^]r@i@FExAqAlAeAT~@R~@");
   }
 
-  private static String computePolyline(Graph graph, TransitModel transitModel, GenericLocation from, GenericLocation to) {
+  private static String computePolyline(
+    Graph graph,
+    TransitModel transitModel,
+    GenericLocation from,
+    GenericLocation to
+  ) {
     RoutingRequest request = new RoutingRequest();
     request.setDateTime(dateTime);
     request.from = from;

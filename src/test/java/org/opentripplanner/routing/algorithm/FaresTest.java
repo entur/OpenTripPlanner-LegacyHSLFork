@@ -114,7 +114,7 @@ public class FaresTest {
       new SeattleFareServiceFactory()
     );
     Graph graph = otpModel.graph;
-    TransitModel transitModel= otpModel.transitModel;
+    TransitModel transitModel = otpModel.transitModel;
 
     assertEquals("America/Los_Angeles", transitModel.getTimeZone().getID());
 

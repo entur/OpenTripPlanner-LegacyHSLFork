@@ -13,7 +13,6 @@ import org.opentripplanner.model.FlexLocationGroup;
 import org.opentripplanner.model.FlexStopLocation;
 import org.opentripplanner.model.GroupOfStations;
 import org.opentripplanner.model.MultiModalStation;
-import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.basic.WgsCoordinate;
@@ -25,7 +24,6 @@ import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.util.MedianCalcForDoubles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class StopModel {
 
@@ -43,7 +41,6 @@ public class StopModel {
    */
   private Map<FeedScopedId, GroupOfStations> groupOfStationsById = new HashMap<>();
 
-
   private Map<FeedScopedId, TransitStopVertex> transitStopVertices = new HashMap<>();
 
   /** The density center of the graph for determining the initial geographic extent in the client. */
@@ -59,15 +56,13 @@ public class StopModel {
     return index.getStopVertexForStop();
   }
 
-
   public StopModelIndex getStopModelIndex() {
     //TODO refactoring transit model
-    if(index == null) {
+    if (index == null) {
       index();
     }
     return index;
   }
-
 
   /**
    * @param id Id of Stop, Station, MultiModalStation or GroupOfStations
@@ -179,7 +174,6 @@ public class StopModel {
     return stationById.values();
   }
 
-
   /**
    * Finds a {@link StopCollection} by id.
    */
@@ -248,5 +242,4 @@ public class StopModel {
   public FlexStopLocation getLocationById(FeedScopedId id) {
     return locationsById.get(id);
   }
-
 }

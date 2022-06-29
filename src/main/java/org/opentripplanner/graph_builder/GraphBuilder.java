@@ -72,7 +72,6 @@ public class GraphBuilder implements Runnable {
       // ensure the street model and the transit model share the same deduplicator and stop model
       this.transitModel = new TransitModel(this.graph.getStopModel(), this.graph.deduplicator);
     }
-
   }
 
   /**
@@ -302,8 +301,8 @@ public class GraphBuilder implements Runnable {
     if (hasTransitData() && !transitModel.hasTransit) {
       throw new OtpAppException(
         "The provided transit data have no trips within the configured transit " +
-          "service period. See build config 'transitServiceStart' and " +
-          "'transitServiceEnd'"
+        "service period. See build config 'transitServiceStart' and " +
+        "'transitServiceEnd'"
       );
     }
   }

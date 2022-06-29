@@ -19,7 +19,6 @@ import org.opentripplanner.routing.vehicle_parking.VehicleParkingService;
 import org.opentripplanner.routing.vertextype.TransitEntranceVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.routing.vertextype.VehicleParkingEntranceVertex;
-import org.opentripplanner.transit.service.TransitEditorService;
 import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.OTPFeature;
 import org.opentripplanner.util.logging.ProgressTracker;
@@ -59,7 +58,6 @@ public class StreetLinkerModule implements GraphBuilderModule {
     HashMap<Class<?>, Object> extra,
     DataImportIssueStore issueStore
   ) {
-
     transitModel.index();
     graph.index();
     graph.getLinker().setAddExtraEdgesToAreas(this.addExtraEdgesToAreas);

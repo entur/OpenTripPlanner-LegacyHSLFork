@@ -26,13 +26,11 @@ import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.graph.Edge;
-import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.site.StopLocation;
-import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.lang.ToStringBuilder;
 
 /**
@@ -331,8 +329,6 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
     ) {
       return () -> {
         var matched = transfersByStop.values().stream().filter(this::matches).findFirst();
-
-
 
         if (matched.isPresent()) {
           assertTrue(true, "Found transfer for " + this);

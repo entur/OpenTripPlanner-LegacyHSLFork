@@ -128,7 +128,12 @@ public class AddTransitModelEntitiesToGraph {
     // It is now possible for these vertices to not be connected to any edges.
     for (Stop stop : otpTransitService.getAllStops()) {
       Set<TransitMode> modes = stopModeMap.get(stop);
-      TransitStopVertex stopVertex = new TransitStopVertexBuilder().withStop(stop).withGraph(graph).withTransitModel(transitModel).withModes(modes).build();
+      TransitStopVertex stopVertex = new TransitStopVertexBuilder()
+        .withStop(stop)
+        .withGraph(graph)
+        .withTransitModel(transitModel)
+        .withModes(modes)
+        .build();
       if (modes != null && modes.contains(TransitMode.SUBWAY)) {
         stopVertex.setStreetToStopTime(subwayAccessTime);
       }
@@ -281,8 +286,8 @@ public class AddTransitModelEntitiesToGraph {
     double levels = 1;
     if (
       fromVertexLevelIndex != null &&
-        toVertexLevelIndex != null &&
-        !fromVertexLevelIndex.equals(toVertexLevelIndex)
+      toVertexLevelIndex != null &&
+      !fromVertexLevelIndex.equals(toVertexLevelIndex)
     ) {
       levels = Math.abs(fromVertexLevelIndex - toVertexLevelIndex);
     }
@@ -357,7 +362,9 @@ public class AddTransitModelEntitiesToGraph {
 
   private void addLocationGroupsToGraph(TransitModel transitModel) {
     for (FlexLocationGroup flexLocationGroup : otpTransitService.getAllLocationGroups()) {
-      transitModel.getStopModel().locationGroupsById.put(flexLocationGroup.getId(), flexLocationGroup);
+      transitModel
+        .getStopModel()
+        .locationGroupsById.put(flexLocationGroup.getId(), flexLocationGroup);
     }
   }
 
@@ -378,10 +385,9 @@ public class AddTransitModelEntitiesToGraph {
   }
 
   private void addFlexTripsToGraph(TransitModel transitModel) {
-    for (FlexTrip flexTrip : otpTransitService.getAllFlexTrips())
-      transitModel.flexTripsById.put(
-        flexTrip.getId(),
-        flexTrip
-      );
+    for (FlexTrip flexTrip : otpTransitService.getAllFlexTrips()) transitModel.flexTripsById.put(
+      flexTrip.getId(),
+      flexTrip
+    );
   }
 }

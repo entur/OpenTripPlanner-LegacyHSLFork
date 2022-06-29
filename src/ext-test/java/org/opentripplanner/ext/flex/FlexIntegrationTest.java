@@ -55,7 +55,6 @@ public class FlexIntegrationTest {
   static RoutingService service;
   static Router router;
 
-
   @Test
   public void shouldReturnARouteTransferringFromBusToFlex() {
     var from = new GenericLocation(33.84329482265106, -84.583740234375);
@@ -147,7 +146,6 @@ public class FlexIntegrationTest {
     graph = otpModel.graph;
     transitModel = otpModel.transitModel;
 
-
     addGtfsToGraph(graph, transitModel, List.of(cobblincGtfsPath, martaGtfsPath, flexGtfsPath));
     router = new Router(graph, transitModel, RouterConfig.DEFAULT, Metrics.globalRegistry);
     router.startup();
@@ -168,7 +166,11 @@ public class FlexIntegrationTest {
     }
   }
 
-  private static void addGtfsToGraph(Graph graph, TransitModel transitModel, List<String> gtfsFiles) {
+  private static void addGtfsToGraph(
+    Graph graph,
+    TransitModel transitModel,
+    List<String> gtfsFiles
+  ) {
     var extra = new HashMap<Class<?>, Object>();
 
     // GTFS

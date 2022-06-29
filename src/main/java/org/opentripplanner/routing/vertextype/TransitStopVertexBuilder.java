@@ -8,6 +8,7 @@ import org.opentripplanner.transit.model.site.Stop;
 import org.opentripplanner.transit.service.TransitModel;
 
 public class TransitStopVertexBuilder {
+
   private Stop stop;
   private Graph graph;
   private TransitModel transitModel;

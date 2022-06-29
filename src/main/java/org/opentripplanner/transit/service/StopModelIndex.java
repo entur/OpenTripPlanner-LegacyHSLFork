@@ -36,7 +36,6 @@ public class StopModelIndex {
   public StopModelIndex(StopModel stopModel) {
     LOG.info("StopModelIndex init...");
 
-
     /* We will keep a separate set of all vertices in case some have the same label.
      * Maybe we should just guarantee unique labels. */
     for (TransitStopVertex stopVertex : stopModel.getAllStopVertices()) {
@@ -74,15 +73,12 @@ public class StopModelIndex {
       locationIndex.insert(flexStopLocation.getGeometry().getEnvelopeInternal(), flexStopLocation);
     }
 
-
     LOG.info("StopModelIndex init complete.");
   }
-
 
   public Map<Stop, TransitStopVertex> getStopVertexForStop() {
     return stopVertexForStop;
   }
-
 
   public HashGridSpatialIndex<TransitStopVertex> getStopSpatialIndex() {
     return stopSpatialIndex;
@@ -102,10 +98,7 @@ public class StopModelIndex {
     return multiModalStationForStations;
   }
 
-
   public Collection<StopLocation> getAllStops() {
     return stopForId.values();
   }
-
-
 }

@@ -38,7 +38,6 @@ public class UnroutableTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-
     var deduplicator = new Deduplicator();
     var stopModel = new StopModel();
     graph = new Graph(stopModel, deduplicator);

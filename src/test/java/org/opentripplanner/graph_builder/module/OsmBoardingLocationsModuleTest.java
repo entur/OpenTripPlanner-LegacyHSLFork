@@ -22,7 +22,6 @@ import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.vertextype.OsmBoardingLocationVertex;
-import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertexBuilder;
 import org.opentripplanner.test.support.VariableSource;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
@@ -74,7 +73,12 @@ class OsmBoardingLocationsModuleTest {
     var extra = new HashMap<Class<?>, Object>();
 
     var provider = new OpenStreetMapProvider(file, false);
-    var floatingBusVertex = new TransitStopVertexBuilder().withGraph(graph).withStop(floatingBusStop).withTransitModel(transitModel).withModes(Set.of(TransitMode.BUS)).build();
+    var floatingBusVertex = new TransitStopVertexBuilder()
+      .withGraph(graph)
+      .withStop(floatingBusStop)
+      .withTransitModel(transitModel)
+      .withModes(Set.of(TransitMode.BUS))
+      .build();
     var floatingBoardingLocation = new OsmBoardingLocationVertex(
       graph,
       "floating-bus-stop",
@@ -88,8 +92,18 @@ class OsmBoardingLocationsModuleTest {
 
     osmModule.buildGraph(graph, transitModel, extra);
 
-    var platformVertex = new TransitStopVertexBuilder().withGraph(graph).withStop(platform).withTransitModel(transitModel).withModes(Set.of(TransitMode.RAIL)).build();
-    var busVertex = new TransitStopVertexBuilder().withGraph(graph).withStop(busStop).withTransitModel(transitModel).withModes(Set.of(TransitMode.BUS)).build();
+    var platformVertex = new TransitStopVertexBuilder()
+      .withGraph(graph)
+      .withStop(platform)
+      .withTransitModel(transitModel)
+      .withModes(Set.of(TransitMode.RAIL))
+      .build();
+    var busVertex = new TransitStopVertexBuilder()
+      .withGraph(graph)
+      .withStop(busStop)
+      .withTransitModel(transitModel)
+      .withModes(Set.of(TransitMode.BUS))
+      .build();
 
     assertEquals(0, busVertex.getIncoming().size());
     assertEquals(0, busVertex.getOutgoing().size());

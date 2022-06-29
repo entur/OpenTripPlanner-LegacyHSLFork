@@ -4,7 +4,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import gnu.trove.set.hash.TIntHashSet;
-import io.netty.resolver.dns.DnsNameResolver;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -18,26 +17,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.ext.flex.trip.FlexTrip;
 import org.opentripplanner.graph_builder.DataImportIssueStore;
 import org.opentripplanner.graph_builder.issues.NoFutureDates;
 import org.opentripplanner.model.FeedInfo;
 import org.opentripplanner.model.FlexLocationGroup;
-import org.opentripplanner.model.FlexStopLocation;
 import org.opentripplanner.model.GraphBundle;
-import org.opentripplanner.model.GroupOfStations;
-import org.opentripplanner.model.MultiModalStation;
 import org.opentripplanner.model.Notice;
 import org.opentripplanner.model.PathTransfer;
 import org.opentripplanner.model.TimetableSnapshot;
@@ -51,27 +44,20 @@ import org.opentripplanner.model.calendar.impl.CalendarServiceImpl;
 import org.opentripplanner.model.transfer.TransferService;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers.TransitLayerUpdater;
-import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.impl.DelegatingTransitAlertServiceImpl;
 import org.opentripplanner.routing.services.TransitAlertService;
 import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.util.ConcurrentPublished;
-import org.opentripplanner.routing.vehicle_parking.VehicleParkingService;
-import org.opentripplanner.routing.vehicle_rental.VehicleRentalStationService;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
-import org.opentripplanner.transit.model.basic.WgsCoordinate;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.framework.TransitEntity;
 import org.opentripplanner.transit.model.network.TransitMode;
 import org.opentripplanner.transit.model.organization.Agency;
 import org.opentripplanner.transit.model.organization.Operator;
-import org.opentripplanner.transit.model.site.Station;
 import org.opentripplanner.transit.model.site.Stop;
-import org.opentripplanner.transit.model.site.StopCollection;
 import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.updater.GraphUpdaterConfigurator;
 import org.opentripplanner.updater.GraphUpdaterManager;
-import org.opentripplanner.util.MedianCalcForDoubles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +115,6 @@ public class TransitModel implements Serializable {
   private transient TimetableSnapshotProvider timetableSnapshotProvider = null;
   private transient TimeZone timeZone = null;
   //Envelope of all OSM and transit vertices. Calculated during build time
-
 
   /* The preferences that were used for graph building. */
   public Preferences preferences = null;
@@ -465,7 +450,6 @@ public class TransitModel implements Serializable {
     this.timeZone = null;
   }
 
-
   public long getTransitServiceStarts() {
     return transitServiceStarts;
   }
@@ -488,8 +472,6 @@ public class TransitModel implements Serializable {
     }
     return transitAlertService;
   }
-
-
 
   /** An OBA Service Date is a local date without timezone, only year month and day. */
   public BitSet getServicesRunningForDate(ServiceDate date) {
@@ -525,8 +507,6 @@ public class TransitModel implements Serializable {
     return getNoticesByElement().values();
   }
 
-
-
   /**
    * Finds a {@link StopLocation} by id.
    */
@@ -543,16 +523,15 @@ public class TransitModel implements Serializable {
       .orElse(null);
   }
 
-
-
   /**
    * Returns all {@link StopLocation}s present in this graph, including normal and flex locations.
    */
   public Stream<StopLocation> getAllStopLocations() {
-    return Stream.concat(getStopModel().getStopModelIndex().getAllStops().stream(), getAllFlexStopsFlat().stream());
+    return Stream.concat(
+      getStopModel().getStopModelIndex().getAllStops().stream(),
+      getAllFlexStopsFlat().stream()
+    );
   }
-
-
 
   public Map<FeedScopedId, Integer> getServiceCodes() {
     return serviceCodes;
@@ -561,8 +540,6 @@ public class TransitModel implements Serializable {
   public Collection<PathTransfer> getTransfersByStop(StopLocation stop) {
     return transfersByStop.get(stop);
   }
-
-
 
   /**
    * Gets all the flex stop locations, including the elements of FlexLocationGroups.
@@ -598,15 +575,8 @@ public class TransitModel implements Serializable {
     return stopModel.getStopModelIndex().getStopSpatialIndex();
   }
 
-
   private void readObject(ObjectInputStream inputStream)
     throws ClassNotFoundException, IOException {
     inputStream.defaultReadObject();
   }
-
-
-
-
-
-
 }

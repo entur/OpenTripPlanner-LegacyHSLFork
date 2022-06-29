@@ -57,7 +57,8 @@ public class FakeGraph {
   /**
    * Add many transit lines to a lot of stops. This is only used by InitialStopsTest.
    */
-  public static void addTransitMultipleLines(Graph g, TransitModel transitModel) throws URISyntaxException {
+  public static void addTransitMultipleLines(Graph g, TransitModel transitModel)
+    throws URISyntaxException {
     GtfsModule gtfs = new GtfsModule(
       Arrays.asList(new GtfsBundle(getFileForResource("addTransitMultipleLines.gtfs.zip"))),
       ServiceDateInterval.unbounded()
@@ -68,7 +69,8 @@ public class FakeGraph {
   /**
    * This introduces a 1MB test resource but is only used by TestIntermediatePlaces.
    */
-  public static void addPerpendicularRoutes(Graph graph, TransitModel transitModel) throws URISyntaxException {
+  public static void addPerpendicularRoutes(Graph graph, TransitModel transitModel)
+    throws URISyntaxException {
     GtfsModule gtfs = new GtfsModule(
       Arrays.asList(new GtfsBundle(getFileForResource("addPerpendicularRoutes.gtfs.zip"))),
       ServiceDateInterval.unbounded()
@@ -83,7 +85,11 @@ public class FakeGraph {
       for (double lon = -83.1341; lon < -82.8646; lon += 0.005) {
         String id = Integer.toString(count++);
         Stop stop = TransitModelForTest.stop(id).withCoordinate(lat, lon).build();
-        new TransitStopVertexBuilder().withGraph(g).withStop(stop).withTransitModel(transitModel).build();
+        new TransitStopVertexBuilder()
+          .withGraph(g)
+          .withStop(stop)
+          .withTransitModel(transitModel)
+          .build();
       }
     }
   }
@@ -95,7 +101,11 @@ public class FakeGraph {
     for (double lat = 40; lat < 40.01; lat += 0.005) {
       String id = "EXTRA_" + count++;
       Stop stop = TransitModelForTest.stop(id).withCoordinate(lat, lon).build();
-      new TransitStopVertexBuilder().withGraph(g).withStop(stop).withTransitModel(transitModel).build();
+      new TransitStopVertexBuilder()
+        .withGraph(g)
+        .withStop(stop)
+        .withTransitModel(transitModel)
+        .build();
     }
 
     // add some duplicate stops, identical to the regular stop grid
@@ -103,7 +113,11 @@ public class FakeGraph {
     for (double lat = 39.9058; lat < 40.0281; lat += 0.005) {
       String id = "DUPE_" + count++;
       Stop stop = TransitModelForTest.stop(id).withCoordinate(lat, lon).build();
-      new TransitStopVertexBuilder().withGraph(g).withStop(stop).withTransitModel(transitModel).build();
+      new TransitStopVertexBuilder()
+        .withGraph(g)
+        .withStop(stop)
+        .withTransitModel(transitModel)
+        .build();
     }
 
     // add some almost duplicate stops
@@ -111,7 +125,11 @@ public class FakeGraph {
     for (double lat = 39.9059; lat < 40.0281; lat += 0.005) {
       String id = "ALMOST_" + count++;
       Stop stop = TransitModelForTest.stop(id).withCoordinate(lat, lon).build();
-      new TransitStopVertexBuilder().withGraph(g).withStop(stop).withTransitModel(transitModel).build();
+      new TransitStopVertexBuilder()
+        .withGraph(g)
+        .withStop(stop)
+        .withTransitModel(transitModel)
+        .build();
     }
   }
 

@@ -68,7 +68,12 @@ public class CarRoutingTest {
     var gueltsteinerStr = new GenericLocation(48.59240, 8.87024);
     var aufDemGraben = new GenericLocation(48.59487, 8.87133);
 
-    var polyline = computePolyline(hindenburgStrUnderConstruction, transitModel, gueltsteinerStr, aufDemGraben);
+    var polyline = computePolyline(
+      hindenburgStrUnderConstruction,
+      transitModel,
+      gueltsteinerStr,
+      aufDemGraben
+    );
 
     assertThatPolylinesAreEqual(
       polyline,
@@ -81,10 +86,20 @@ public class CarRoutingTest {
     var mozartStr = new GenericLocation(48.59521, 8.88391);
     var fritzLeharStr = new GenericLocation(48.59460, 8.88291);
 
-    var polyline1 = computePolyline(herrenbergGraph, herrenbergTransitModel, mozartStr, fritzLeharStr);
+    var polyline1 = computePolyline(
+      herrenbergGraph,
+      herrenbergTransitModel,
+      mozartStr,
+      fritzLeharStr
+    );
     assertThatPolylinesAreEqual(polyline1, "_grgHkcfu@OjBC\\ARGjAKzAfBz@j@n@Rk@E}D");
 
-    var polyline2 = computePolyline(herrenbergGraph, herrenbergTransitModel, fritzLeharStr, mozartStr);
+    var polyline2 = computePolyline(
+      herrenbergGraph,
+      herrenbergTransitModel,
+      fritzLeharStr,
+      mozartStr
+    );
     assertThatPolylinesAreEqual(polyline2, "gcrgHc}eu@D|DSj@k@o@gB{@J{AFkA@SB]NkB");
   }
 
@@ -97,13 +112,23 @@ public class CarRoutingTest {
     var schiessmauer = new GenericLocation(48.59737, 8.86350);
     var zeppelinStr = new GenericLocation(48.59972, 8.86239);
 
-    var polyline1 = computePolyline(herrenbergGraph, herrenbergTransitModel, schiessmauer, zeppelinStr);
+    var polyline1 = computePolyline(
+      herrenbergGraph,
+      herrenbergTransitModel,
+      schiessmauer,
+      zeppelinStr
+    );
     assertThatPolylinesAreEqual(
       polyline1,
       "otrgH{cbu@v@|D?bAElBEv@Cj@APGAY?YD]Fm@X_@Pw@d@eAn@k@VM@]He@Fo@Bi@??c@?Q@gD?Q?Q@mD?S"
     );
 
-    var polyline2 = computePolyline(herrenbergGraph, herrenbergTransitModel, zeppelinStr, schiessmauer);
+    var polyline2 = computePolyline(
+      herrenbergGraph,
+      herrenbergTransitModel,
+      zeppelinStr,
+      schiessmauer
+    );
     assertThatPolylinesAreEqual(
       polyline2,
       "ccsgH{|au@?RAlD?P?PAfD?P?b@h@?n@Cd@G\\ILAj@WdAo@v@e@^Ql@Y\\GXEX?F@@QBk@Dw@DmB?cAw@}D"
@@ -115,20 +140,35 @@ public class CarRoutingTest {
     var noThroughTrafficPlace = new GenericLocation(48.59634, 8.87020);
     var destination = new GenericLocation(48.59463, 8.87218);
 
-    var polyline1 = computePolyline(herrenbergGraph, herrenbergTransitModel, noThroughTrafficPlace, destination);
+    var polyline1 = computePolyline(
+      herrenbergGraph,
+      herrenbergTransitModel,
+      noThroughTrafficPlace,
+      destination
+    );
     assertThatPolylinesAreEqual(
       polyline1,
       "corgHkncu@OEYUOMH?J?LINMNMHTDO@YMm@HS`A}BPGRWLYDEt@HJ@b@?Fc@DONm@t@OXCBz@B\\"
     );
 
-    var polyline2 = computePolyline(herrenbergGraph, herrenbergTransitModel, destination, noThroughTrafficPlace);
+    var polyline2 = computePolyline(
+      herrenbergGraph,
+      herrenbergTransitModel,
+      destination,
+      noThroughTrafficPlace
+    );
     assertThatPolylinesAreEqual(
       polyline2,
       "scrgH_zcu@C]C{@YBu@NOl@ENGb@c@?KAu@IEDMXSVQFaA|BIRLl@AXENIUOLOLMHK?I?NLXTND"
     );
   }
 
-  private static String computePolyline(Graph graph, TransitModel transitModel, GenericLocation from, GenericLocation to) {
+  private static String computePolyline(
+    Graph graph,
+    TransitModel transitModel,
+    GenericLocation from,
+    GenericLocation to
+  ) {
     RoutingRequest request = new RoutingRequest();
     request.setDateTime(dateTime);
     request.from = from;

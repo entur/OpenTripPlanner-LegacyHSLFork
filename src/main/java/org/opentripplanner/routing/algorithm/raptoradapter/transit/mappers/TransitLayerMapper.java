@@ -24,7 +24,6 @@ import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripPatternFo
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripPatternWithRaptorStopIndexes;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.constrainedtransfer.TransferIndexGenerator;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.request.RaptorRequestTransferCache;
-import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.trippattern.TripTimes;
 import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.util.OTPFeature;
@@ -77,7 +76,11 @@ public class TransitLayerMapper {
 
     LOG.info("Mapping transitLayer from Graph...");
 
-    stopIndex = new StopIndexForRaptor(transitModel.getStopModel().getStopModelIndex().getAllStops(), tuningParameters);
+    stopIndex =
+      new StopIndexForRaptor(
+        transitModel.getStopModel().getStopModelIndex().getAllStops(),
+        tuningParameters
+      );
 
     Collection<TripPattern> allTripPatterns = transitModel.tripPatternForId.values();
     TripPatternMapper tripPatternMapper = new TripPatternMapper();

@@ -111,51 +111,50 @@ public class StreetModeLinkingTest extends GraphRoutingTest {
 
   @BeforeEach
   protected void setUp() throws Exception {
-    var otpModel =
-      graphOf(
-        new GraphRoutingTest.Builder() {
-          @Override
-          public void build() {
-            street(
-              intersection("A1", 47.5000, 19.00),
-              intersection("A2", 47.5020, 19.00),
-              100,
-              StreetTraversalPermission.CAR
-            );
+    var otpModel = graphOf(
+      new GraphRoutingTest.Builder() {
+        @Override
+        public void build() {
+          street(
+            intersection("A1", 47.5000, 19.00),
+            intersection("A2", 47.5020, 19.00),
+            100,
+            StreetTraversalPermission.CAR
+          );
 
-            street(
-              intersection("B1", 47.5000, 19.01),
-              intersection("B2", 47.5020, 19.01),
-              100,
-              StreetTraversalPermission.ALL
-            );
+          street(
+            intersection("B1", 47.5000, 19.01),
+            intersection("B2", 47.5020, 19.01),
+            100,
+            StreetTraversalPermission.ALL
+          );
 
-            street(
-              intersection("C1", 47.5000, 19.02),
-              intersection("C2", 47.5020, 19.02),
-              100,
-              StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE
-            );
+          street(
+            intersection("C1", 47.5000, 19.02),
+            intersection("C2", 47.5020, 19.02),
+            100,
+            StreetTraversalPermission.PEDESTRIAN_AND_BICYCLE
+          );
 
-            street(
-              intersection("D1", 47.500, 19.03),
-              intersection("D2", 47.502, 19.03),
-              100,
-              StreetTraversalPermission.PEDESTRIAN
-            )
-              .setWheelchairAccessible(false);
+          street(
+            intersection("D1", 47.500, 19.03),
+            intersection("D2", 47.502, 19.03),
+            100,
+            StreetTraversalPermission.PEDESTRIAN
+          )
+            .setWheelchairAccessible(false);
 
-            street(
-              intersection("E1", 47.500, 19.04),
-              intersection("E2", 47.502, 19.04),
-              100,
-              StreetTraversalPermission.BICYCLE_AND_CAR
-            );
+          street(
+            intersection("E1", 47.500, 19.04),
+            intersection("E2", 47.502, 19.04),
+            100,
+            StreetTraversalPermission.BICYCLE_AND_CAR
+          );
 
-            stop("STOP", 47.501, 19.04);
-          }
+          stop("STOP", 47.501, 19.04);
         }
-      );
+      }
+    );
     graph = otpModel.graph;
 
     graph.hasStreets = true;

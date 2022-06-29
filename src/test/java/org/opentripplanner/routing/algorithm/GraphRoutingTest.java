@@ -103,7 +103,7 @@ public abstract class GraphRoutingTest {
 
   public abstract static class Builder {
 
-    private final Graph graph ;
+    private final Graph graph;
     private final TransitModel transitModel;
 
     protected Builder() {
@@ -241,7 +241,11 @@ public abstract class GraphRoutingTest {
     }
 
     public TransitStopVertex stop(String id, double latitude, double longitude) {
-      return new TransitStopVertexBuilder().withGraph(graph).withStop(stopEntity(id, latitude, longitude)).withTransitModel(transitModel).build();
+      return new TransitStopVertexBuilder()
+        .withGraph(graph)
+        .withStop(stopEntity(id, latitude, longitude))
+        .withTransitModel(transitModel)
+        .build();
     }
 
     public TransitEntranceVertex entrance(String id, double latitude, double longitude) {
@@ -456,7 +460,5 @@ public abstract class GraphRoutingTest {
       st.setStop(s1.getStop());
       return st;
     }
-
-
   }
 }

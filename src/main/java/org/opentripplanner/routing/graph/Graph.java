@@ -165,8 +165,7 @@ public class Graph implements Serializable {
   public void addVertex(Vertex v) {
     Vertex old = vertices.put(v.getLabel(), v);
     if (old != null) {
-      if (old == v) LOG.error("repeatedly added the same vertex: {}", v);
-      else LOG.error(
+      if (old == v) LOG.error("repeatedly added the same vertex: {}", v); else LOG.error(
         "duplicate vertex label in graph (added vertex to graph anyway): {}",
         v
       );
@@ -366,10 +365,9 @@ public class Graph implements Serializable {
   public int removeEdgelessVertices() {
     int removed = 0;
     List<Vertex> toRemove = new LinkedList<>();
-    for (Vertex v : this.getVertices())
-      if (v.getDegreeOut() + v.getDegreeIn() == 0) toRemove.add(
-        v
-      );
+    for (Vertex v : this.getVertices()) if (v.getDegreeOut() + v.getDegreeIn() == 0) toRemove.add(
+      v
+    );
     // avoid concurrent vertex map modification
     for (Vertex v : toRemove) {
       this.remove(v);

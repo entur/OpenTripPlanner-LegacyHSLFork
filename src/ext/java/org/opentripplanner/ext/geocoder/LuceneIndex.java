@@ -151,7 +151,9 @@ public class LuceneIndex implements Serializable {
 
   public Stream<StopCollection> queryStopCollections(String query, boolean autocomplete) {
     return matchingDocuments(StopCollection.class, query, autocomplete)
-      .map(document -> transitModel.getStopModel().getStopCollectionById(FeedScopedId.parseId(document.get(ID))));
+      .map(document ->
+        transitModel.getStopModel().getStopCollectionById(FeedScopedId.parseId(document.get(ID)))
+      );
   }
 
   public Stream<StreetVertex> queryStreetVertices(String query, boolean autocomplete) {

@@ -12,5 +12,4 @@ public class OtpModel {
     this.graph = graph;
     this.transitModel = transitModel;
   }
-
 }

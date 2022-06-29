@@ -31,6 +31,7 @@ public class VehicleParkingTestGraphData {
   public Graph getGraph() {
     return graph;
   }
+
   public TransitModel getTransitModel() {
     return transitModel;
   }

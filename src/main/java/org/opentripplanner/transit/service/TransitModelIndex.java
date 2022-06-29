@@ -13,28 +13,19 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.locationtech.jts.geom.Envelope;
-import org.opentripplanner.common.geometry.CompactElevationProfile;
-import org.opentripplanner.common.geometry.HashGridSpatialIndex;
 import org.opentripplanner.ext.flex.FlexIndex;
 import org.opentripplanner.ext.flex.trip.FlexTrip;
-import org.opentripplanner.model.MultiModalStation;
 import org.opentripplanner.model.TimetableSnapshot;
 import org.opentripplanner.model.TripIdAndServiceDate;
 import org.opentripplanner.model.TripOnServiceDate;
 import org.opentripplanner.model.TripPattern;
 import org.opentripplanner.model.calendar.CalendarService;
 import org.opentripplanner.model.calendar.ServiceDate;
-import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.network.GroupOfRoutes;
 import org.opentripplanner.transit.model.network.Route;
 import org.opentripplanner.transit.model.organization.Agency;
 import org.opentripplanner.transit.model.organization.Operator;
-import org.opentripplanner.transit.model.site.Station;
-import org.opentripplanner.transit.model.site.Stop;
 import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.transit.model.timetable.Trip;
 import org.opentripplanner.util.OTPFeature;
@@ -57,7 +48,6 @@ public class TransitModelIndex {
   private final Multimap<Route, TripPattern> patternsForRoute = ArrayListMultimap.create();
   private final Multimap<StopLocation, TripPattern> patternsForStopId = ArrayListMultimap.create();
 
-
   private final Map<ServiceDate, TIntSet> serviceCodesRunningForDate = new HashMap<>();
   private final Map<FeedScopedId, TripOnServiceDate> tripOnServiceDateById = new HashMap<>();
   private final Map<TripIdAndServiceDate, TripOnServiceDate> tripOnServiceDateForTripAndDay = new HashMap<>();
@@ -77,7 +67,6 @@ public class TransitModelIndex {
     for (Operator operator : transitModel.getOperators()) {
       this.operatorForId.put(operator.getId(), operator);
     }
-
 
     for (TripPattern pattern : transitModel.tripPatternForId.values()) {
       patternsForFeedId.put(pattern.getFeedId(), pattern);
@@ -102,7 +91,6 @@ public class TransitModelIndex {
       groupOfRoutesForId.put(groupOfRoutes.getId(), groupOfRoutes);
     }
 
-
     for (TripOnServiceDate tripOnServiceDate : transitModel.tripOnServiceDates.values()) {
       tripOnServiceDateById.put(tripOnServiceDate.getId(), tripOnServiceDate);
       tripOnServiceDateForTripAndDay.put(
@@ -123,7 +111,10 @@ public class TransitModelIndex {
       }
       for (FlexTrip flexTrip : flexIndex.tripById.values()) {
         tripForId.put(flexTrip.getId(), flexTrip.getTrip());
-        flexTrip.getStops().stream().forEach(stop -> transitModel.getStopModel().getStopModelIndex().addStop(stop));
+        flexTrip
+          .getStops()
+          .stream()
+          .forEach(stop -> transitModel.getStopModel().getStopModelIndex().addStop(stop));
       }
     }
 
@@ -133,8 +124,6 @@ public class TransitModelIndex {
   public Agency getAgencyForId(FeedScopedId id) {
     return agencyForId.get(id);
   }
-
-
 
   public Route getRouteForId(FeedScopedId id) {
     return routeForId.get(id);
@@ -197,7 +186,6 @@ public class TransitModelIndex {
     return operatorForId;
   }
 
-
   public Map<FeedScopedId, Trip> getTripForId() {
     return tripForId;
   }
@@ -214,7 +202,6 @@ public class TransitModelIndex {
     return routeForId.values();
   }
 
-
   public Map<Trip, TripPattern> getPatternForTrip() {
     return patternForTrip;
   }
@@ -226,8 +213,6 @@ public class TransitModelIndex {
   public Multimap<Route, TripPattern> getPatternsForRoute() {
     return patternsForRoute;
   }
-
-
 
   public Map<ServiceDate, TIntSet> getServiceCodesRunningForDate() {
     return serviceCodesRunningForDate;

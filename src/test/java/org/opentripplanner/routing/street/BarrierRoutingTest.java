@@ -46,7 +46,9 @@ public class BarrierRoutingTest {
 
   @BeforeAll
   public static void createGraph() {
-    OtpModel otpModel = ConstantsForTests.buildOsmGraph(ConstantsForTests.HERRENBERG_BARRIER_GATES_OSM);
+    OtpModel otpModel = ConstantsForTests.buildOsmGraph(
+      ConstantsForTests.HERRENBERG_BARRIER_GATES_OSM
+    );
     graph = otpModel.graph;
     transitModel = otpModel.transitModel;
   }

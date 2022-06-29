@@ -17,7 +17,6 @@ import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.opentripplanner.routing.vertextype.SimpleVertex;
-import org.opentripplanner.routing.vertextype.TransitStopVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertexBuilder;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.network.TransitMode;
@@ -27,8 +26,8 @@ import org.opentripplanner.transit.service.TransitModel;
 
 class StreetTransitEntityLinkTest {
 
-  Graph graph;
-  TransitModel transitModel;
+  private static Graph graph;
+  private static TransitModel transitModel;
 
   Stop inaccessibleStop = TransitModelForTest.stopForTest(
     "A:inaccessible",
@@ -57,7 +56,7 @@ class StreetTransitEntityLinkTest {
   );
 
   @BeforeAll
-  void setup() {
+  static void setup() {
     var deduplicator = new Deduplicator();
     var stopModel = new StopModel();
     graph = new Graph(stopModel, deduplicator);
@@ -88,7 +87,12 @@ class StreetTransitEntityLinkTest {
 
   private State traverse(Stop stop, boolean onlyAccessible) {
     var from = new SimpleVertex(graph, "A", 10, 10);
-    var to = new TransitStopVertexBuilder().withGraph(graph).withStop(stop).withTransitModel(transitModel).withModes(Set.of(TransitMode.RAIL)).build();
+    var to = new TransitStopVertexBuilder()
+      .withGraph(graph)
+      .withStop(stop)
+      .withTransitModel(transitModel)
+      .withModes(Set.of(TransitMode.RAIL))
+      .build();
 
     var req = new RoutingRequest();
     WheelchairAccessibilityFeature feature;

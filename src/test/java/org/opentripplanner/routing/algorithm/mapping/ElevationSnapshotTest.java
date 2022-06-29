@@ -18,7 +18,6 @@ import org.opentripplanner.routing.api.request.RoutingRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.core.BicycleOptimizeType;
 import org.opentripplanner.routing.error.RoutingValidationException;
-import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.transit.model.network.MainAndSubMode;
 
 @ExtendWith(SnapshotExtension.class)
@@ -149,6 +148,6 @@ public class ElevationSnapshotTest extends SnapshotTestBase {
 
   @Override
   protected OtpModel getGraph() {
-    return  ConstantsForTests.getInstance().getCachedPortlandGraphWithElevation();
+    return ConstantsForTests.getInstance().getCachedPortlandGraphWithElevation();
   }
 }

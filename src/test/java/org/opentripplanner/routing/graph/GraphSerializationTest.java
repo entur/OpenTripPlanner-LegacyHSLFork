@@ -157,7 +157,8 @@ public class GraphSerializationTest {
    * Tests that saving a Graph to disk and reloading it results in a separate but semantically
    * identical Graph.
    */
-  private void testRoundTrip(Graph originalGraph, TransitModel originalTransitModel) throws Exception {
+  private void testRoundTrip(Graph originalGraph, TransitModel originalTransitModel)
+    throws Exception {
     // The cached timezone in the graph is transient and lazy-initialized.
     // Previous tests may have caused a timezone to be cached.
     originalTransitModel.clearTimeZone();
@@ -171,7 +172,7 @@ public class GraphSerializationTest {
     );
     serializedObj.save(new FileDataSource(tempFile, FileType.GRAPH));
     SerializedGraphObject deserializedGraph = SerializedGraphObject.load(tempFile);
-    Graph copiedGraph1 =  deserializedGraph.graph;
+    Graph copiedGraph1 = deserializedGraph.graph;
     TransitModel copiedTransitModel1 = deserializedGraph.transitModel;
     // Index both graph - we do no know if the original is indexed, because it is cached and
     // might be indexed by other tests.

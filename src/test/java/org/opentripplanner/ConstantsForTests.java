@@ -195,7 +195,13 @@ public class ConstantsForTests {
   public static OtpModel buildOsmAndGtfsGraph(String osmPath, String gtfsPath) {
     var otpModel = buildOsmGraph(osmPath);
 
-    addGtfsToGraph(otpModel.graph, otpModel.transitModel, gtfsPath, new DefaultFareServiceFactory(), null);
+    addGtfsToGraph(
+      otpModel.graph,
+      otpModel.transitModel,
+      gtfsPath,
+      new DefaultFareServiceFactory(),
+      null
+    );
 
     // Link transit stops to streets
     GraphBuilderModule streetTransitLinker = new StreetLinkerModule();

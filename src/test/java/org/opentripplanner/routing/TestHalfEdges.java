@@ -170,8 +170,18 @@ public class TestHalfEdges {
 
     Stop s2 = TransitModelForTest.stopForTest("morx station", 40.0099999, -74.002);
 
-    station1 = new TransitStopVertexBuilder().withGraph(graph).withStop(s1).withTransitModel(transitModel).build();
-    station2 = new TransitStopVertexBuilder().withGraph(graph).withStop(s2).withTransitModel(transitModel).build();
+    station1 =
+      new TransitStopVertexBuilder()
+        .withGraph(graph)
+        .withStop(s1)
+        .withTransitModel(transitModel)
+        .build();
+    station2 =
+      new TransitStopVertexBuilder()
+        .withGraph(graph)
+        .withStop(s2)
+        .withTransitModel(transitModel)
+        .build();
     station1.addMode(TransitMode.RAIL);
     station2.addMode(TransitMode.RAIL);
 

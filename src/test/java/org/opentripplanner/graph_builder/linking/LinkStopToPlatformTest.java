@@ -46,8 +46,6 @@ public class LinkStopToPlatformTest {
     var stopModel = new StopModel();
     graph = new Graph(stopModel, deduplicator);
     transitModel = new TransitModel(stopModel, deduplicator);
-    transitModel.index();
-    graph.index();
 
     ArrayList<IntersectionVertex> vertices = new ArrayList<>();
 

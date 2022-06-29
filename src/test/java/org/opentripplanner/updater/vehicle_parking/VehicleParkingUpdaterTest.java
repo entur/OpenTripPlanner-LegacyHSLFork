@@ -40,8 +40,6 @@ class VehicleParkingUpdaterTest {
     graphData.initGraph();
     graph = graphData.getGraph();
     transitModel = graphData.getTransitModel();
-    transitModel.index();
-    graph.index();
 
     dataSource = (DataSource<VehicleParking>) Mockito.mock(DataSource.class);
     when(dataSource.update()).thenReturn(true);

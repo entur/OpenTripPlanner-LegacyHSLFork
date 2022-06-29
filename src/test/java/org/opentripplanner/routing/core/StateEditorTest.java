@@ -40,9 +40,7 @@ public class StateEditorTest {
     var deduplicator = new Deduplicator();
     var stopModel = new StopModel();
     var graph = new Graph(stopModel, deduplicator);
-    var transitModel = new TransitModel(stopModel, deduplicator);
-    transitModel.index();
-    graph.index();
+
     var temporaryVertices = new TemporaryVerticesContainer(graph, request);
     RoutingContext routingContext = new RoutingContext(request, graph, temporaryVertices);
     State state = new State(routingContext);

@@ -182,11 +182,6 @@ public class RouteRequest implements Cloneable, Serializable {
     to = new GenericLocation(null, null);
   }
 
-  public RouteRequest(TraverseModeSet streetSubRequestModes) {
-    this();
-    this.setStreetSubRequestModes(streetSubRequestModes);
-  }
-
   public RouteRequest(TraverseMode mode) {
     this();
     this.setStreetSubRequestModes(new TraverseModeSet(mode));

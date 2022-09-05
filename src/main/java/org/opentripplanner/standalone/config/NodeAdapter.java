@@ -29,6 +29,7 @@ import javax.annotation.Nonnull;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.routing.api.request.RequestFunctions;
 import org.opentripplanner.routing.api.request.RequestModes;
+import org.opentripplanner.routing.api.request.request.JourneyRequest;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.util.OtpAppException;
 import org.opentripplanner.util.time.DurationUtils;
@@ -328,8 +329,8 @@ public class NodeAdapter {
     return ids;
   }
 
-  public Set<FeedScopedId> asFeedScopedIdSet(String paramName, Set<FeedScopedId> defaultValues) {
-    return Set.copyOf(asFeedScopedIds(paramName, List.copyOf(defaultValues)));
+  public List<FeedScopedId> asFeedScopedIdList(String paramName, List<FeedScopedId> defaultValues) {
+    return List.copyOf(asFeedScopedIds(paramName, List.copyOf(defaultValues)));
   }
 
   public Locale asLocale(String paramName, Locale defaultValue) {

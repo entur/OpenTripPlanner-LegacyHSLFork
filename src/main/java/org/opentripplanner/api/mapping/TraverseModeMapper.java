@@ -1,72 +1,36 @@
 package org.opentripplanner.api.mapping;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.model.plan.LegMode;
 import org.opentripplanner.transit.model.basic.TransitMode;
 
 public class TraverseModeMapper {
 
-  private static final Map<String, TraverseMode> toDomain;
-
-  static {
-    Map<String, TraverseMode> map = new HashMap<>();
-    for (TraverseMode it : TraverseMode.values()) {
-      map.put(mapToApi(it), it);
-    }
-    toDomain = Map.copyOf(map);
-  }
-
-  public static TraverseMode mapToDomain(String api) {
-    if (api == null) {
-      return null;
-    }
-    return toDomain.get(api);
-  }
-
-  public static String mapToApi(TraverseMode domain) {
+  public static String mapToApi(LegMode domain) {
     if (domain == null) {
       return null;
     }
 
-    switch (domain) {
-      case AIRPLANE:
-        return "AIRPLANE";
-      case BICYCLE:
-        return "BICYCLE";
-      case BUS:
-        return "BUS";
-      case CAR:
-        return "CAR";
-      case CABLE_CAR:
-        return "CABLE_CAR";
-      case FERRY:
-        return "FERRY";
-      case FUNICULAR:
-        return "FUNICULAR";
-      case GONDOLA:
-        return "GONDOLA";
-      case RAIL:
-        return "RAIL";
-      case SUBWAY:
-        return "SUBWAY";
-      case TRAM:
-        return "TRAM";
-      case TRANSIT:
-        return "TRANSIT";
-      case WALK:
-        return "WALK";
-      case SCOOTER:
-        return "SCOOTER";
-      case TROLLEYBUS:
-        return "TROLLEYBUS";
-      case MONORAIL:
-        return "MONORAIL";
-    }
-    throw new IllegalArgumentException("Traverse mode not mapped: " + domain);
+    return switch (domain) {
+      case AIRPLANE -> "AIRPLANE";
+      case BICYCLE -> "BICYCLE";
+      case BUS -> "BUS";
+      case CAR -> "CAR";
+      case CABLE_CAR -> "CABLE_CAR";
+      case COACH -> "COACH";
+      case FERRY -> "FERRY";
+      case FUNICULAR -> "FUNICULAR";
+      case GONDOLA -> "GONDOLA";
+      case RAIL -> "RAIL";
+      case SUBWAY -> "SUBWAY";
+      case TRAM -> "TRAM";
+      case WALK -> "WALK";
+      case SCOOTER -> "SCOOTER";
+      case TROLLEYBUS -> "TROLLEYBUS";
+      case MONORAIL -> "MONORAIL";
+    };
   }
 
   public static List<String> mapToApi(Set<TransitMode> domain) {
@@ -81,31 +45,19 @@ public class TraverseModeMapper {
       return null;
     }
 
-    switch (domain) {
-      case AIRPLANE:
-        return "AIRPLANE";
-      case COACH:
-      case BUS:
-        return "BUS";
-      case CABLE_CAR:
-        return "CABLE_CAR";
-      case FERRY:
-        return "FERRY";
-      case FUNICULAR:
-        return "FUNICULAR";
-      case GONDOLA:
-        return "GONDOLA";
-      case RAIL:
-        return "RAIL";
-      case SUBWAY:
-        return "SUBWAY";
-      case TRAM:
-        return "TRAM";
-      case TROLLEYBUS:
-        return "TROLLEYBUS";
-      case MONORAIL:
-        return "MONORAIL";
-    }
-    throw new IllegalArgumentException("Traverse mode not mapped: " + domain);
+    return switch (domain) {
+      case AIRPLANE -> "AIRPLANE";
+      case BUS -> "BUS";
+      case CABLE_CAR -> "CABLE_CAR";
+      case COACH -> "COACH";
+      case FERRY -> "FERRY";
+      case FUNICULAR -> "FUNICULAR";
+      case GONDOLA -> "GONDOLA";
+      case RAIL -> "RAIL";
+      case SUBWAY -> "SUBWAY";
+      case TRAM -> "TRAM";
+      case TROLLEYBUS -> "TROLLEYBUS";
+      case MONORAIL -> "MONORAIL";
+    };
   }
 }

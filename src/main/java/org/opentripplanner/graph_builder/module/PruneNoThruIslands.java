@@ -317,7 +317,7 @@ public class PruneNoThruIslands implements GraphBuilderModule {
     TraverseMode traverseMode,
     boolean shouldMatchNoThruType
   ) {
-    RouteRequest options = new RouteRequest(new TraverseModeSet(traverseMode));
+    RouteRequest options = new RouteRequest(traverseMode);
 
     for (Vertex gv : graph.getVertices()) {
       if (!(gv instanceof StreetVertex)) {

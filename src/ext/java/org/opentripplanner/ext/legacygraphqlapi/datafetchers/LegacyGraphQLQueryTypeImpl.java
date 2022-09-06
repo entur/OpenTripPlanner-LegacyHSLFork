@@ -786,14 +786,6 @@ public class LegacyGraphQLQueryTypeImpl
 
       preferences.rental().setUseAvailabilityInformation(request.isTripPlannedForNow());
 
-      callWith.argument(
-        "startTransitStopId",
-        (String v) -> request.startingTransitStopId = FeedScopedId.parseId(v)
-      );
-      callWith.argument(
-        "startTransitTripId",
-        (String v) -> request.startingTransitTripId = FeedScopedId.parseId(v)
-      );
       //callWith.argument("reverseOptimizeOnTheFly", (Boolean v) -> request.reverseOptimizeOnTheFly = v);
       //callWith.argument("omitCanceled", (Boolean v) -> request.omitCanceled = v);
       callWith.argument("ignoreRealtimeUpdates", preferences.transit()::setIgnoreRealtimeUpdates);

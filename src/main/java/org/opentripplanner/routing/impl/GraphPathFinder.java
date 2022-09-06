@@ -67,7 +67,9 @@ public class GraphPathFinder {
     RoutingPreferences preferences = routingContext.opt.preferences();
 
     AStarBuilder aStar = AStarBuilder
-      .oneToOneMaxDuration(preferences.street().maxDirectDuration(options.modes.directMode))
+      .oneToOneMaxDuration(
+        preferences.street().maxDirectDuration(options.journey().direct().mode())
+      )
       // FORCING the dominance function to weight only
       .setDominanceFunction(new DominanceFunction.MinimumWeight())
       .setContext(routingContext)

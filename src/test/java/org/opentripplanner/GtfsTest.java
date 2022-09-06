@@ -25,6 +25,7 @@ import org.opentripplanner.graph_builder.module.GtfsModule;
 import org.opentripplanner.model.calendar.ServiceDateInterval;
 import org.opentripplanner.model.plan.Itinerary;
 import org.opentripplanner.model.plan.Leg;
+import org.opentripplanner.routing.api.request.RequestModes;
 import org.opentripplanner.routing.api.request.RequestModesBuilder;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
@@ -93,8 +94,8 @@ public abstract class GtfsTest {
       .wheelchair()
       .setAccessibility(preferences.wheelchair().accessibility().withEnabled(wheelchairAccessible));
     preferences.transfer().setCost(preferLeastTransfers ? 300 : 0);
-    RequestModesBuilder requestModesBuilder = routingRequest.modes
-      .copy()
+    RequestModesBuilder requestModesBuilder = RequestModes
+      .of()
       .withDirectMode(NOT_SET)
       .withAccessMode(WALK)
       .withTransferMode(WALK)
@@ -104,7 +105,7 @@ public abstract class GtfsTest {
     } else {
       requestModesBuilder.withTransitModes(MainAndSubMode.all());
     }
-    routingRequest.modes = requestModesBuilder.build();
+    routingRequest.journey().setModes(requestModesBuilder.build());
     if (excludedRoute != null && !excludedRoute.isEmpty()) {
       routingRequest
         .journey()

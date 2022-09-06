@@ -56,10 +56,10 @@ public class RoutingRequestTransitDataProviderFilter implements TransitDataProvi
     TransitService transitService
   ) {
     this(
-      request.modes.transferMode == StreetMode.BIKE,
+      request.journey().transfer().mode() == StreetMode.BIKE,
       request.preferences().wheelchair().accessibility(),
       request.preferences().transit().includePlannedCancellations(),
-      request.modes.transitModes,
+      request.journey().transit().modes(),
       bannedRoutes(
         request.journey().transit().bannedAgencies(),
         request.journey().transit().bannedRoutes(),

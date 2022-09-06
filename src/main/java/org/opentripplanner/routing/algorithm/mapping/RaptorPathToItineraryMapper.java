@@ -103,7 +103,7 @@ public class RaptorPathToItineraryMapper {
         legs.addAll(
           mapTransferLeg(
             pathLeg.asTransferLeg(),
-            request.modes.transferMode == StreetMode.BIKE ? LegMode.BICYCLE : LegMode.WALK
+            request.journey().transfer().mode() == StreetMode.BIKE ? LegMode.BICYCLE : LegMode.WALK
           )
         );
       }

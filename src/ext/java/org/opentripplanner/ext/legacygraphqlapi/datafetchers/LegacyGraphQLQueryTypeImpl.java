@@ -745,7 +745,7 @@ public class LegacyGraphQLQueryTypeImpl
             )
             .collect(Collectors.toSet());
 
-        request.modes = modes.getRequestModes();
+        request.journey().setModes(modes.getRequestModes());
       }
 
       if (hasArgument(environment, "allowedTicketTypes")) {

@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
+import org.opentripplanner.api.common.LocationStringParser;
 import org.opentripplanner.api.parameter.QualifiedMode;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.ext.legacygraphqlapi.LegacyGraphQLRequestContext;
@@ -596,8 +597,14 @@ public class LegacyGraphQLQueryTypeImpl
 
       CallerWithEnvironment callWith = new CallerWithEnvironment(environment);
 
-      callWith.argument("fromPlace", request::setFromString);
-      callWith.argument("toPlace", request::setToString);
+      callWith.argument(
+        "fromPlace",
+        (String from) -> request.setFrom(LocationStringParser.fromOldStyleString(from))
+      );
+      callWith.argument(
+        "toPlace",
+        (String to) -> request.setTo(LocationStringParser.fromOldStyleString(to))
+      );
 
       callWith.argument("from", (Map<String, Object> v) -> request.setFrom(toGenericLocation(v)));
       callWith.argument("to", (Map<String, Object> v) -> request.setTo(toGenericLocation(v)));

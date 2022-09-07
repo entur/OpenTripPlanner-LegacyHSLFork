@@ -14,7 +14,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
-import org.opentripplanner.api.common.LocationStringParser;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.model.plan.SortOrder;
@@ -181,14 +180,6 @@ public class RouteRequest implements Cloneable, Serializable {
 
   public JourneyRequest journey() {
     return journey;
-  }
-
-  public void setFromString(String from) {
-    this.from = LocationStringParser.fromOldStyleString(from);
-  }
-
-  public void setToString(String to) {
-    this.to = LocationStringParser.fromOldStyleString(to);
   }
 
   /**

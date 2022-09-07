@@ -8,7 +8,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
 import org.opentripplanner.routing.algorithm.astar.TraverseVisitor;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.error.PathNotFoundException;
@@ -63,15 +63,13 @@ public class GraphPathFinder {
       return null;
     }
 
-    RouteRequest options = routingContext.opt;
+    AStarRequest options = routingContext.opt;
     RoutingPreferences preferences = routingContext.opt.preferences();
 
     AStarBuilder aStar = AStarBuilder
-      .oneToOneMaxDuration(
-        preferences.street().maxDirectDuration(options.journey().direct().mode())
-      )
+      .oneToOneMaxDuration(preferences.street().maxDirectDuration(options.mode()))
       // FORCING the dominance function to weight only
-      .setDominanceFunction(new DominanceFunction.MinimumWeight())
+      .setDominanceFunction(new DominanceFunction.MinimumWeight(options.from(), options.to()))
       .setContext(routingContext)
       .setTimeout(streetRoutingTimeout);
 
@@ -98,7 +96,7 @@ public class GraphPathFinder {
    * Try to find N paths through the Graph
    */
   public List<GraphPath> graphPathFinderEntryPoint(RoutingContext routingContext) {
-    RouteRequest request = routingContext.opt;
+    AStarRequest request = routingContext.opt;
     Instant reqTime = request.dateTime().truncatedTo(ChronoUnit.SECONDS);
 
     List<GraphPath> paths = getPaths(routingContext);

@@ -19,6 +19,7 @@ import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.request.TransferWithDuration;
 import org.opentripplanner.routing.algorithm.transferoptimization.api.OptimizedPath;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.core.RoutingContext;
@@ -257,16 +258,18 @@ public class RaptorPathToItineraryMapper {
     } else {
       // A RoutingRequest with a RoutingContext must be constructed so that the edges
       // may be re-traversed to create the leg(s) from the list of edges.
-      RouteRequest traverseRequest = Transfer.prepareTransferRoutingRequest(request);
-      traverseRequest.setArriveBy(false);
-      RoutingContext routingContext = new RoutingContext(
-        traverseRequest,
-        graph,
-        (Vertex) null,
-        null
+      AStarRequest traverseRequest = new AStarRequest(
+        request.from(),
+        request.to(),
+        request.dateTime(),
+        false,
+        request.journey().transfer(),
+        request.journey().rental().clone(),
+        request.journey().parking().clone(),
+        request.preferences().clone()
       );
 
-      StateEditor se = new StateEditor(routingContext, edges.get(0).getFromVertex());
+      StateEditor se = new StateEditor(traverseRequest, edges.get(0).getFromVertex());
       se.setTimeSeconds(createZonedDateTime(pathLeg.fromTime()).toEpochSecond());
 
       State s = se.makeState();

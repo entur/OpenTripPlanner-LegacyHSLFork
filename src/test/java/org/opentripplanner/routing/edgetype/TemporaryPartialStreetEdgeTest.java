@@ -14,6 +14,7 @@ import org.opentripplanner.graph_builder.linking.DisposableEdgeCollection;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.StateData;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.intersection_model.IntersectionTraversalCostModel;
 import org.opentripplanner.routing.graph.Edge;
@@ -91,10 +92,18 @@ public class TemporaryPartialStreetEdgeTest {
     );
 
     // Traverse both the partial and parent edges.
-    State s0 = new State(routingContext);
+    State s0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
     State s1 = e1.traverse(s0);
 
-    State partialS0 = new State(routingContext);
+    State partialS0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
     State partialS1 = pEdge1.traverse(partialS0);
 
     // Traversal of original and partial edges should yield the same results.
@@ -144,7 +153,11 @@ public class TemporaryPartialStreetEdgeTest {
     graph.setIntersectionTraversalCostModel(new DummyCostModel(turnDurationSecs));
     options.preferences().street().setTurnReluctance(1.0);
 
-    State s0 = new State(routingContext);
+    State s0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
     State s1 = e1.traverse(s0);
     State s2 = e2.traverse(s1);
     State s3 = e3.traverse(s2);
@@ -152,7 +165,11 @@ public class TemporaryPartialStreetEdgeTest {
     Edge partialE2First = end.getIncoming().iterator().next();
     Edge partialE2Second = start.getOutgoing().iterator().next();
 
-    State partialS0 = new State(routingContext);
+    State partialS0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
     State partialS1 = e1.traverse(partialS0);
     State partialS2A = partialE2First.traverse(partialS1);
     State partialS2B = partialE2Second.traverse(partialS2A);
@@ -169,12 +186,20 @@ public class TemporaryPartialStreetEdgeTest {
     // All intersections take 0 seconds now.
     graph.setIntersectionTraversalCostModel(new DummyCostModel(0.0));
 
-    State s0NoCost = new State(routingContext);
+    State s0NoCost = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
     State s1NoCost = e1.traverse(s0NoCost);
     State s2NoCost = e2.traverse(s1NoCost);
     State s3NoCost = e3.traverse(s2NoCost);
 
-    State partialS0NoCost = new State(routingContext);
+    State partialS0NoCost = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
     State partialS1NoCost = e1.traverse(partialS0NoCost);
     State partialS2ANoCost = partialE2First.traverse(partialS1NoCost);
     State partialS2BNoCost = partialE2Second.traverse(partialS2ANoCost);

@@ -124,7 +124,7 @@ public class TriangleTest {
     request.preferences().setNonTransitReluctance(1);
 
     bikePreferences.setTriangleNormalized(0, 0, 1);
-    State startState = new State(v1, request, null);
+    State startState = new State(v1, request);
     State result = testStreet.traverse(startState);
     double timeWeight = result.getWeight();
     double expectedTimeWeight =
@@ -132,7 +132,7 @@ public class TriangleTest {
     assertTrue(Math.abs(expectedTimeWeight - timeWeight) < 0.00001);
 
     bikePreferences.setTriangleNormalized(0, 1, 0);
-    startState = new State(v1, request, null);
+    startState = new State(v1, request);
     result = testStreet.traverse(startState);
     double slopeWeight = result.getWeight();
     double expectedSlopeWeight =
@@ -146,7 +146,7 @@ public class TriangleTest {
     );
 
     bikePreferences.setTriangleNormalized(1, 0, 0);
-    startState = new State(v1, request, null);
+    startState = new State(v1, request);
     result = testStreet.traverse(startState);
     double safetyWeight = result.getWeight();
     double slopeSafety = costs.slopeSafetyCost;
@@ -157,7 +157,7 @@ public class TriangleTest {
 
     final double ONE_THIRD = 1 / 3.0;
     bikePreferences.setTriangleNormalized(ONE_THIRD, ONE_THIRD, ONE_THIRD);
-    startState = new State(v1, request, null);
+    startState = new State(v1, request);
     result = testStreet.traverse(startState);
     double averageWeight = result.getWeight();
     assertTrue(

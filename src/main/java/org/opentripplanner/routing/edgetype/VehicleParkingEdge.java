@@ -1,7 +1,7 @@
 package org.opentripplanner.routing.edgetype;
 
 import org.locationtech.jts.geom.LineString;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
@@ -35,8 +35,7 @@ public class VehicleParkingEdge extends Edge {
   }
 
   public boolean equals(Object o) {
-    if (o instanceof VehicleParkingEdge) {
-      VehicleParkingEdge other = (VehicleParkingEdge) o;
+    if (o instanceof VehicleParkingEdge other) {
       return other.getFromVertex().equals(fromv) && other.getToVertex().equals(tov);
     }
     return false;
@@ -48,9 +47,9 @@ public class VehicleParkingEdge extends Edge {
 
   @Override
   public State traverse(State s0) {
-    RouteRequest options = s0.getOptions();
+    AStarRequest options = s0.getOptions();
 
-    if (!options.parkAndRide) {
+    if (!options.parkAndRide()) {
       return null;
     }
 
@@ -82,21 +81,21 @@ public class VehicleParkingEdge extends Edge {
   }
 
   protected State traverseUnPark(State s0) {
-    RouteRequest options = s0.getOptions();
+    AStarRequest options = s0.getOptions();
     RoutingPreferences preferences = s0.getPreferences();
 
     if (s0.getNonTransitMode() != TraverseMode.WALK || !s0.isVehicleParked()) {
       return null;
     }
 
-    if (options.streetSubRequestModes.getBicycle()) {
+    if (options.streetSubRequestModes().getBicycle()) {
       return traverseUnPark(
         s0,
         preferences.bike().parkCost(),
         preferences.bike().parkTime(),
         TraverseMode.BICYCLE
       );
-    } else if (options.streetSubRequestModes.getCar()) {
+    } else if (options.streetSubRequestModes().getCar()) {
       return traverseUnPark(
         s0,
         preferences.car().parkCost(),
@@ -129,21 +128,21 @@ public class VehicleParkingEdge extends Edge {
   }
 
   private State traversePark(State s0) {
-    RouteRequest options = s0.getOptions();
+    AStarRequest options = s0.getOptions();
     RoutingPreferences preferences = s0.getPreferences();
 
-    if (!options.streetSubRequestModes.getWalk() || s0.isVehicleParked()) {
+    if (!options.streetSubRequestModes().getWalk() || s0.isVehicleParked()) {
       return null;
     }
 
-    if (options.streetSubRequestModes.getBicycle()) {
+    if (options.streetSubRequestModes().getBicycle()) {
       // Parking a rented bike is not allowed
       if (s0.isRentingVehicle()) {
         return null;
       }
 
       return traversePark(s0, preferences.bike().parkCost(), preferences.bike().parkTime());
-    } else if (options.streetSubRequestModes.getCar()) {
+    } else if (options.streetSubRequestModes().getCar()) {
       return traversePark(s0, preferences.car().parkCost(), preferences.car().parkTime());
     } else {
       return null;

@@ -29,7 +29,10 @@ import org.opentripplanner.openstreetmap.model.OSMRelationMember;
 import org.opentripplanner.openstreetmap.model.OSMWithTags;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
 import org.opentripplanner.routing.algorithm.astar.strategies.SkipEdgeStrategy;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.StreetMode;
+import org.opentripplanner.routing.api.request.request.StreetRequest;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -374,23 +377,24 @@ public class WalkableAreaBuilder {
     Set<Edge> edgesToKeep
   ) {
     if (edges.size() == 0) return;
-    TraverseMode mode;
+    StreetMode mode;
     StreetEdge firstEdge = (StreetEdge) edges.iterator().next();
 
     if (firstEdge.getPermission().allows(StreetTraversalPermission.PEDESTRIAN)) {
-      mode = TraverseMode.WALK;
+      mode = StreetMode.WALK;
     } else if (firstEdge.getPermission().allows(StreetTraversalPermission.BICYCLE)) {
-      mode = TraverseMode.BICYCLE;
+      mode = StreetMode.BIKE;
     } else {
-      mode = TraverseMode.CAR;
+      mode = StreetMode.CAR;
     }
-    RouteRequest options = new RouteRequest(mode);
+    RouteRequest options = new RouteRequest();
+    AStarRequest request = options.getStreetSearchRequest(new StreetRequest(mode));
     Set<Edge> usedEdges = new HashSet<>();
     for (Vertex vertex : startingVertices) {
       ShortestPathTree spt = AStarBuilder
         .allDirections(new ListedEdgesOnly(edges))
-        .setDominanceFunction(new DominanceFunction.EarliestArrival())
-        .setContext(new RoutingContext(options, graph, vertex, null))
+        .setDominanceFunction(new DominanceFunction.EarliestArrival(null, null))
+        .setContext(new RoutingContext(request, graph, vertex, null))
         .getShortestPathTree();
 
       for (Vertex endVertex : startingVertices) {

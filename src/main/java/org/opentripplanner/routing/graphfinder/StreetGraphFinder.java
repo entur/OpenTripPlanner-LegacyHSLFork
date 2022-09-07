@@ -2,13 +2,19 @@ package org.opentripplanner.routing.graphfinder;
 
 import static java.lang.Integer.min;
 
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
 import org.opentripplanner.routing.algorithm.astar.TraverseVisitor;
 import org.opentripplanner.routing.algorithm.astar.strategies.SkipEdgeStrategy;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
+import org.opentripplanner.routing.api.request.request.StreetRequest;
+import org.opentripplanner.routing.api.request.request.VehicleParkingRequest;
+import org.opentripplanner.routing.api.request.request.VehicleRentalRequest;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.TemporaryVerticesContainer;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -73,20 +79,26 @@ public class StreetGraphFinder implements GraphFinder {
     TraverseVisitor visitor,
     SkipEdgeStrategy skipEdgeStrategy
   ) {
-    // Make a normal OTP routing request so we can traverse edges and use GenericAStar
-    // TODO make a function that builds normal routing requests from profile requests
-    RouteRequest rr = new RouteRequest(TraverseMode.WALK);
-    rr.setFrom(new GenericLocation(null, null, lat, lon));
-    rr.preferences().walk().setSpeed(1);
-    rr.setNumItineraries(1);
+    GenericLocation from = new GenericLocation(lat, lon);
+    AStarRequest request = new AStarRequest(
+      from,
+      new GenericLocation(null, null),
+      Instant.now(),
+      false,
+      new StreetRequest(),
+      new VehicleRentalRequest(),
+      new VehicleParkingRequest(),
+      new RoutingPreferences()
+    );
+    request.preferences().walk().setSpeed(1);
     // RR dateTime defaults to currentTime.
     // If elapsed time is not capped, searches are very slow.
-    try (var temporaryVertices = new TemporaryVerticesContainer(graph, rr)) {
+    try (var temporaryVertices = new TemporaryVerticesContainer(graph, request)) {
       AStarBuilder
         .allDirections(skipEdgeStrategy)
         .setTraverseVisitor(visitor)
-        .setDominanceFunction(new DominanceFunction.LeastWalk())
-        .setContext(new RoutingContext(rr, graph, temporaryVertices))
+        .setDominanceFunction(new DominanceFunction.LeastWalk(from, null))
+        .setContext(new RoutingContext(request, graph, temporaryVertices))
         .getShortestPathTree();
     }
   }

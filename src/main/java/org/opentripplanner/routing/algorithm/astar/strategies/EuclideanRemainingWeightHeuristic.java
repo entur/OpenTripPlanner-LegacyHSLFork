@@ -47,10 +47,10 @@ public class EuclideanRemainingWeightHeuristic implements RemainingWeightHeurist
     var preferences = opt.preferences();
 
     // Assume carSpeed > bikeSpeed > walkSpeed
-    if (opt.streetSubRequestModes.getCar()) {
+    if (opt.streetSubRequestModes().getCar()) {
       return preferences.car().speed();
     }
-    if (opt.streetSubRequestModes.getBicycle()) {
+    if (opt.streetSubRequestModes().getBicycle()) {
       return preferences.bike().speed();
     }
     return preferences.walk().speed();

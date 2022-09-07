@@ -61,6 +61,7 @@ import org.opentripplanner.api.parameter.ApiRequestMode;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.graph_builder.DataImportIssue;
 import org.opentripplanner.routing.algorithm.astar.TraverseVisitor;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.core.BicycleOptimizeType;
 import org.opentripplanner.routing.core.RoutingContext;
@@ -495,10 +496,12 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
     // TODO perhaps instead of giving the pathservice a callback, we can just put the visitor in the routing request
     GraphPathFinder finder = new GraphPathFinder(traverseVisitor, streetRoutingTimeout);
 
+    AStarRequest request = options.getStreetSearchRequest(options.journey().direct());
+
     long t0 = System.currentTimeMillis();
     // TODO: check options properly intialized (AMB)
-    try (var temporaryVertices = new TemporaryVerticesContainer(graph, options)) {
-      var routingContext = new RoutingContext(options, graph, temporaryVertices);
+    try (var temporaryVertices = new TemporaryVerticesContainer(graph, request)) {
+      var routingContext = new RoutingContext(request, graph, temporaryVertices);
       List<GraphPath> paths = finder.graphPathFinderEntryPoint(routingContext);
       long dt = System.currentTimeMillis() - t0;
       searchTimeElapsedLabel.setText("search time elapsed: " + dt + "ms");
@@ -585,18 +588,13 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
     // this is useful only if you have a breakpoint set up
     JButton dominateButton = new JButton();
     dominateButton.setText("dominates");
-    dominateButton.addActionListener(
-      new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          State s1 = firstComparePathStates.getSelectedValue();
-          State s2 = secondComparePathStates.getSelectedValue();
-          DominanceFunction pareto = new DominanceFunction.Pareto();
-          System.out.println("s1 dominates s2:" + pareto.betterOrEqualAndComparable(s1, s2));
-          System.out.println("s2 dominates s1:" + pareto.betterOrEqualAndComparable(s2, s1));
-        }
-      }
-    );
+    dominateButton.addActionListener(e -> {
+      State s1 = firstComparePathStates.getSelectedValue();
+      State s2 = secondComparePathStates.getSelectedValue();
+      DominanceFunction pareto = new DominanceFunction.Pareto(null, null);
+      System.out.println("s1 dominates s2:" + pareto.betterOrEqualAndComparable(s1, s2));
+      System.out.println("s2 dominates s1:" + pareto.betterOrEqualAndComparable(s2, s1));
+    });
     pane.add(dominateButton);
 
     // A button that executes the 'traverse' function leading to the last clicked state

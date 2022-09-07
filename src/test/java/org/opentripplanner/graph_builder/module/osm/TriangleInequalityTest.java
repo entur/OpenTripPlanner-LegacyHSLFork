@@ -242,7 +242,7 @@ public class TriangleInequalityTest {
 
     ShortestPathTree tree = AStarBuilder
       .oneToOne()
-      .setDominanceFunction(new DominanceFunction.EarliestArrival())
+      .setDominanceFunction(new DominanceFunction.EarliestArrival(null, null))
       .setContext(new RoutingContext(prototypeOptions, graph, start, end))
       .getShortestPathTree();
 

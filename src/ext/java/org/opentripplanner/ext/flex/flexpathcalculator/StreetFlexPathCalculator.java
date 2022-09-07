@@ -1,10 +1,16 @@
 package org.opentripplanner.ext.flex.flexpathcalculator;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.StreetMode;
+import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
+import org.opentripplanner.routing.api.request.request.StreetRequest;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.graph.Graph;
@@ -70,8 +76,17 @@ public class StreetFlexPathCalculator implements FlexPathCalculator {
   }
 
   private ShortestPathTree routeToMany(Vertex vertex) {
-    RouteRequest routingRequest = new RouteRequest(TraverseMode.CAR);
-    routingRequest.setArriveBy(reverseDirection);
+    GenericLocation from = new GenericLocation(vertex.getLat(), vertex.getLon());
+    AStarRequest routingRequest = new AStarRequest(
+      from,
+      new GenericLocation(null, null),
+      Instant.now(),
+      reverseDirection,
+      new StreetRequest(StreetMode.CAR),
+      null,
+      null,
+      new RoutingPreferences()
+    );
     RoutingContext rctx;
     if (reverseDirection) {
       rctx = new RoutingContext(routingRequest, graph, null, vertex);
@@ -81,7 +96,7 @@ public class StreetFlexPathCalculator implements FlexPathCalculator {
 
     return AStarBuilder
       .allDirectionsMaxDuration(MAX_FLEX_TRIP_DURATION)
-      .setDominanceFunction(new DominanceFunction.EarliestArrival())
+      .setDominanceFunction(new DominanceFunction.EarliestArrival(from, null))
       .setContext(rctx)
       .getShortestPathTree();
   }

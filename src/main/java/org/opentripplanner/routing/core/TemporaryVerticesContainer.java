@@ -11,6 +11,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.opentripplanner.graph_builder.linking.DisposableEdgeCollection;
 import org.opentripplanner.graph_builder.linking.SameEdgeAdjuster;
 import org.opentripplanner.model.GenericLocation;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.response.InputField;
 import org.opentripplanner.routing.api.response.RoutingError;
@@ -31,21 +32,25 @@ import org.opentripplanner.util.geometry.GeometryUtils;
 public class TemporaryVerticesContainer implements AutoCloseable {
 
   private final Graph graph;
-  private final RouteRequest opt;
+  private final boolean arriveBy;
   private final Set<DisposableEdgeCollection> tempEdges;
+  private final GenericLocation from;
   private final Set<Vertex> fromVertices;
+  private final GenericLocation to;
   private final Set<Vertex> toVertices;
 
-  public TemporaryVerticesContainer(Graph graph, RouteRequest opt) {
+  public TemporaryVerticesContainer(Graph graph, AStarRequest opt) {
     this.tempEdges = new HashSet<>();
 
     this.graph = graph;
     StreetVertexIndex index = this.graph.getStreetIndex();
-    this.opt = opt;
-    fromVertices = index.getVerticesForLocation(opt.from(), opt, false, tempEdges);
-    toVertices = index.getVerticesForLocation(opt.to(), opt, true, tempEdges);
+    this.arriveBy = opt.arriveBy();
+    this.from = opt.from();
+    this.to = opt.to();
+    fromVertices = index.getVerticesForLocation(from, opt, false, tempEdges);
+    toVertices = index.getVerticesForLocation(to, opt, true, tempEdges);
 
-    checkIfVerticesFound(opt.arriveBy());
+    checkIfVerticesFound(arriveBy);
 
     if (fromVertices != null && toVertices != null) {
       for (Vertex fromVertex : fromVertices) {
@@ -79,26 +84,30 @@ public class TemporaryVerticesContainer implements AutoCloseable {
   private void checkIfVerticesFound(boolean arriveBy) {
     List<RoutingError> routingErrors = new ArrayList<>();
 
-    var from = arriveBy ? toVertices : fromVertices;
-    var to = arriveBy ? fromVertices : toVertices;
+    Set<Vertex> fromVertices = arriveBy ? toVertices : this.fromVertices;
+    Set<Vertex> toVertices = arriveBy ? this.fromVertices : this.toVertices;
 
     // check that vertices where found if from-location was specified
-    if (opt.from().isSpecified() && isDisconnected(from, true)) {
+    if (from.isSpecified() && isDisconnected(fromVertices, true)) {
       routingErrors.add(
-        new RoutingError(getRoutingErrorCodeForDisconnected(opt.from()), InputField.FROM_PLACE)
+        new RoutingError(getRoutingErrorCodeForDisconnected(from), InputField.FROM_PLACE)
       );
     }
 
     // check that vertices where found if to-location was specified
-    if (opt.to().isSpecified() && isDisconnected(to, false)) {
+    if (to.isSpecified() && isDisconnected(toVertices, false)) {
       routingErrors.add(
-        new RoutingError(getRoutingErrorCodeForDisconnected(opt.to()), InputField.TO_PLACE)
+        new RoutingError(getRoutingErrorCodeForDisconnected(to), InputField.TO_PLACE)
       );
     }
 
     // if from and to share any vertices, the user is already at their destination, and the result
     // is a trivial path
-    if (from != null && to != null && !Sets.intersection(from, to).isEmpty()) {
+    if (
+      fromVertices != null &&
+      toVertices != null &&
+      !Sets.intersection(fromVertices, toVertices).isEmpty()
+    ) {
       routingErrors.add(new RoutingError(RoutingErrorCode.WALKING_BETTER_THAN_TRANSIT, null));
     }
 
@@ -119,7 +128,7 @@ public class TemporaryVerticesContainer implements AutoCloseable {
 
     // Not connected if linking did not create incoming/outgoing edges depending on the
     // direction and the end.
-    Predicate<Vertex> isNotConnected = (isFrom == opt.arriveBy()) ? hasNoIncoming : hasNoOutgoing;
+    Predicate<Vertex> isNotConnected = (isFrom == arriveBy) ? hasNoIncoming : hasNoOutgoing;
 
     return vertices.stream().allMatch(isNotTransit.and(isNotConnected));
   }

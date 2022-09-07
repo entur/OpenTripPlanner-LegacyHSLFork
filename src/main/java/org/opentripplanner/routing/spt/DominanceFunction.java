@@ -2,8 +2,14 @@ package org.opentripplanner.routing.spt;
 
 import java.io.Serializable;
 import java.util.Objects;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
+import org.opentripplanner.model.GenericLocation;
+import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.routing.graph.Vertex;
 
 /**
  * A class that determines when one search branch prunes another at the same Vertex, and ultimately
@@ -17,12 +23,26 @@ import org.opentripplanner.routing.edgetype.StreetEdge;
  * weight, lowest cost, Pareto) conditionally, only when the two states have identical bike/car/turn
  * direction status.
  * <p>
- * Dominance functions are serializable so that routing requests may passed between machines in
- * different JVMs, for instance in OTPA Cluster.
  */
-public abstract class DominanceFunction implements Serializable {
+public abstract class DominanceFunction {
 
-  private static final long serialVersionUID = 1;
+  /**
+   * How close to do you have to be to the start or end to be considered "close".
+   *
+   * @see DominanceFunction#isCloseToStartOrEnd(Vertex)
+   * @see DominanceFunction#betterOrEqualAndComparable(State, State)
+   */
+  private static final int MAX_CLOSENESS_METERS = 500;
+
+  private final Envelope fromEnvelope;
+  private final Envelope toEnvelope;
+
+  protected DominanceFunction(GenericLocation from, GenericLocation to) {
+    fromEnvelope =
+      from != null ? getEnvelope(from.getCoordinate(), MAX_CLOSENESS_METERS) : new Envelope();
+    toEnvelope =
+      to != null ? getEnvelope(to.getCoordinate(), MAX_CLOSENESS_METERS) : new Envelope();
+  }
 
   /**
    * For bike rental, parking, and approaching turn-restricted intersections states are
@@ -89,13 +109,44 @@ public abstract class DominanceFunction implements Serializable {
       (a.backEdge instanceof StreetEdge) &&
       a.getBackMode() != null &&
       a.getBackMode().isDriving() &&
-      a.getOptions().isCloseToStartOrEnd(a.getVertex())
+      isCloseToStartOrEnd(a.getVertex())
     ) {
       return false;
     }
 
     // These two states are comparable (they are on the same "plane" or "copy" of the graph).
     return betterOrEqual(a, b);
+  }
+
+  /**
+   * Returns if the vertex is considered "close" to the start or end point of the request. This is
+   * useful if you want to allow loops in car routes under certain conditions.
+   * <p>
+   * Note: If you are doing Raptor access/egress searches this method does not take the possible
+   * intermediate points (stations) into account. This means that stations might be skipped because
+   * a car route to it cannot be found and a suboptimal route to another station is returned
+   * instead.
+   * <p>
+   * If you encounter a case of this, you can adjust this code to take this into account.
+   *
+   * @see DominanceFunction#MAX_CLOSENESS_METERS
+   * @see DominanceFunction#betterOrEqualAndComparable(State, State)
+   */
+  public boolean isCloseToStartOrEnd(Vertex vertex) {
+    return (
+      fromEnvelope.intersects(vertex.getCoordinate()) ||
+      toEnvelope.intersects(vertex.getCoordinate())
+    );
+  }
+
+  private static Envelope getEnvelope(Coordinate c, int meters) {
+    double lat = SphericalDistanceLibrary.metersToDegrees(meters);
+    double lon = SphericalDistanceLibrary.metersToLonDegrees(meters, c.y);
+
+    Envelope env = new Envelope(c);
+    env.expandBy(lon, lat);
+
+    return env;
   }
 
   /**
@@ -108,6 +159,10 @@ public abstract class DominanceFunction implements Serializable {
   protected abstract boolean betterOrEqual(State a, State b);
 
   public static class MinimumWeight extends DominanceFunction {
+
+    public MinimumWeight(GenericLocation from, GenericLocation to) {
+      super(from, to);
+    }
 
     /** Return true if the first state has lower weight than the second state. */
     @Override
@@ -122,6 +177,10 @@ public abstract class DominanceFunction implements Serializable {
    * path trees.
    */
   public static class EarliestArrival extends DominanceFunction {
+
+    public EarliestArrival(GenericLocation from, GenericLocation to) {
+      super(from, to);
+    }
 
     /** Return true if the first state has lower elapsed time than the second state. */
     @Override
@@ -139,6 +198,10 @@ public abstract class DominanceFunction implements Serializable {
    */
   public static class LeastWalk extends DominanceFunction {
 
+    public LeastWalk(GenericLocation from, GenericLocation to) {
+      super(from, to);
+    }
+
     @Override
     protected boolean betterOrEqual(State a, State b) {
       return a.getWalkDistance() <= b.getWalkDistance();
@@ -150,6 +213,10 @@ public abstract class DominanceFunction implements Serializable {
    * states.
    */
   public static class Pareto extends DominanceFunction {
+
+    public Pareto(GenericLocation from, GenericLocation to) {
+      super(from, to);
+    }
 
     @Override
     public boolean betterOrEqual(State a, State b) {

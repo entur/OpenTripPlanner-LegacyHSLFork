@@ -14,6 +14,9 @@ import org.opentripplanner.routing.algorithm.raptoradapter.transit.constrainedtr
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.constrainedtransfer.TransferForPatternByStopPos;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.CostCalculatorFactory;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers.McCostParamsMapper;
+import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.StreetMode;
+import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.transit.model.network.RoutingTripPattern;
 import org.opentripplanner.transit.raptor.api.transit.CostCalculator;
@@ -73,7 +76,7 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
     int additionalPastSearchDays,
     int additionalFutureSearchDays,
     TransitDataProviderFilter filter,
-    RoutingContext routingContext
+    RouteRequest routeRequest
   ) {
     this.transferService = transitLayer.getTransferService();
     this.transitLayer = transitLayer;
@@ -93,12 +96,16 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
     );
     this.patternIndex = transitDataCreator.createPatternIndex(tripPatterns);
     this.activeTripPatternsPerStop = transitDataCreator.createTripPatternsPerStop(tripPatterns);
-    this.transferIndex = transitLayer.getRaptorTransfersForRequest(routingContext);
+    this.transferIndex =
+      transitLayer.getRaptorTransfersForRequest(
+        routeRequest.preferences(),
+        routeRequest.journey().transfer().mode()
+      );
 
     this.forwardConstrainedTransfers = transitLayer.getForwardConstrainedTransfers();
     this.reverseConstrainedTransfers = transitLayer.getReverseConstrainedTransfers();
 
-    var mcCostParams = McCostParamsMapper.map(routingContext.opt, patternIndex);
+    var mcCostParams = McCostParamsMapper.map(routeRequest, patternIndex);
 
     this.generalizedCostCalculator =
       CostCalculatorFactory.createCostCalculator(

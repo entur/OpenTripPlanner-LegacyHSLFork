@@ -6,6 +6,7 @@ import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.model.plan.Itinerary;
 import org.opentripplanner.routing.algorithm.mapping.GraphPathToItineraryMapper;
 import org.opentripplanner.routing.algorithm.mapping.ItinerariesHelper;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.core.RoutingContext;
@@ -22,7 +23,7 @@ public class DirectStreetRouter {
       return Collections.emptyList();
     }
 
-    RouteRequest directRequest = request.getStreetSearchRequest(request.journey().direct().mode());
+    AStarRequest directRequest = request.getStreetSearchRequest(request.journey().direct());
     try (
       var temporaryVertices = new TemporaryVerticesContainer(serverContext.graph(), directRequest)
     ) {
@@ -75,10 +76,10 @@ public class DirectStreetRouter {
    * fastest mode available. This assumes that it is not possible to exceed the speed defined in the
    * RoutingRequest.
    */
-  private static double calculateDistanceMaxLimit(RouteRequest request) {
+  private static double calculateDistanceMaxLimit(AStarRequest request) {
     var preferences = request.preferences();
     double distanceLimit;
-    StreetMode mode = request.journey().direct().mode();
+    StreetMode mode = request.mode();
 
     double durationLimit = preferences.street().maxDirectDuration(mode).toSeconds();
 

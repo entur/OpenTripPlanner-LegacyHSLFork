@@ -172,7 +172,6 @@ public class RoutingRequestMapper {
       .setIgnoreRealtimeUpdates(
         c.asBoolean("ignoreRealtimeUpdates", preferences.transit().ignoreRealtimeUpdates())
       );
-    request.carPickup = c.asBoolean("kissAndRide", dft.carPickup);
     request.setLocale(c.asLocale("locale", dft.locale()));
     // 'maxTransfers' is configured in the Raptor tuning parameters, not here
     preferences
@@ -208,7 +207,6 @@ public class RoutingRequestMapper {
           preferences.transit().otherThanPreferredRoutesPenalty()
         )
       );
-    request.parkAndRide = c.asBoolean("parkAndRide", dft.parkAndRide);
     preferences
       .street()
       .setPathComparator(c.asText("pathComparator", preferences.street().pathComparator()));
@@ -254,7 +252,6 @@ public class RoutingRequestMapper {
       .setUnpreferredCost(
         c.asLinearFunction("unpreferredRouteCost", preferences.transit().unpreferredCost())
       );
-    request.vehicleRental = c.asBoolean("allowBikeRental", dft.vehicleRental);
     preferences
       .transfer()
       .setWaitAtBeginningFactor(

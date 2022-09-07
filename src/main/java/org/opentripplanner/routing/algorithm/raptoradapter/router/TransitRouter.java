@@ -10,7 +10,6 @@ import org.opentripplanner.routing.algorithm.mapping.RaptorPathToItineraryMapper
 import org.opentripplanner.routing.algorithm.raptoradapter.router.street.AccessEgressRouter;
 import org.opentripplanner.routing.algorithm.raptoradapter.router.street.FlexAccessEgressRouter;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.AccessEgress;
-import org.opentripplanner.routing.algorithm.raptoradapter.transit.Transfer;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers.AccessEgressMapper;
@@ -18,16 +17,16 @@ import org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers.Rapto
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.request.RaptorRoutingRequestTransitData;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.request.RoutingRequestTransitDataProviderFilter;
 import org.opentripplanner.routing.algorithm.transferoptimization.configure.TransferOptimizationServiceConfigurator;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
+import org.opentripplanner.routing.api.request.request.StreetRequest;
 import org.opentripplanner.routing.api.response.InputField;
 import org.opentripplanner.routing.api.response.RoutingError;
 import org.opentripplanner.routing.api.response.RoutingErrorCode;
-import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.TemporaryVerticesContainer;
 import org.opentripplanner.routing.error.RoutingValidationException;
 import org.opentripplanner.routing.framework.DebugTimingAggregator;
-import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.standalone.api.OtpServerRequestContext;
 import org.opentripplanner.transit.raptor.RaptorService;
 import org.opentripplanner.transit.raptor.api.path.Path;
@@ -196,36 +195,38 @@ public class TransitRouter {
     boolean isEgress
   ) {
     var results = new ArrayList<AccessEgress>();
-    var mode = isEgress ? request.journey().egress().mode() : request.journey().access().mode();
+    StreetRequest streetRequest = isEgress
+      ? request.journey().egress()
+      : request.journey().access();
 
     // Prepare access/egress lists
-    RouteRequest accessRequest = request.getStreetSearchRequest(mode);
+    AStarRequest accessRequest = request.getStreetSearchRequest(streetRequest);
     try (
       var temporaryVertices = new TemporaryVerticesContainer(serverContext.graph(), accessRequest)
     ) {
-      var routingContext = new RoutingContext(
-        accessRequest,
-        serverContext.graph(),
-        temporaryVertices
-      );
-
       if (!isEgress) {
-        accessRequest.journey().rental().setAllowArrivingInRentedVehicleAtDestination(false);
+        accessRequest.rental().setAllowArrivingInRentedVehicleAtDestination(false);
       }
 
       var nearbyStops = AccessEgressRouter.streetSearch(
-        routingContext,
+        accessRequest,
+        request.journey().transit(),
+        isEgress != accessRequest.arriveBy()
+          ? temporaryVertices.getToVertices()
+          : temporaryVertices.getFromVertices(),
+        serverContext.graph(),
         serverContext.transitService(),
-        mode,
         isEgress
       );
 
       results.addAll(accessEgressMapper.mapNearbyStops(nearbyStops, isEgress));
 
       // Special handling of flex accesses
-      if (OTPFeature.FlexRouting.isOn() && mode == StreetMode.FLEXIBLE) {
+      if (OTPFeature.FlexRouting.isOn() && streetRequest.mode() == StreetMode.FLEXIBLE) {
         var flexAccessList = FlexAccessEgressRouter.routeAccessEgress(
-          routingContext,
+          request,
+          serverContext.graph(),
+          temporaryVertices,
           serverContext.transitService(),
           additionalSearchDays,
           serverContext.routerConfig().flexParameters(accessRequest.preferences()),
@@ -242,15 +243,13 @@ public class TransitRouter {
   private RaptorRoutingRequestTransitData createRequestTransitDataProvider(
     TransitLayer transitLayer
   ) {
-    RouteRequest transferRoutingRequest = Transfer.prepareTransferRoutingRequest(request);
-
     return new RaptorRoutingRequestTransitData(
       transitLayer,
       transitSearchTimeZero,
       additionalSearchDays.additionalSearchDaysInPast(),
       additionalSearchDays.additionalSearchDaysInFuture(),
       new RoutingRequestTransitDataProviderFilter(request, serverContext.transitService()),
-      new RoutingContext(transferRoutingRequest, serverContext.graph(), (Vertex) null, null)
+      request
     );
   }
 

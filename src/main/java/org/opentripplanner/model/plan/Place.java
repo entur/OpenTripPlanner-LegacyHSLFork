@@ -1,7 +1,6 @@
 package org.opentripplanner.model.plan;
 
-import org.opentripplanner.routing.api.request.RouteRequest;
-import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vehicle_rental.VehicleRentalPlace;
@@ -128,12 +127,12 @@ public class Place {
 
   public static Place forVehicleParkingEntrance(
     VehicleParkingEntranceVertex vertex,
-    RouteRequest request
+    AStarRequest request
   ) {
     TraverseMode traverseMode = null;
-    if (request.streetSubRequestModes.getCar()) {
+    if (request.streetSubRequestModes().getCar()) {
       traverseMode = TraverseMode.CAR;
-    } else if (request.streetSubRequestModes.getBicycle()) {
+    } else if (request.streetSubRequestModes().getBicycle()) {
       traverseMode = TraverseMode.BICYCLE;
     }
 

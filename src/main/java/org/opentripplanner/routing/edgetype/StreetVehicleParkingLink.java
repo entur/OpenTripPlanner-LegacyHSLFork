@@ -2,6 +2,7 @@ package org.opentripplanner.routing.edgetype;
 
 import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.request.VehicleParkingRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -33,7 +34,7 @@ public class StreetVehicleParkingLink extends Edge {
   }
 
   public State traverse(State s0) {
-    final var options = s0.getOptions();
+    final VehicleParkingRequest request = s0.getOptions().parking();
 
     // Disallow traversing two StreetBikeParkLinks in a row.
     // Prevents router using bike rental stations as shortcuts to get around
@@ -52,7 +53,7 @@ public class StreetVehicleParkingLink extends Edge {
     }
 
     var vehicleParking = vehicleParkingEntranceVertex.getVehicleParking();
-    if (hasMissingRequiredTags(options, vehicleParking) || hasBannedTags(options, vehicleParking)) {
+    if (hasMissingRequiredTags(request, vehicleParking) || hasBannedTags(request, vehicleParking)) {
       return null;
     }
 
@@ -74,21 +75,21 @@ public class StreetVehicleParkingLink extends Edge {
     return 0;
   }
 
-  private boolean hasBannedTags(RouteRequest options, VehicleParking vehicleParking) {
-    if (options.journey().parking().bannedTags().isEmpty()) {
+  private boolean hasBannedTags(VehicleParkingRequest request, VehicleParking vehicleParking) {
+    if (request.bannedTags().isEmpty()) {
       return false;
     }
 
-    return vehicleParking
-      .getTags()
-      .stream()
-      .anyMatch(options.journey().parking().bannedTags()::contains);
+    return vehicleParking.getTags().stream().anyMatch(request.bannedTags()::contains);
   }
 
-  private boolean hasMissingRequiredTags(RouteRequest options, VehicleParking vehicleParking) {
-    if (options.journey().parking().requiredTags().isEmpty()) {
+  private boolean hasMissingRequiredTags(
+    VehicleParkingRequest request,
+    VehicleParking vehicleParking
+  ) {
+    if (request.requiredTags().isEmpty()) {
       return false;
     }
-    return !vehicleParking.getTags().containsAll(options.journey().parking().requiredTags());
+    return !vehicleParking.getTags().containsAll(request.requiredTags());
   }
 }

@@ -106,7 +106,7 @@ public class AStarBuilder {
     if (this.initialStates != null) {
       initialStates = this.initialStates;
     } else {
-      initialStates = State.getInitialStates(routingContext);
+      initialStates = State.getInitialStates(routingContext.opt, routingContext.fromVertices);
 
       if (originBackEdge != null) {
         for (var state : initialStates) {
@@ -121,7 +121,10 @@ public class AStarBuilder {
       traverseVisitor,
       routingContext,
       terminationStrategy,
-      Optional.ofNullable(dominanceFunction).orElseGet(DominanceFunction.Pareto::new),
+      Optional
+        .ofNullable(dominanceFunction)
+        // TODO VIA - Set origin/destination
+        .orElseGet(() -> new DominanceFunction.Pareto(null, null)),
       timeout,
       initialStates
     );

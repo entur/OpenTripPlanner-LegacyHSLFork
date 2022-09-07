@@ -248,10 +248,11 @@ public class TransmodelGraphQLPlanner {
             }
         }*/
 
-    if (request.vehicleRental && !GqlUtil.hasArgument(environment, "bikeSpeed")) {
-      //slower bike speed for bike sharing, based on empirical evidence from DC.
-      preferences.bike().setSpeed(4.3);
-    }
+    // TODO VIA (Hannes) - Add separate speeds for rental vehicles in preferences
+    //    if (request.vehicleRental && !GqlUtil.hasArgument(environment, "bikeSpeed")) {
+    //      //slower bike speed for bike sharing, based on empirical evidence from DC.
+    //      preferences.bike().setSpeed(4.3);
+    //    }
 
     // One of those arguments has been deprecated. That's why we are mapping same thing twice.
     callWith.argument("minimumTransferTime", preferences.transfer()::setSlack);

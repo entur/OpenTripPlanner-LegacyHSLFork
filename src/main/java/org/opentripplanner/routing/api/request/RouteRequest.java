@@ -7,24 +7,15 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
-import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.model.plan.SortOrder;
 import org.opentripplanner.model.plan.pagecursor.PageCursor;
 import org.opentripplanner.model.plan.pagecursor.PageType;
 import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
 import org.opentripplanner.routing.api.request.request.JourneyRequest;
-import org.opentripplanner.routing.core.State;
-import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.TraverseModeSet;
-import org.opentripplanner.routing.graph.Vertex;
-import org.opentripplanner.routing.spt.DominanceFunction;
-import org.opentripplanner.routing.vehicle_rental.RentalVehicleType.FormFactor;
+import org.opentripplanner.routing.api.request.request.StreetRequest;
 import org.opentripplanner.util.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,25 +43,11 @@ public class RouteRequest implements Cloneable, Serializable {
 
   private static final long NOW_THRESHOLD_SEC = durationInSeconds("15h");
 
-  /**
-   * How close to do you have to be to the start or end to be considered "close".
-   *
-   * @see RouteRequest#isCloseToStartOrEnd(Vertex)
-   * @see DominanceFunction#betterOrEqualAndComparable(State, State)
-   */
-  private static final int MAX_CLOSENESS_METERS = 500;
-
   /* FIELDS UNIQUELY IDENTIFYING AN SPT REQUEST */
 
   private GenericLocation from;
 
   private GenericLocation to;
-
-  /**
-   * The set of TraverseModes allowed when doing creating sub requests and doing street routing. //
-   * TODO OTP2 Street routing requests should eventually be split into its own request class.
-   */
-  public TraverseModeSet streetSubRequestModes = new TraverseModeSet(TraverseMode.WALK); // defaults in constructor overwrite this
 
   private Instant dateTime = Instant.now();
 
@@ -90,15 +67,6 @@ public class RouteRequest implements Cloneable, Serializable {
 
   private JourneyRequest journey = new JourneyRequest();
 
-  /*
-      Additional flags affecting mode transitions.
-      This is a temporary solution, as it only covers parking and rental at the beginning of the trip.
-    */
-  public boolean vehicleRental = false;
-  public boolean parkAndRide = false;
-  public boolean carPickup = false;
-  public Set<FormFactor> allowedRentalFormFactors = new HashSet<>();
-
   private Envelope fromEnvelope;
 
   private Envelope toEnvelope;
@@ -112,23 +80,10 @@ public class RouteRequest implements Cloneable, Serializable {
     to = new GenericLocation(null, null);
   }
 
-  public RouteRequest(TraverseMode mode) {
-    this();
-    this.setStreetSubRequestModes(new TraverseModeSet(mode));
-  }
-
   /* ACCESSOR/SETTER METHODS */
 
   public void setArriveBy(boolean arriveBy) {
     this.arriveBy = arriveBy;
-  }
-
-  public void setMode(TraverseMode mode) {
-    setStreetSubRequestModes(new TraverseModeSet(mode));
-  }
-
-  public void setStreetSubRequestModes(TraverseModeSet streetSubRequestModes) {
-    this.streetSubRequestModes = streetSubRequestModes;
   }
 
   public RoutingPreferences preferences() {
@@ -137,12 +92,6 @@ public class RouteRequest implements Cloneable, Serializable {
 
   public JourneyRequest journey() {
     return journey;
-  }
-
-  public RouteRequest copyOfReversed() {
-    var request = this.clone();
-    request.setArriveBy(!request.arriveBy);
-    return request;
   }
 
   /**
@@ -232,72 +181,10 @@ public class RouteRequest implements Cloneable, Serializable {
   }
 
   public String toString(String sep) {
-    return (
-      from + sep + to + sep + dateTime + sep + arriveBy + sep + streetSubRequestModes.getAsStr()
-    );
+    return (from + sep + to + sep + dateTime + sep + arriveBy + sep + journey.modes());
   }
 
   /* INSTANCE METHODS */
-
-  public RouteRequest getStreetSearchRequest(StreetMode streetMode) {
-    RouteRequest streetRequest = this.clone();
-    streetRequest.streetSubRequestModes = new TraverseModeSet();
-
-    if (streetMode != null) {
-      switch (streetMode) {
-        case WALK:
-        case FLEXIBLE:
-          streetRequest.setStreetSubRequestModes(new TraverseModeSet(TraverseMode.WALK));
-          break;
-        case BIKE:
-          streetRequest.setStreetSubRequestModes(new TraverseModeSet(TraverseMode.BICYCLE));
-          break;
-        case BIKE_TO_PARK:
-          streetRequest.setStreetSubRequestModes(
-            new TraverseModeSet(TraverseMode.BICYCLE, TraverseMode.WALK)
-          );
-          streetRequest.parkAndRide = true;
-          break;
-        case BIKE_RENTAL:
-          streetRequest.setStreetSubRequestModes(
-            new TraverseModeSet(TraverseMode.BICYCLE, TraverseMode.WALK)
-          );
-          streetRequest.vehicleRental = true;
-          streetRequest.allowedRentalFormFactors.add(FormFactor.BICYCLE);
-          break;
-        case SCOOTER_RENTAL:
-          streetRequest.setStreetSubRequestModes(
-            new TraverseModeSet(TraverseMode.BICYCLE, TraverseMode.WALK)
-          );
-          streetRequest.vehicleRental = true;
-          streetRequest.allowedRentalFormFactors.add(FormFactor.SCOOTER);
-          break;
-        case CAR:
-          streetRequest.setStreetSubRequestModes(new TraverseModeSet(TraverseMode.CAR));
-          break;
-        case CAR_TO_PARK:
-          streetRequest.setStreetSubRequestModes(
-            new TraverseModeSet(TraverseMode.CAR, TraverseMode.WALK)
-          );
-          streetRequest.parkAndRide = true;
-          break;
-        case CAR_PICKUP:
-          streetRequest.setStreetSubRequestModes(
-            new TraverseModeSet(TraverseMode.CAR, TraverseMode.WALK)
-          );
-          streetRequest.carPickup = true;
-          break;
-        case CAR_RENTAL:
-          streetRequest.setStreetSubRequestModes(
-            new TraverseModeSet(TraverseMode.CAR, TraverseMode.WALK)
-          );
-          streetRequest.vehicleRental = true;
-          streetRequest.allowedRentalFormFactors.add(FormFactor.CAR);
-      }
-    }
-
-    return streetRequest;
-  }
 
   /**
    * This method is used to clone the default message, and insert a current time. A typical use-case
@@ -314,10 +201,6 @@ public class RouteRequest implements Cloneable, Serializable {
   public RouteRequest clone() {
     try {
       RouteRequest clone = (RouteRequest) super.clone();
-      clone.streetSubRequestModes = streetSubRequestModes.clone();
-
-      clone.allowedRentalFormFactors = new HashSet<>(allowedRentalFormFactors);
-
       clone.preferences = preferences.clone();
       clone.journey = journey.clone();
 
@@ -330,36 +213,6 @@ public class RouteRequest implements Cloneable, Serializable {
 
   public String toString() {
     return toString(" ");
-  }
-
-  /**
-   * Returns if the vertex is considered "close" to the start or end point of the request. This is
-   * useful if you want to allow loops in car routes under certain conditions.
-   * <p>
-   * Note: If you are doing Raptor access/egress searches this method does not take the possible
-   * intermediate points (stations) into account. This means that stations might be skipped because
-   * a car route to it cannot be found and a suboptimal route to another station is returned
-   * instead.
-   * <p>
-   * If you encounter a case of this, you can adjust this code to take this into account.
-   *
-   * @see RouteRequest#MAX_CLOSENESS_METERS
-   * @see DominanceFunction#betterOrEqualAndComparable(State, State)
-   */
-  public boolean isCloseToStartOrEnd(Vertex vertex) {
-    if (from == null || to == null || from.getCoordinate() == null || to.getCoordinate() == null) {
-      return false;
-    }
-    if (fromEnvelope == null) {
-      fromEnvelope = getEnvelope(from.getCoordinate(), MAX_CLOSENESS_METERS);
-    }
-    if (toEnvelope == null) {
-      toEnvelope = getEnvelope(to.getCoordinate(), MAX_CLOSENESS_METERS);
-    }
-    return (
-      fromEnvelope.intersects(vertex.getCoordinate()) ||
-      toEnvelope.intersects(vertex.getCoordinate())
-    );
   }
 
   /** The start location */
@@ -495,13 +348,16 @@ public class RouteRequest implements Cloneable, Serializable {
     this.numItineraries = numItineraries;
   }
 
-  private static Envelope getEnvelope(Coordinate c, int meters) {
-    double lat = SphericalDistanceLibrary.metersToDegrees(meters);
-    double lon = SphericalDistanceLibrary.metersToLonDegrees(meters, c.y);
-
-    Envelope env = new Envelope(c);
-    env.expandBy(lon, lat);
-
-    return env;
+  public AStarRequest getStreetSearchRequest(StreetRequest streetRequest) {
+    return new AStarRequest(
+      from,
+      to,
+      dateTime,
+      arriveBy,
+      streetRequest,
+      journey.rental().clone(),
+      journey.parking().clone(),
+      preferences().clone()
+    );
   }
 }

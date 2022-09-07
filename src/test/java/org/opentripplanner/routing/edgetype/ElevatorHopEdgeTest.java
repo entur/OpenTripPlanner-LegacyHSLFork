@@ -13,6 +13,7 @@ import org.opentripplanner.routing.api.request.preference.WheelchairAccessibilit
 import org.opentripplanner.routing.api.request.preference.WheelchairAccessibilityPreferences;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.StateData;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.vertextype.SimpleVertex;
@@ -73,7 +74,11 @@ class ElevatorHopEdgeTest {
   private State traverse(WheelchairAccessibility wheelchair, RouteRequest req) {
     var edge = new ElevatorHopEdge(from, to, StreetTraversalPermission.ALL, wheelchair);
     var ctx = new RoutingContext(req, graph, from, to);
-    var state = new State(ctx);
+    var state = new State(
+      ctx.fromVertices == null ? null : ctx.fromVertices.iterator().next(),
+      ctx.opt.dateTime(),
+      StateData.getInitialStateData(ctx.opt)
+    );
 
     return edge.traverse(state);
   }

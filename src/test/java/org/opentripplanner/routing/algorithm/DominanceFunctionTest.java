@@ -17,20 +17,18 @@ public class DominanceFunctionTest {
 
   @Test
   public void testGeneralDominanceFunction() {
-    DominanceFunction minimumWeightDominanceFunction = new DominanceFunction.MinimumWeight();
+    DominanceFunction minimumWeightDominanceFunction = new DominanceFunction.MinimumWeight(
+      null,
+      null
+    );
     Vertex fromVertex = mock(TransitStopVertex.class);
     Vertex toVertex = mock(TransitStopVertex.class);
     RouteRequest request = new RouteRequest();
 
     // Test if domination works in the general case
 
-    State stateA = new State(
-      fromVertex,
-      Instant.EPOCH,
-      null,
-      StateData.getInitialStateData(request)
-    );
-    State stateB = new State(toVertex, Instant.EPOCH, null, StateData.getInitialStateData(request));
+    State stateA = new State(fromVertex, Instant.EPOCH, StateData.getInitialStateData(request));
+    State stateB = new State(toVertex, Instant.EPOCH, StateData.getInitialStateData(request));
     stateA.weight = 1;
     stateB.weight = 2;
 

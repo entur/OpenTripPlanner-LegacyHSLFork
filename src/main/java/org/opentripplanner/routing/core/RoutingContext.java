@@ -3,6 +3,7 @@ package org.opentripplanner.routing.core;
 import java.util.Collections;
 import java.util.Set;
 import org.opentripplanner.ext.dataoverlay.routing.DataOverlayContext;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.error.GraphNotFoundException;
 import org.opentripplanner.routing.graph.Graph;
@@ -21,7 +22,7 @@ public class RoutingContext {
 
   /* FINAL FIELDS */
 
-  public final RouteRequest opt;
+  public final AStarRequest opt;
 
   public final Graph graph;
 
@@ -40,7 +41,7 @@ public class RoutingContext {
    * Constructor that automatically computes origin/target from TemporaryVerticesContainer.
    */
   public RoutingContext(
-    RouteRequest routingRequest,
+    AStarRequest routingRequest,
     Graph graph,
     TemporaryVerticesContainer temporaryVertices
   ) {
@@ -55,7 +56,7 @@ public class RoutingContext {
   /**
    * Constructor that takes to/from vertices as input.
    */
-  public RoutingContext(RouteRequest routingRequest, Graph graph, Vertex from, Vertex to) {
+  public RoutingContext(AStarRequest routingRequest, Graph graph, Vertex from, Vertex to) {
     this(routingRequest, graph, Collections.singleton(from), Collections.singleton(to));
   }
 
@@ -63,7 +64,7 @@ public class RoutingContext {
    * Constructor that takes sets of to/from vertices as input.
    */
   public RoutingContext(
-    RouteRequest routingRequest,
+    AStarRequest routingRequest,
     Graph graph,
     Set<Vertex> from,
     Set<Vertex> to

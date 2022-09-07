@@ -19,7 +19,7 @@ import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.common.model.P2;
 import org.opentripplanner.graph_builder.linking.DisposableEdgeCollection;
 import org.opentripplanner.graph_builder.linking.LinkingDirection;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
@@ -405,7 +405,7 @@ public class StreetEdge
 
   @Override
   public State traverse(State s0) {
-    final RouteRequest request = s0.getOptions();
+    final AStarRequest request = s0.getOptions();
     final RoutingPreferences preferences = s0.getPreferences();
     final StateEditor editor;
 
@@ -975,7 +975,7 @@ public class StreetEdge
    */
   private StateEditor doTraverse(
     State s0,
-    RouteRequest options,
+    AStarRequest request,
     RoutingPreferences preferences,
     TraverseMode traverseMode,
     boolean walkingBike
@@ -1020,15 +1020,13 @@ public class StreetEdge
     StreetEdge backPSE;
     if (backEdge instanceof StreetEdge) {
       backPSE = (StreetEdge) backEdge;
-      RouteRequest backOptions = s0.getOptions();
-      RoutingPreferences backPreferences = s0.getPreferences();
-      double backSpeed = backPSE.calculateSpeed(backPreferences, backMode, backWalkingBike);
+      double backSpeed = backPSE.calculateSpeed(preferences, backMode, backWalkingBike);
       final double realTurnCost; // Units are seconds.
 
       // Apply turn restrictions
-      if (options.arriveBy() && !canTurnOnto(backPSE, s0, backMode)) {
+      if (request.arriveBy() && !canTurnOnto(backPSE, s0, backMode)) {
         return null;
-      } else if (!options.arriveBy() && !backPSE.canTurnOnto(this, s0, traverseMode)) {
+      } else if (!request.arriveBy() && !backPSE.canTurnOnto(this, s0, traverseMode)) {
         return null;
       }
 
@@ -1043,11 +1041,10 @@ public class StreetEdge
        * that during reverse traversal, we must also use the speed for the mode of
        * the backEdge, rather than of the current edge.
        */
-      if (options.arriveBy() && tov instanceof IntersectionVertex traversedVertex) { // arrive-by search
+      if (request.arriveBy() && tov instanceof IntersectionVertex traversedVertex) { // arrive-by search
         realTurnCost =
           s0
-            .getRoutingContext()
-            .graph.getIntersectionTraversalModel()
+            .intersectionTraversalModel()
             .computeTraversalCost(
               traversedVertex,
               this,
@@ -1056,11 +1053,10 @@ public class StreetEdge
               (float) speed,
               (float) backSpeed
             );
-      } else if (!options.arriveBy() && fromv instanceof IntersectionVertex traversedVertex) { // depart-after search
+      } else if (!request.arriveBy() && fromv instanceof IntersectionVertex traversedVertex) { // depart-after search
         realTurnCost =
           s0
-            .getRoutingContext()
-            .graph.getIntersectionTraversalModel()
+            .intersectionTraversalModel()
             .computeTraversalCost(
               traversedVertex,
               backPSE,
@@ -1088,9 +1084,10 @@ public class StreetEdge
       s1.incrementWalkDistance(getDistanceWithElevation());
     }
 
-    if (costExtension != null) {
-      weight += costExtension.calculateExtraCost(s0.getRoutingContext(), length_mm, traverseMode);
-    }
+    // TODO VIA (Hannes) - Move data to AStarRequest
+    //if (costExtension != null) {
+    //  weight += costExtension.calculateExtraCost(s0.getRoutingContext(), length_mm, traverseMode);
+    //}
 
     s1.incrementTimeInSeconds(roundedTime);
 

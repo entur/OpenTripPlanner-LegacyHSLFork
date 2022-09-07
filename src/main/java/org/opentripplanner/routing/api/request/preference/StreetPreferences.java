@@ -4,8 +4,11 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.Map;
+import org.opentripplanner.graph_builder.module.osm.WayPropertySetSource;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.framework.DurationForEnum;
+import org.opentripplanner.routing.core.intersection_model.IntersectionTraversalCostModel;
+import org.opentripplanner.routing.core.intersection_model.SimpleIntersectionTraversalCostModel;
 import org.opentripplanner.routing.impl.DurationComparator;
 import org.opentripplanner.routing.impl.PathComparator;
 import org.opentripplanner.routing.spt.GraphPath;
@@ -40,6 +43,10 @@ public class StreetPreferences implements Cloneable, Serializable {
    */
   @Deprecated
   private String pathComparator = null;
+
+  private IntersectionTraversalCostModel intersectionTraversalModel = new SimpleIntersectionTraversalCostModel(
+    WayPropertySetSource.DrivingDirection.RIGHT_HAND_TRAFFIC
+  );
 
   /** What is the cost of boarding an elevator? */
   public int elevatorBoardCost() {
@@ -137,6 +144,16 @@ public class StreetPreferences implements Cloneable, Serializable {
 
   public void setTurnReluctance(double turnReluctance) {
     this.turnReluctance = turnReluctance;
+  }
+
+  public IntersectionTraversalCostModel intersectionTraversalModel() {
+    return intersectionTraversalModel;
+  }
+
+  public void setIntersectionTraversalModel(
+    IntersectionTraversalCostModel intersectionTraversalModel
+  ) {
+    this.intersectionTraversalModel = intersectionTraversalModel;
   }
 
   // TODO VIA (Thomas): 2022-08-22 Remove this and always use PathComparator

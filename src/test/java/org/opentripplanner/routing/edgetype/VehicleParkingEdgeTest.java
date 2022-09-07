@@ -9,6 +9,7 @@ import org.opentripplanner.routing.algorithm.GraphRoutingTest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.StateData;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.graph.Graph;
@@ -28,7 +29,11 @@ class VehicleParkingEdgeTest extends GraphRoutingTest {
   public void availableCarPlacesTest() {
     initEdgeAndRequest(TraverseMode.CAR, false, true);
 
-    State s0 = new State(routingContext);
+    State s0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
 
     State s1 = vehicleParkingEdge.traverse(s0);
 
@@ -39,7 +44,11 @@ class VehicleParkingEdgeTest extends GraphRoutingTest {
   public void notAvailableCarPlacesTest() {
     initEdgeAndRequest(TraverseMode.CAR, false, false);
 
-    State s0 = new State(routingContext);
+    State s0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
 
     State s1 = vehicleParkingEdge.traverse(s0);
 
@@ -56,7 +65,11 @@ class VehicleParkingEdgeTest extends GraphRoutingTest {
       true
     );
 
-    State s0 = new State(routingContext);
+    State s0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
 
     State s1 = vehicleParkingEdge.traverse(s0);
 
@@ -67,7 +80,11 @@ class VehicleParkingEdgeTest extends GraphRoutingTest {
   public void realtimeAvailableCarPlacesFallbackTest() {
     initEdgeAndRequest(TraverseMode.CAR, false, true, null, true);
 
-    State s0 = new State(routingContext);
+    State s0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
 
     State s1 = vehicleParkingEdge.traverse(s0);
 
@@ -84,7 +101,11 @@ class VehicleParkingEdgeTest extends GraphRoutingTest {
       true
     );
 
-    State s0 = new State(routingContext);
+    State s0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
 
     State s1 = vehicleParkingEdge.traverse(s0);
 
@@ -95,7 +116,11 @@ class VehicleParkingEdgeTest extends GraphRoutingTest {
   public void availableBicyclePlacesTest() {
     initEdgeAndRequest(TraverseMode.BICYCLE, true, false);
 
-    State s0 = new State(routingContext);
+    State s0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
 
     State s1 = vehicleParkingEdge.traverse(s0);
 
@@ -106,7 +131,11 @@ class VehicleParkingEdgeTest extends GraphRoutingTest {
   public void notAvailableBicyclePlacesTest() {
     initEdgeAndRequest(TraverseMode.BICYCLE, false, false);
 
-    State s0 = new State(routingContext);
+    State s0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
 
     State s1 = vehicleParkingEdge.traverse(s0);
 
@@ -123,7 +152,11 @@ class VehicleParkingEdgeTest extends GraphRoutingTest {
       true
     );
 
-    State s0 = new State(routingContext);
+    State s0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
 
     State s1 = vehicleParkingEdge.traverse(s0);
 
@@ -134,7 +167,11 @@ class VehicleParkingEdgeTest extends GraphRoutingTest {
   public void realtimeAvailableBicyclePlacesFallbackTest() {
     initEdgeAndRequest(TraverseMode.BICYCLE, true, false, null, true);
 
-    State s0 = new State(routingContext);
+    State s0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
 
     State s1 = vehicleParkingEdge.traverse(s0);
 
@@ -151,7 +188,11 @@ class VehicleParkingEdgeTest extends GraphRoutingTest {
       true
     );
 
-    State s0 = new State(routingContext);
+    State s0 = new State(
+      routingContext.fromVertices == null ? null : routingContext.fromVertices.iterator().next(),
+      routingContext.opt.dateTime(),
+      StateData.getInitialStateData(routingContext.opt)
+    );
 
     State s1 = vehicleParkingEdge.traverse(s0);
 

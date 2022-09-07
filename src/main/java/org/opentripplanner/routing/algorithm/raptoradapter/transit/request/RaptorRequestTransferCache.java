@@ -10,6 +10,7 @@ import org.opentripplanner.routing.algorithm.raptoradapter.transit.RaptorTransfe
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.Transfer;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
+import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
 import org.opentripplanner.routing.api.request.preference.WheelchairAccessibilityPreferences;
 import org.opentripplanner.routing.core.BicycleOptimizeType;
 import org.opentripplanner.routing.core.RoutingContext;
@@ -28,10 +29,11 @@ public class RaptorRequestTransferCache {
 
   public RaptorTransferIndex get(
     List<List<Transfer>> transfersByStopIndex,
-    RoutingContext routingContext
+    RoutingPreferences preferences,
+    StreetMode mode
   ) {
     try {
-      return transferCache.get(new CacheKey(transfersByStopIndex, routingContext));
+      return transferCache.get(new CacheKey(transfersByStopIndex, preferences, mode));
     } catch (ExecutionException e) {
       throw new RuntimeException("Failed to get item from transfer cache", e);
     }
@@ -41,7 +43,11 @@ public class RaptorRequestTransferCache {
     return new CacheLoader<>() {
       @Override
       public RaptorTransferIndex load(@javax.annotation.Nonnull CacheKey cacheKey) {
-        return RaptorTransferIndex.create(cacheKey.transfersByStopIndex, cacheKey.routingContext);
+        return RaptorTransferIndex.create(
+          cacheKey.transfersByStopIndex,
+          cacheKey.preferences,
+          cacheKey.mode
+        );
       }
     };
   }
@@ -49,13 +55,19 @@ public class RaptorRequestTransferCache {
   private static class CacheKey {
 
     private final List<List<Transfer>> transfersByStopIndex;
-    private final RoutingContext routingContext;
+    private final RoutingPreferences preferences;
+    private final StreetMode mode;
     private final StreetRelevantOptions options;
 
-    private CacheKey(List<List<Transfer>> transfersByStopIndex, RoutingContext routingContext) {
+    private CacheKey(
+      List<List<Transfer>> transfersByStopIndex,
+      RoutingPreferences preferences,
+      StreetMode mode
+    ) {
       this.transfersByStopIndex = transfersByStopIndex;
-      this.routingContext = routingContext;
-      this.options = new StreetRelevantOptions(routingContext.opt);
+      this.preferences = prepareTransferPreferences(preferences.clone());
+      this.mode = mode;
+      this.options = new StreetRelevantOptions(preferences, mode);
     }
 
     @Override
@@ -80,6 +92,56 @@ public class RaptorRequestTransferCache {
         transfersByStopIndex == cacheKey.transfersByStopIndex && options.equals(cacheKey.options)
       );
     }
+  }
+
+  public static RoutingPreferences prepareTransferPreferences(RoutingPreferences preferences) {
+    var bikePreferences = preferences.bike();
+    var walkPreferences = preferences.walk();
+    var streetPreferences = preferences.street();
+
+    // Some values are rounded to ease caching in RaptorRequestTransferCache
+    bikePreferences.setTriangleSafetyFactor(roundTo(bikePreferences.triangleSafetyFactor(), 1));
+    bikePreferences.setTriangleSlopeFactor(roundTo(bikePreferences.triangleSlopeFactor(), 1));
+    bikePreferences.setTriangleTimeFactor(
+      1.0 - bikePreferences.triangleSafetyFactor() - bikePreferences.triangleSlopeFactor()
+    );
+    bikePreferences.setSwitchCost(roundTo100(bikePreferences.switchCost()));
+    bikePreferences.setSwitchTime(roundTo100(bikePreferences.switchTime()));
+
+    // it's a record (immutable) so can be safely reused
+    preferences.wheelchair().setAccessibility(preferences.wheelchair().accessibility());
+
+    walkPreferences.setSpeed(roundToHalf(walkPreferences.speed()));
+    bikePreferences.setSpeed(roundToHalf(bikePreferences.speed()));
+
+    walkPreferences.setReluctance(roundTo(walkPreferences.reluctance(), 1));
+    walkPreferences.setStairsReluctance(roundTo(walkPreferences.stairsReluctance(), 1));
+    walkPreferences.setStairsTimeFactor(roundTo(walkPreferences.stairsTimeFactor(), 1));
+    streetPreferences.setTurnReluctance(roundTo(streetPreferences.turnReluctance(), 1));
+    walkPreferences.setSafetyFactor(roundTo(walkPreferences.safetyFactor(), 1));
+
+    streetPreferences.setElevatorBoardCost(roundTo100(streetPreferences.elevatorBoardCost()));
+    streetPreferences.setElevatorBoardTime(roundTo100(streetPreferences.elevatorBoardTime()));
+    streetPreferences.setElevatorHopCost(roundTo100(streetPreferences.elevatorHopCost()));
+    streetPreferences.setElevatorHopTime(roundTo100(streetPreferences.elevatorHopTime()));
+
+    return preferences;
+  }
+
+  private static double roundToHalf(double input) {
+    return ((int) (input * 2 + 0.5)) / 2.0;
+  }
+
+  private static double roundTo(double input, int decimals) {
+    return Math.round(input * Math.pow(10, decimals)) / Math.pow(10, decimals);
+  }
+
+  private static int roundTo100(int input) {
+    if (input > 0 && input < 100) {
+      return 100;
+    }
+
+    return ((input + 50) / 100) * 100;
   }
 
   /**
@@ -110,10 +172,8 @@ public class RaptorRequestTransferCache {
     private final int bikeSwitchCost;
     private final int bikeSwitchTime;
 
-    public StreetRelevantOptions(RouteRequest routingRequest) {
-      var preferences = routingRequest.preferences();
-
-      this.transferMode = routingRequest.journey().transfer().mode();
+    public StreetRelevantOptions(RoutingPreferences preferences, StreetMode mode) {
+      this.transferMode = mode;
 
       this.optimize = preferences.bike().optimizeType();
       this.bikeTriangleSafetyFactor = preferences.bike().triangleSafetyFactor();

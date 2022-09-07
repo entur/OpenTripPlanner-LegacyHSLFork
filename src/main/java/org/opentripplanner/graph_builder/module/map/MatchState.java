@@ -6,16 +6,19 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.linearref.LinearLocation;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.StreetMode;
+import org.opentripplanner.routing.api.request.request.StreetRequest;
 import org.opentripplanner.routing.core.State;
-import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Vertex;
 
 public abstract class MatchState {
 
-  private static final RouteRequest traverseOptions = new RouteRequest(TraverseMode.CAR);
+  private static final AStarRequest traverseOptions = new RouteRequest()
+    .getStreetSearchRequest(new StreetRequest(StreetMode.CAR));
 
   protected static final double NEW_SEGMENT_PENALTY = 0.1;
 
@@ -95,7 +98,7 @@ public abstract class MatchState {
 
   protected boolean carsCanTraverse(Edge edge) {
     // should be done with a method on edge (canTraverse already exists on turnEdge)
-    State s0 = new State(edge.getFromVertex(), traverseOptions, null);
+    State s0 = new State(edge.getFromVertex(), traverseOptions);
     State s1 = edge.traverse(s0);
     return s1 != null;
   }

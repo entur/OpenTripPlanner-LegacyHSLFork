@@ -16,10 +16,12 @@ import org.opentripplanner.graph_builder.issues.IsolatedStop;
 import org.opentripplanner.graph_builder.issues.PrunedIslandStop;
 import org.opentripplanner.graph_builder.linking.VertexLinker;
 import org.opentripplanner.graph_builder.model.GraphBuilderModule;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.StreetMode;
+import org.opentripplanner.routing.api.request.request.StreetRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
-import org.opentripplanner.routing.core.TraverseModeSet;
 import org.opentripplanner.routing.edgetype.ElevatorEdge;
 import org.opentripplanner.routing.edgetype.FreeEdge;
 import org.opentripplanner.routing.edgetype.StreetEdge;
@@ -170,8 +172,16 @@ public class PruneNoThruIslands implements GraphBuilderModule {
     ArrayList<Subgraph> islands = new ArrayList<>();
     int count;
 
+    StreetMode streetMode =
+      switch (traverseMode) {
+        case WALK -> StreetMode.WALK;
+        case BICYCLE -> StreetMode.BIKE;
+        case CAR -> StreetMode.CAR;
+        default -> throw new IllegalArgumentException();
+      };
+
     /* establish vertex neighbourhood without currently relevant noThruTrafficEdges */
-    collectNeighbourVertices(graph, neighborsForVertex, traverseMode, false);
+    collectNeighbourVertices(graph, neighborsForVertex, streetMode, traverseMode, false);
 
     /* associate each connected vertex with a subgraph */
     count = collectSubGraphs(graph, neighborsForVertex, subgraphs, null, null);
@@ -180,7 +190,7 @@ public class PruneNoThruIslands implements GraphBuilderModule {
     /* Expand vertex neighbourhood with relevant noThruTrafficEdges
            Note that we can reuse the original neighbour map here
            and simply process a smaller set of noThruTrafficEdges */
-    collectNeighbourVertices(graph, neighborsForVertex, traverseMode, true);
+    collectNeighbourVertices(graph, neighborsForVertex, streetMode, traverseMode, true);
 
     /* Next: generate subgraphs without considering access limitations */
     count = collectSubGraphs(graph, neighborsForVertex, extgraphs, null, islands);
@@ -314,16 +324,19 @@ public class PruneNoThruIslands implements GraphBuilderModule {
   private static void collectNeighbourVertices(
     Graph graph,
     Map<Vertex, ArrayList<Vertex>> neighborsForVertex,
+    StreetMode streetMode,
     TraverseMode traverseMode,
     boolean shouldMatchNoThruType
   ) {
-    RouteRequest options = new RouteRequest(traverseMode);
+    final AStarRequest request = new RouteRequest()
+      .getStreetSearchRequest(new StreetRequest(streetMode));
 
     for (Vertex gv : graph.getVertices()) {
       if (!(gv instanceof StreetVertex)) {
         continue;
       }
-      State s0 = new State(gv, options, null);
+
+      State s0 = new State(gv, request);
       for (Edge e : gv.getOutgoing()) {
         if (
           !(

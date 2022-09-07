@@ -13,6 +13,7 @@ import org.opentripplanner.graph_builder.issues.StopNotLinkedForTransfers;
 import org.opentripplanner.graph_builder.model.GraphBuilderModule;
 import org.opentripplanner.model.PathTransfer;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.Transfer;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
@@ -109,7 +110,9 @@ public class DirectTransferGenerator implements GraphBuilderModule {
         LOG.debug("Linking stop '{}' {}", stop, ts0);
 
         for (RouteRequest transferProfile : transferRequests) {
-          RouteRequest streetRequest = Transfer.prepareTransferRoutingRequest(transferProfile);
+          AStarRequest streetRequest = transferProfile.getStreetSearchRequest(
+            transferProfile.journey().transfer()
+          );
 
           for (NearbyStop sd : findNearbyStops(nearbyStopFinder, ts0, streetRequest, false)) {
             // Skip the origin stop, loop transfers are not needed.
@@ -178,7 +181,7 @@ public class DirectTransferGenerator implements GraphBuilderModule {
   private static Iterable<NearbyStop> findNearbyStops(
     NearbyStopFinder nearbyStopFinder,
     Vertex vertex,
-    RouteRequest request,
+    AStarRequest request,
     boolean reverseDirection
   ) {
     return OTPFeature.ConsiderPatternsForDirectTransfers.isOn()

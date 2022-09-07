@@ -6,10 +6,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.locationtech.jts.geom.Coordinate;
+import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.RaptorCostConverter;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.request.TransferWithDuration;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
+import org.opentripplanner.routing.api.request.request.StreetRequest;
+import org.opentripplanner.routing.api.request.request.VehicleParkingRequest;
+import org.opentripplanner.routing.api.request.request.VehicleRentalRequest;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
@@ -34,51 +40,6 @@ public class Transfer {
     this.toStop = toStopIndex;
     this.distanceMeters = distanceMeters;
     this.edges = null;
-  }
-
-  public static RouteRequest prepareTransferRoutingRequest(RouteRequest request) {
-    RouteRequest rr = request.getStreetSearchRequest(request.journey().transfer().mode());
-
-    var transferPreferences = rr.preferences();
-
-    rr.setArriveBy(false);
-    rr.setDateTime(Instant.ofEpochSecond(0));
-    rr.setFrom(null);
-    rr.setTo(null);
-
-    var bikePreferences = transferPreferences.bike();
-    var walkPreferences = transferPreferences.walk();
-    var streetPreferences = transferPreferences.street();
-
-    // Some values are rounded to ease caching in RaptorRequestTransferCache
-    bikePreferences.setTriangleSafetyFactor(roundTo(bikePreferences.triangleSafetyFactor(), 1));
-    bikePreferences.setTriangleSlopeFactor(roundTo(bikePreferences.triangleSlopeFactor(), 1));
-    bikePreferences.setTriangleTimeFactor(
-      1.0 - bikePreferences.triangleSafetyFactor() - bikePreferences.triangleSlopeFactor()
-    );
-    bikePreferences.setSwitchCost(roundTo100(bikePreferences.switchCost()));
-    bikePreferences.setSwitchTime(roundTo100(bikePreferences.switchTime()));
-
-    // it's a record (immutable) so can be safely reused
-    transferPreferences
-      .wheelchair()
-      .setAccessibility(request.preferences().wheelchair().accessibility());
-
-    walkPreferences.setSpeed(roundToHalf(walkPreferences.speed()));
-    bikePreferences.setSpeed(roundToHalf(bikePreferences.speed()));
-
-    walkPreferences.setReluctance(roundTo(walkPreferences.reluctance(), 1));
-    walkPreferences.setStairsReluctance(roundTo(walkPreferences.stairsReluctance(), 1));
-    walkPreferences.setStairsTimeFactor(roundTo(walkPreferences.stairsTimeFactor(), 1));
-    streetPreferences.setTurnReluctance(roundTo(streetPreferences.turnReluctance(), 1));
-    walkPreferences.setSafetyFactor(roundTo(walkPreferences.safetyFactor(), 1));
-
-    streetPreferences.setElevatorBoardCost(roundTo100(streetPreferences.elevatorBoardCost()));
-    streetPreferences.setElevatorBoardTime(roundTo100(streetPreferences.elevatorBoardTime()));
-    streetPreferences.setElevatorHopCost(roundTo100(streetPreferences.elevatorHopCost()));
-    streetPreferences.setElevatorHopTime(roundTo100(streetPreferences.elevatorHopTime()));
-
-    return rr;
   }
 
   public List<Coordinate> getCoordinates() {
@@ -106,8 +67,10 @@ public class Transfer {
     return edges;
   }
 
-  public Optional<RaptorTransfer> asRaptorTransfer(RoutingContext routingContext) {
-    RoutingPreferences routingPreferences = routingContext.opt.preferences();
+  public Optional<RaptorTransfer> asRaptorTransfer(
+    RoutingPreferences routingPreferences,
+    StreetMode mode
+  ) {
     if (edges == null || edges.isEmpty()) {
       double durationSeconds = distanceMeters / routingPreferences.walk().speed();
       return Optional.of(
@@ -119,7 +82,19 @@ public class Transfer {
       );
     }
 
-    StateEditor se = new StateEditor(routingContext, edges.get(0).getFromVertex());
+    StateEditor se = new StateEditor(
+      new AStarRequest(
+        new GenericLocation(null, null),
+        new GenericLocation(null, null),
+        Instant.EPOCH,
+        false,
+        new StreetRequest(mode),
+        new VehicleRentalRequest(),
+        new VehicleParkingRequest(),
+        routingPreferences
+      ),
+      edges.get(0).getFromVertex()
+    );
     se.setTimeSeconds(0);
 
     State s = se.makeState();
@@ -137,21 +112,5 @@ public class Transfer {
         RaptorCostConverter.toRaptorCost(s.getWeight())
       )
     );
-  }
-
-  private static double roundToHalf(double input) {
-    return ((int) (input * 2 + 0.5)) / 2.0;
-  }
-
-  private static double roundTo(double input, int decimals) {
-    return Math.round(input * Math.pow(10, decimals)) / Math.pow(10, decimals);
-  }
-
-  private static int roundTo100(int input) {
-    if (input > 0 && input < 100) {
-      return 100;
-    }
-
-    return ((input + 50) / 100) * 100;
   }
 }

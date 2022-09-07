@@ -925,10 +925,11 @@ public abstract class RoutingResource {
       request.journey().setModes(modes.getRequestModes());
     }
 
-    if (request.vehicleRental && bikeSpeed == null) {
-      //slower bike speed for bike sharing, based on empirical evidence from DC.
-      preferences.bike().setSpeed(4.3);
-    }
+    // TODO VIA (Hannes) - Add separate speeds for rental vehicles in preferences
+    //    if (request.vehicleRental && bikeSpeed == null) {
+    //      //slower bike speed for bike sharing, based on empirical evidence from DC.
+    //      preferences.bike().setSpeed(4.3);
+    //    }
 
     var transitPref = preferences.transit();
 

@@ -2,7 +2,7 @@ package org.opentripplanner.routing.edgetype;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
@@ -68,7 +68,7 @@ public abstract class StreetTransitEntityLink<T extends Vertex>
       return null;
     }
 
-    RouteRequest req = s0.getOptions();
+    AStarRequest req = s0.getOptions();
     RoutingPreferences pref = s0.getPreferences();
 
     // Do not check here whether any transit modes are selected. A check for the presence of
@@ -93,7 +93,7 @@ public abstract class StreetTransitEntityLink<T extends Vertex>
     switch (s0.getNonTransitMode()) {
       case BICYCLE:
         // Forbid taking your own bike in the station if bike P+R activated.
-        if (req.parkAndRide && !s0.isVehicleParked()) {
+        if (req.parkAndRide() && !s0.isVehicleParked()) {
           return null;
         }
         // Forbid taking a (station) rental vehicle in the station. This allows taking along
@@ -102,7 +102,7 @@ public abstract class StreetTransitEntityLink<T extends Vertex>
           s0.isRentingVehicleFromStation() &&
           !(
             s0.mayKeepRentedVehicleAtDestination() &&
-            req.journey().rental().allowArrivingInRentedVehicleAtDestination()
+            req.rental().allowArrivingInRentedVehicleAtDestination()
           )
         ) {
           return null;
@@ -111,7 +111,7 @@ public abstract class StreetTransitEntityLink<T extends Vertex>
         break;
       case CAR:
         // Forbid taking your own car in the station if bike P+R activated.
-        if (req.parkAndRide && !s0.isVehicleParked()) {
+        if (req.parkAndRide() && !s0.isVehicleParked()) {
           return null;
         }
         // For Kiss & Ride allow dropping of the passenger before entering the station
@@ -134,7 +134,7 @@ public abstract class StreetTransitEntityLink<T extends Vertex>
     if (
       s0.isRentingVehicleFromStation() &&
       s0.mayKeepRentedVehicleAtDestination() &&
-      req.journey().rental().allowArrivingInRentedVehicleAtDestination()
+      req.rental().allowArrivingInRentedVehicleAtDestination()
     ) {
       s1.incrementWeight(pref.rental().arrivingInRentalVehicleAtDestinationCost());
     }
@@ -168,7 +168,7 @@ public abstract class StreetTransitEntityLink<T extends Vertex>
     return transitEntityVertex;
   }
 
-  boolean isLeavingStreetNetwork(RouteRequest req) {
+  boolean isLeavingStreetNetwork(AStarRequest req) {
     return (req.arriveBy() ? fromv : tov) == getTransitEntityVertex();
   }
 }

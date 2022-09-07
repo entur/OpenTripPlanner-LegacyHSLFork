@@ -7,9 +7,11 @@ import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.opentripplanner.routing.algorithm.GraphRoutingTest;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.StateData;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.StreetVertex;
@@ -165,9 +167,12 @@ class StreetEdgeCostTest extends GraphRoutingTest {
     assertEquals(15, (long) defaultSafetyResult.weight);
   }
 
-  private State traverse(StreetEdge edge, RouteRequest req) {
-    var ctx = new RoutingContext(req, graph, V1, V2);
-    var state = new State(ctx);
+  private State traverse(StreetEdge edge, AStarRequest req) {
+    var state = new State(
+      req.arriveBy() ? V2 : V1,
+      req.dateTime(),
+      StateData.getInitialStateData(req)
+    );
 
     assertEquals(0, state.weight);
     return edge.traverse(state);

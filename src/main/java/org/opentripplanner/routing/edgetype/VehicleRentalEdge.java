@@ -1,6 +1,7 @@
 package org.opentripplanner.routing.edgetype;
 
 import org.locationtech.jts.geom.LineString;
+import org.opentripplanner.routing.api.request.request.VehicleRentalRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.StateEditor;
 import org.opentripplanner.routing.graph.Edge;
@@ -24,15 +25,15 @@ public class VehicleRentalEdge extends Edge {
   }
 
   public State traverse(State s0) {
-    if (!s0.getOptions().vehicleRental) {
+    if (!s0.getOptions().vehicleRental()) {
       return null;
     }
 
     var options = s0.getOptions();
 
     if (
-      !options.allowedRentalFormFactors.isEmpty() &&
-      !options.allowedRentalFormFactors.contains(formFactor)
+      !options.allowedRentalFormFactors().isEmpty() &&
+      !options.allowedRentalFormFactors().contains(formFactor)
     ) {
       return null;
     }
@@ -44,7 +45,7 @@ public class VehicleRentalEdge extends Edge {
     String network = station.getNetwork();
     var preferences = s0.getPreferences();
     boolean realtimeAvailability = preferences.rental().useAvailabilityInformation();
-    var vehicleRental = options.journey().rental();
+    VehicleRentalRequest vehicleRental = options.rental();
 
     if (station.networkIsNotAllowed(vehicleRental)) {
       return null;
@@ -148,11 +149,11 @@ public class VehicleRentalEdge extends Edge {
             return null;
           }
           if (
-            !options.allowedRentalFormFactors.isEmpty() &&
+            !options.allowedRentalFormFactors().isEmpty() &&
             station
               .getAvailableDropoffFormFactors(realtimeAvailability)
               .stream()
-              .noneMatch(formFactor -> options.allowedRentalFormFactors.contains(formFactor))
+              .noneMatch(formFactor -> options.allowedRentalFormFactors().contains(formFactor))
           ) {
             return null;
           }

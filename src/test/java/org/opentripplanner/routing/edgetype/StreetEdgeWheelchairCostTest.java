@@ -15,6 +15,7 @@ import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.preference.WheelchairAccessibilityPreferences;
 import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.core.StateData;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.test.support.VariableSource;
@@ -227,7 +228,11 @@ class StreetEdgeWheelchairCostTest extends GraphRoutingTest {
 
   private State traverse(StreetEdge edge, RouteRequest req) {
     var ctx = new RoutingContext(req, graph, V1, V2);
-    var state = new State(ctx);
+    var state = new State(
+      ctx.fromVertices == null ? null : ctx.fromVertices.iterator().next(),
+      ctx.opt.dateTime(),
+      StateData.getInitialStateData(ctx.opt)
+    );
 
     assertEquals(0, state.weight);
     return edge.traverse(state);

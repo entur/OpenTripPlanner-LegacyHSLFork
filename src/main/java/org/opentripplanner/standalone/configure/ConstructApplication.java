@@ -136,6 +136,13 @@ public class ConstructApplication {
 
     graph().initEllipsoidToGeoidDifference();
 
+    // Update preferences from Graph
+    routerConfig()
+      .routingRequestDefaults()
+      .preferences()
+      .street()
+      .setIntersectionTraversalModel(graph().getIntersectionTraversalModel());
+
     if (OTPFeature.SandboxAPITransmodelApi.isOn()) {
       TransmodelAPI.setUp(
         routerConfig().transmodelApi(),

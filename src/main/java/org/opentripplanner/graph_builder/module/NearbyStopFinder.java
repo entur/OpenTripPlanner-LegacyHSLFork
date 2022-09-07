@@ -9,20 +9,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.common.MinMap;
 import org.opentripplanner.ext.flex.trip.FlexTrip;
-import org.opentripplanner.ext.vehicletostopheuristics.BikeToStopSkipEdgeStrategy;
-import org.opentripplanner.ext.vehicletostopheuristics.VehicleToStopSkipEdgeStrategy;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
-import org.opentripplanner.routing.algorithm.astar.strategies.ComposingSkipEdgeStrategy;
 import org.opentripplanner.routing.algorithm.astar.strategies.DurationSkipEdgeStrategy;
 import org.opentripplanner.routing.algorithm.astar.strategies.SkipEdgeStrategy;
-import org.opentripplanner.routing.api.request.RouteRequest;
-import org.opentripplanner.routing.api.request.StreetMode;
+import org.opentripplanner.routing.api.request.AStarRequest;
 import org.opentripplanner.routing.api.request.preference.WalkPreferences;
-import org.opentripplanner.routing.core.RoutingContext;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.edgetype.StreetEdge;
@@ -36,7 +33,6 @@ import org.opentripplanner.routing.spt.DominanceFunction;
 import org.opentripplanner.routing.spt.ShortestPathTree;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.routing.vertextype.TransitStopVertex;
-import org.opentripplanner.transit.model.basic.MainAndSubMode;
 import org.opentripplanner.transit.model.network.TripPattern;
 import org.opentripplanner.transit.model.site.AreaStop;
 import org.opentripplanner.transit.model.site.RegularStop;
@@ -108,7 +104,7 @@ public class NearbyStopFinder {
    */
   public Set<NearbyStop> findNearbyStopsConsideringPatterns(
     Vertex vertex,
-    RouteRequest routingRequest,
+    AStarRequest routingRequest,
     boolean reverseDirection
   ) {
     /* Track the closest stop on each pattern passing nearby. */
@@ -118,11 +114,7 @@ public class NearbyStopFinder {
     MinMap<FlexTrip<?, ?>, NearbyStop> closestStopForFlexTrip = new MinMap<>();
 
     /* Iterate over nearby stops via the street network or using straight-line distance, depending on the graph. */
-    for (NearbyStop nearbyStop : findNearbyStops(
-      vertex,
-      routingRequest.clone(),
-      reverseDirection
-    )) {
+    for (NearbyStop nearbyStop : findNearbyStops(vertex, routingRequest, reverseDirection)) {
       StopLocation ts1 = nearbyStop.stop;
 
       if (ts1 instanceof RegularStop) {
@@ -165,11 +157,11 @@ public class NearbyStopFinder {
    */
   public List<NearbyStop> findNearbyStops(
     Vertex vertex,
-    RouteRequest routingRequest,
+    AStarRequest routingRequest,
     boolean reverseDirection
   ) {
     if (useStreets) {
-      return findNearbyStopsViaStreets(Set.of(vertex), reverseDirection, routingRequest);
+      return findNearbyStopsViaStreets(Set.of(vertex), reverseDirection, routingRequest, null);
     } else {
       return findNearbyStopsViaDirectTransfers(vertex);
     }
@@ -186,18 +178,10 @@ public class NearbyStopFinder {
   public List<NearbyStop> findNearbyStopsViaStreets(
     Set<Vertex> originVertices,
     boolean reverseDirection,
-    RouteRequest routingRequest
+    AStarRequest routingRequest,
+    @Nullable SkipEdgeStrategy skipEdgeStrategy
   ) {
     List<NearbyStop> stopsFound = new ArrayList<>();
-
-    routingRequest.setArriveBy(reverseDirection);
-
-    RoutingContext routingContext;
-    if (!reverseDirection) {
-      routingContext = new RoutingContext(routingRequest, graph, originVertices, null);
-    } else {
-      routingContext = new RoutingContext(routingRequest, graph, null, originVertices);
-    }
 
     /* Add the origin vertices if they are stops */
     for (Vertex vertex : originVertices) {
@@ -207,21 +191,25 @@ public class NearbyStopFinder {
             tsv.getStop(),
             0,
             Collections.emptyList(),
-            new State(vertex, routingRequest, routingContext)
+            new State(vertex, routingRequest)
           )
         );
       }
     }
 
     // Return only the origin vertices if there are no valid street modes
-    if (!routingRequest.streetSubRequestModes.isValid()) {
+    if (!routingRequest.streetSubRequestModes().isValid()) {
       return stopsFound;
     }
 
     ShortestPathTree spt = AStarBuilder
-      .allDirections(getSkipEdgeStrategy(reverseDirection, routingRequest))
-      .setDominanceFunction(new DominanceFunction.MinimumWeight())
-      .setContext(routingContext)
+      .allDirections(
+        Objects.requireNonNullElseGet(
+          skipEdgeStrategy,
+          () -> new DurationSkipEdgeStrategy(durationLimit)
+        )
+      )
+      .setDominanceFunction(new DominanceFunction.MinimumWeight(null, null))
       .getShortestPathTree();
 
     // Only used if OTPFeature.FlexRouting.isOn()
@@ -281,42 +269,6 @@ public class NearbyStopFinder {
     double limitMeters = durationLimit.toSeconds() * new WalkPreferences().speed();
     Coordinate c0 = vertex.getCoordinate();
     return directGraphFinder.findClosestStops(c0.y, c0.x, limitMeters);
-  }
-
-  private SkipEdgeStrategy getSkipEdgeStrategy(
-    boolean reverseDirection,
-    RouteRequest routingRequest
-  ) {
-    var durationSkipEdgeStrategy = new DurationSkipEdgeStrategy(durationLimit);
-
-    // if we compute the accesses for Park+Ride, Bike+Ride and Bike+Transit we don't want to
-    // search the full durationLimit as this returns way too many stops.
-    // this is both slow and returns suboptimal results as it favours long drives with short
-    // transit legs.
-    // therefore, we use a heuristic based on the number of routes and their mode to determine
-    // what are "good" stops for those accesses. if we have reached a threshold of "good" stops
-    // we stop the access search.
-    if (
-      !reverseDirection &&
-      OTPFeature.VehicleToStopHeuristics.isOn() &&
-      VehicleToStopSkipEdgeStrategy.applicableModes.contains(
-        routingRequest.journey().access().mode()
-      )
-    ) {
-      var strategy = new VehicleToStopSkipEdgeStrategy(
-        transitService::getRoutesForStop,
-        routingRequest.journey().transit().modes().stream().map(MainAndSubMode::mainMode).toList()
-      );
-      return new ComposingSkipEdgeStrategy(strategy, durationSkipEdgeStrategy);
-    } else if (
-      OTPFeature.VehicleToStopHeuristics.isOn() &&
-      routingRequest.journey().access().mode() == StreetMode.BIKE
-    ) {
-      var strategy = new BikeToStopSkipEdgeStrategy(transitService::getTripsForStop);
-      return new ComposingSkipEdgeStrategy(strategy, durationSkipEdgeStrategy);
-    } else {
-      return durationSkipEdgeStrategy;
-    }
   }
 
   private boolean canBoardFlex(State state, boolean reverse) {

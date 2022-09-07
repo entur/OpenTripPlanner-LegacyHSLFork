@@ -3,7 +3,7 @@ package org.opentripplanner.routing.api.request.preference;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
 
-// TODO VIA: Remove this class and use existing WheelchairAccessibilityRequest instead
+// TODO VIA (Thomas): Remove this class and use existing WheelchairAccessibilityRequest instead
 public class WheelchairPreferences implements Cloneable, Serializable {
 
   /**

@@ -3,8 +3,7 @@ package org.opentripplanner.routing.api.request.preference;
 import java.io.Serializable;
 import org.opentripplanner.routing.core.TraverseMode;
 
-// TODO VIA: Javadoc
-// * User/trip cost/time/slack/reluctance search config.
+/** User/trip cost/time/slack/reluctance search config. */
 public class RoutingPreferences implements Cloneable, Serializable {
 
   private TransitPreferences transit = new TransitPreferences();
@@ -12,7 +11,7 @@ public class RoutingPreferences implements Cloneable, Serializable {
   private WalkPreferences walk = new WalkPreferences();
   private StreetPreferences street = new StreetPreferences();
 
-  // TODO VIA - To enable wheelchair we need a flag in the request, not relay on
+  // TODO VIA (Thomas) - To enable wheelchair we need a flag in the request, not relay on
   //          - wheelchair preferences to be set.
   private WheelchairPreferences wheelchair = new WheelchairPreferences();
   private BikePreferences bike = new BikePreferences();
@@ -21,7 +20,7 @@ public class RoutingPreferences implements Cloneable, Serializable {
   private VehicleParkingPreferences parking = new VehicleParkingPreferences();
   private SystemPreferences system = new SystemPreferences();
 
-  // TODO VIA: Rename to setStreetReluctance and move to StreetPreferences
+  // TODO VIA (Thomas): Rename to setStreetReluctance
   public void setNonTransitReluctance(double streetReluctance) {
     if (streetReluctance > 0) {
       this.bike.setReluctance(streetReluctance);

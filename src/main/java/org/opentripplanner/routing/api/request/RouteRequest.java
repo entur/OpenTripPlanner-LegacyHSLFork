@@ -10,7 +10,6 @@ import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
@@ -19,7 +18,6 @@ import org.opentripplanner.model.plan.SortOrder;
 import org.opentripplanner.model.plan.pagecursor.PageCursor;
 import org.opentripplanner.model.plan.pagecursor.PageType;
 import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
-import org.opentripplanner.routing.api.request.preference.WheelchairAccessibilityPreferences;
 import org.opentripplanner.routing.api.request.request.JourneyRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -84,13 +82,6 @@ public class RouteRequest implements Cloneable, Serializable {
 
   private boolean arriveBy = false;
 
-  /**
-   * Whether the trip must be wheelchair-accessible and how strictly this should be interpreted.
-   */
-  @Nonnull
-  public WheelchairAccessibilityPreferences wheelchairAccessibility =
-    WheelchairAccessibilityPreferences.DEFAULT;
-
   private int numItineraries = 50;
 
   private Locale locale = new Locale("en", "US");
@@ -140,16 +131,18 @@ public class RouteRequest implements Cloneable, Serializable {
     this.streetSubRequestModes = streetSubRequestModes;
   }
 
-  public void setWheelchairAccessible(boolean wheelchair) {
-    this.wheelchairAccessibility = this.wheelchairAccessibility.withEnabled(wheelchair);
-  }
-
   public RoutingPreferences preferences() {
     return preferences;
   }
 
   public JourneyRequest journey() {
     return journey;
+  }
+
+  public RouteRequest copyOfReversed() {
+    var request = this.clone();
+    request.setArriveBy(!request.arriveBy);
+    return request;
   }
 
   /**
@@ -199,7 +192,7 @@ public class RouteRequest implements Cloneable, Serializable {
       if (pageCursor.latestArrivalTime == null) {
         arriveBy = false;
       }
-      setDateTime(arriveBy ? pageCursor.latestArrivalTime : pageCursor.earliestDepartureTime);
+      this.dateTime = arriveBy ? pageCursor.latestArrivalTime : pageCursor.earliestDepartureTime;
       journey.setModes(journey.modes().copy().withDirectMode(StreetMode.NOT_SET).build());
       LOG.debug("Request dateTime={} set from pageCursor.", dateTime);
     }
@@ -337,13 +330,6 @@ public class RouteRequest implements Cloneable, Serializable {
 
   public String toString() {
     return toString(" ");
-  }
-
-  public RouteRequest reversedClone() {
-    RouteRequest ret = this.clone();
-    ret.setArriveBy(!ret.arriveBy);
-    preferences().rental().setUseAvailabilityInformation(false);
-    return ret;
   }
 
   /**

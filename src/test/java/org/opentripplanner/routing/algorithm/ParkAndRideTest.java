@@ -163,8 +163,8 @@ public abstract class ParkAndRideTest extends GraphRoutingTest {
       .setAccessibility(
         WheelchairAccessibilityPreferences.makeDefault(requireWheelChairAccessible)
       );
-    options.bannedVehicleParkingTags = bannedTags;
-    options.requiredVehicleParkingTags = requiredTags;
+    options.journey().parking().setBannedTags(bannedTags);
+    options.journey().parking().setRequiredTags(requiredTags);
     options.setArriveBy(arriveBy);
 
     var tree = AStarBuilder

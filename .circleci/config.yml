@@ -4,8 +4,8 @@ executors:
     docker:
       - image: cimg/openjdk:11.0
         auth:
-          username: _json_key
-          password: $DOCKER_PASSWORD
+          username: $DOCKERHUB_LOGIN
+          password: $DOCKERHUB_PASSWORD
     environment:
       DEBIAN_FRONTEND: "noninteractive"
       MAVEN_OPTS: -Xmx3G

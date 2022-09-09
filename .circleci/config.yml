@@ -20,7 +20,7 @@ aliases:
       echo release-$staticVersion$nextVersionPatchNumber
       APP_VERSION=release-$staticVersion$nextVersionPatchNumber
       echo "export APP_VERSION=$APP_VERSION" >> $BASH_ENV
-      echo $APP_VERSION > ./app_versio
+      echo $APP_VERSION > ./app_version
 
   - &save-test-results
     name: Save test results
@@ -28,8 +28,13 @@ aliases:
       mkdir -p ~/reports/{junit,owasp}
       find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/reports/junit/ \;
       find . -type f -regex ".*/target/owasp-reports/.*" -exec cp {} ~/reports/owasp/ \;
-
     when: always
+
+  - &jfrog-login
+    name: Rename jfrog environment variable for maven setting.xml
+    command: |
+      echo "export JFROG_USER=$ARTIFACTORY_USER"  >> $BASH_ENV
+      echo "export JFROG_PASS=$ARTIFACTORY_PASSWORD"  >> $BASH_ENV
 
   - &post_build
     name: Trigger downstream builds
@@ -44,6 +49,7 @@ jobs:
     executor: cci-java11
     steps:
       - checkout
+      - run: *jfrog-login
       - run: wget https://raw.githubusercontent.com/entur/circleci-toolbox-image-java11/master/tools/m2/settings.xml -O .circleci/settings.xml
       - restore_cache:
           key: dep-cache-{{ checksum "pom.xml" }}
@@ -62,6 +68,7 @@ jobs:
     executor: cci-java11
     steps:
       - checkout
+      - run: *jfrog-login
       - run: wget https://raw.githubusercontent.com/entur/circleci-toolbox-image-java11/master/tools/m2/settings.xml -O .circleci/settings.xml
       - run: wget https://raw.githubusercontent.com/entur/circleci-toolbox-image-java11/master/tools/trigger_build_v2.sh -O .circleci/trigger_build_v2.sh
       - restore_cache:

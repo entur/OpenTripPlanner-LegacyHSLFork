@@ -1,8 +1,8 @@
 version: 2.1
 executors:
-  cci-toolbox-java11:
+  cci-java11:
     docker:
-      - image: eu.gcr.io/entur-system-1287/circleci-toolbox-image-java11
+      - image: cimg/openjdk:11.0
         auth:
           username: _json_key
           password: $DOCKER_PASSWORD
@@ -36,52 +36,55 @@ aliases:
     command: |
       echo 'export CIRCLE_SHA1="$CIRCLE_SHA1"' >> $BASH_ENV
       echo 'export CIRCLE_PROJECT_REPONAME="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
-      /tools/trigger_build_v2.sh "entur/otp-deployment-config.git" "otp-1" "$(git log -1 --pretty=%B)"
+      chmod u+x .circleci/trigger_build_v2.sh
+      .circleci/trigger_build_v2.sh "entur/otp-deployment-config.git" "otp-1" "$(git log -1 --pretty=%B)"
 
 jobs:
   test:
-    executor: cci-toolbox-java11
+    executor: cci-java11
     steps:
       - checkout
+      - run: wget https://raw.githubusercontent.com/entur/circleci-toolbox-image-java11/master/tools/m2/settings.xml -O .circleci/settings.xml
       - restore_cache:
           key: dep-cache-{{ checksum "pom.xml" }}
-      - run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s /tools/m2/settings.xml
+      - run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s .circleci/settings.xml
       - save_cache:
           paths:
             - ~/.m2
           key: dep-cache-{{ checksum "pom.xml" }}
-      - run: mvn test -s /tools/m2/settings.xml
+      - run: mvn test -s .circleci/settings.xml
       - run: *save-test-results
       - store_test_results:
           path: ~/reports
       - store_artifacts:
           path: ~/reports
   build:
-    executor: cci-toolbox-java11
+    executor: cci-java11
     steps:
       - checkout
+      - run: wget https://raw.githubusercontent.com/entur/circleci-toolbox-image-java11/master/tools/m2/settings.xml -O .circleci/settings.xml
+      - run: wget https://raw.githubusercontent.com/entur/circleci-toolbox-image-java11/master/tools/trigger_build_v2.sh -O .circleci/trigger_build_v2.sh
       - restore_cache:
           key: dep-cache-{{ checksum "pom.xml" }}
-      - run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s /tools/m2/settings.xml
+      - run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s .circleci/settings.xml
       - save_cache:
           paths:
             - ~/.m2
           key: dep-cache-{{ checksum "pom.xml" }}
       # Cannot use -o because of snapshot dependencies.
       - run: *get-version-git-tag
-      - run: mvn deploy -s /tools/m2/settings.xml -DskipTests
+      - run: mvn deploy -s .circleci/settings.xml -DskipTests
       - run: *post_build
 
 workflows:
-  version: 2.1
   release:
     jobs:
       - test:
           name: test-release
-          context: dev
+          context: global
       - build:
           name: build-release
-          context: dev
+          context: global
           filters:
             branches:
               only:

@@ -30,7 +30,8 @@
   <logger name="org.opentripplanner.graph_builder.module.DirectTransferGenerator" level="info" />
   <logger name="org.opentripplanner" level="info" />
   <logger name="org.opentripplanner.analyst" level="info" />
-  <logger name="org.opentripplanner.routing" level="info" />
+  <logger name="org.opentripplanner.updater" level="warn" />
+  <logger name="org.opentripplanner.routing" level="warn" />
   <logger name="org.opentripplanner.routing.impl.RetryingPathServiceImpl" level="info" />
   <logger name="org.opentripplanner.routing.algorithm.GenericAStar" level="info" />
   <!-- Avoid printing debug messages about free-flowing vertices -->

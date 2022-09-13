@@ -64,8 +64,12 @@ public class VehicleRentalUpdater extends PollingGraphUpdater {
     // Adding a vehicle rental station service needs a graph writer runnable
     this.service = vehicleRentalStationService;
 
-    // Do any setup if needed
-    source.setup();
+    try {
+      // Do any setup if needed
+      source.setup();
+    } catch (Exception e) {
+      LOG.error("Unable to start VehicleRentalUpdater", e);
+    }
 
     if (pollingPeriodSeconds() <= 0) {
       LOG.info("Creating vehicle-rental updater running once only (non-polling): {}", source);

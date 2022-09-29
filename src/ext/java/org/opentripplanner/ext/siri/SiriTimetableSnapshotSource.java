@@ -261,7 +261,7 @@ public class SiriTimetableSnapshotSource implements TimetableSnapshotProvider {
         feedId,
         fullDataset,
         updates,
-        false
+        true
       );
   }
 

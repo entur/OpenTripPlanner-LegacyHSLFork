@@ -310,6 +310,15 @@ public class StopPlaceType {
           .argument(
             GraphQLArgument
               .newArgument()
+              .name("omitNonBoarding")
+              .type(Scalars.GraphQLBoolean)
+              .deprecate("Non-functional. Use arrivalDeparture instead.")
+              .defaultValue(false)
+              .build()
+          )
+          .argument(
+            GraphQLArgument
+              .newArgument()
               .name("arrivalDeparture")
               .type(EnumTypes.ARRIVAL_DEPARTURE)
               .defaultValue(ArrivalDeparture.DEPARTURES)

@@ -328,6 +328,13 @@ ferries, where the check-in process needs to be done in good time before ride.
             """
           )
           .asLinearFunction(dft.unpreferredCost())
+      )
+      .setExtraSearchCoachReluctance(
+        c
+          .of("extraSearchCoachReluctance")
+          .since(V2_1)
+          .summary("TODO")
+          .asDouble(dft.extraSearchCoachReluctance())
       );
   }
 

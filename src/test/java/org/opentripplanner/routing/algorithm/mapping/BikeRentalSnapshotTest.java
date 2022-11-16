@@ -11,8 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.api.parallel.Resources;
 import org.opentripplanner.model.GenericLocation;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RequestModes;
-import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.error.RoutingValidationException;
 import org.opentripplanner.transit.model.basic.MainAndSubMode;
@@ -58,7 +58,7 @@ public class BikeRentalSnapshotTest extends SnapshotTestBase {
   @DisplayName("Direct BIKE_RENTAL")
   @Test
   public void directBikeRental() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
 
     request
       .journey()
@@ -83,7 +83,7 @@ public class BikeRentalSnapshotTest extends SnapshotTestBase {
   @DisplayName("Direct BIKE_RENTAL while keeping the bicycle at the destination with departAt")
   @Test
   public void directBikeRentalArrivingAtDestinationWithDepartAt() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
 
     request
       .journey()
@@ -100,7 +100,7 @@ public class BikeRentalSnapshotTest extends SnapshotTestBase {
   @DisplayName("Direct BIKE_RENTAL while keeping the bicycle at the destination with arriveBy")
   @Test
   public void directBikeRentalArrivingAtDestinationWithArriveBy() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
 
     request
       .journey()
@@ -118,7 +118,7 @@ public class BikeRentalSnapshotTest extends SnapshotTestBase {
   @DisplayName("Access BIKE_RENTAL")
   @Test
   public void accessBikeRental() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 14, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 14, 0);
 
     request
       .journey()
@@ -145,7 +145,7 @@ public class BikeRentalSnapshotTest extends SnapshotTestBase {
   @DisplayName("Egress BIKE_RENTAL")
   @Test
   public void egressBikeRental() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
 
     request
       .journey()

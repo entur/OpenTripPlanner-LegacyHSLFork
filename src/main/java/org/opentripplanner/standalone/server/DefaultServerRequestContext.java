@@ -7,7 +7,7 @@ import org.opentripplanner.inspector.TileRendererManager;
 import org.opentripplanner.routing.RoutingService;
 import org.opentripplanner.routing.algorithm.astar.TraverseVisitor;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.standalone.api.HttpRequestScoped;
 import org.opentripplanner.standalone.api.OtpServerRequestContext;
@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 @HttpRequestScoped
 public class DefaultServerRequestContext implements OtpServerRequestContext {
 
-  private RouteRequest routeRequest = null;
+  private RegularRouteRequest routeRequest = null;
   private final Graph graph;
   private final TransitService transitService;
   private final RouterConfig routerConfig;
@@ -79,7 +79,7 @@ public class DefaultServerRequestContext implements OtpServerRequestContext {
   }
 
   @Override
-  public RouteRequest defaultRouteRequest() {
+  public RegularRouteRequest defaultRouteRequest() {
     // Lazy initialize request-scoped request to avoid doing this when not needed
     if (routeRequest == null) {
       routeRequest = routerConfig.routingRequestDefaults().copyWithDateTimeNow();

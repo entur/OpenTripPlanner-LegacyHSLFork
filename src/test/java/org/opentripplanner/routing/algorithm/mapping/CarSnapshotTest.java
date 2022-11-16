@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.api.parallel.Resources;
 import org.opentripplanner.model.GenericLocation;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 
 @ExtendWith(SnapshotExtension.class)
@@ -62,7 +62,7 @@ public class CarSnapshotTest extends SnapshotTestBase {
   @DisplayName("Direct CAR_TO_PARK")
   @Test
   public void directCarPark() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
 
     // TODO: 2022-08-30 VIA: Previously we were using RequestModesBuilder
     // maybe we should implement similar pattern for new models?
@@ -77,7 +77,7 @@ public class CarSnapshotTest extends SnapshotTestBase {
   @DisplayName("Direct CAR_PICKUP (with walking both ends)")
   @Test
   public void directCarPickupWithWalking() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
 
     // TODO: 2022-08-30 VIA: Previously we were using RequestModesBuilder
     // maybe we should implement similar pattern for new models?
@@ -92,7 +92,7 @@ public class CarSnapshotTest extends SnapshotTestBase {
   @DisplayName("Direct CAR_PICKUP (with walking both ends) - arriveBy")
   @Test
   public void directCarPickupWithWalkingArriveBy() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 16, 54);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 16, 54);
 
     // TODO: 2022-08-30 VIA: Previously we were using RequestModesBuilder
     // maybe we should implement similar pattern for new models?
@@ -108,7 +108,7 @@ public class CarSnapshotTest extends SnapshotTestBase {
   @DisplayName("Direct CAR_PICKUP (without walking at either end)")
   @Test
   public void directCarPickupWithoutWalking() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
 
     // TODO: 2022-08-30 VIA: Previously we were using RequestModesBuilder
     // maybe we should implement similar pattern for new models?

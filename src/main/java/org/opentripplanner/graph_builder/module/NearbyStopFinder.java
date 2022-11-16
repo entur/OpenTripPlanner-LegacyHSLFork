@@ -20,6 +20,7 @@ import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
 import org.opentripplanner.routing.algorithm.astar.strategies.ComposingSkipEdgeStrategy;
 import org.opentripplanner.routing.algorithm.astar.strategies.DurationSkipEdgeStrategy;
 import org.opentripplanner.routing.algorithm.astar.strategies.SkipEdgeStrategy;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.preference.WalkPreferences;
@@ -189,7 +190,7 @@ public class NearbyStopFinder {
     RouteRequest originalRequest,
     StreetRequest streetRequest
   ) {
-    RouteRequest request = originalRequest.clone();
+    RegularRouteRequest request = originalRequest.clone();
     List<NearbyStop> stopsFound = new ArrayList<>();
 
     request.setArriveBy(reverseDirection);

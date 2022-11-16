@@ -25,9 +25,9 @@ import org.opentripplanner.gtfs.graphbuilder.GtfsModule;
 import org.opentripplanner.model.calendar.ServiceDateInterval;
 import org.opentripplanner.model.plan.Itinerary;
 import org.opentripplanner.model.plan.Leg;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RequestModes;
 import org.opentripplanner.routing.api.request.RequestModesBuilder;
-import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.response.RoutingResponse;
 import org.opentripplanner.routing.core.RouteMatcher;
 import org.opentripplanner.routing.graph.Graph;
@@ -75,7 +75,7 @@ public abstract class GtfsTest {
     }
 
     // Init request
-    RouteRequest routingRequest = new RouteRequest();
+    RegularRouteRequest routingRequest = new RegularRouteRequest();
 
     routingRequest.setNumItineraries(1);
 

@@ -11,7 +11,7 @@ import java.time.Duration;
 import org.opentripplanner.ext.flex.FlexParameters;
 import org.opentripplanner.ext.vectortiles.VectorTilesResource;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitTuningParameters;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
 import org.opentripplanner.standalone.config.framework.json.NodeAdapter;
 import org.opentripplanner.standalone.config.routerconfig.TransitRoutingConfig;
@@ -47,7 +47,7 @@ public class RouterConfig implements Serializable {
   private final String requestLogFile;
   private final TransmodelAPIConfig transmodelApi;
   private final Duration streetRoutingTimeout;
-  private final RouteRequest routingRequestDefaults;
+  private final RegularRouteRequest routingRequestDefaults;
   private final TransitRoutingConfig transitConfig;
   private final UpdatersParameters updatersParameters;
   private final VectorTileConfig vectorTileLayers;
@@ -158,7 +158,7 @@ number of transit vehicles used in that itinerary.
     return transmodelApi;
   }
 
-  public RouteRequest routingRequestDefaults() {
+  public RegularRouteRequest routingRequestDefaults() {
     return routingRequestDefaults;
   }
 

@@ -20,7 +20,7 @@ import org.opentripplanner.graph_builder.module.StreetLinkerModule;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.model.StreetNote;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.core.AStarRequest;
 import org.opentripplanner.routing.core.AStarRequestBuilder;
@@ -189,7 +189,7 @@ public class TestHalfEdges {
     int nVertices = graph.getVertices().size();
     int nEdges = graph.getEdges().size();
 
-    RouteRequest options = new RouteRequest();
+    RegularRouteRequest options = new RegularRouteRequest();
 
     HashSet<Edge> turns = new HashSet<>();
     turns.add(left);
@@ -298,7 +298,7 @@ public class TestHalfEdges {
      * that (b) it is not preferred to riding a tiny bit longer.
      */
 
-    options = new RouteRequest();
+    options = new RegularRouteRequest();
     options.journey().direct().setMode(StreetMode.BIKE);
     start =
       StreetIndex.createTemporaryStreetLocationForTest(
@@ -381,7 +381,7 @@ public class TestHalfEdges {
 
   @Test
   public void testRouteToSameEdge() {
-    RouteRequest options = new RouteRequest();
+    RegularRouteRequest options = new RegularRouteRequest();
     DisposableEdgeCollection tempEdges = new DisposableEdgeCollection(graph);
 
     HashSet<Edge> turns = new HashSet<>();
@@ -434,7 +434,7 @@ public class TestHalfEdges {
 
   @Test
   public void testRouteToSameEdgeBackwards() {
-    RouteRequest options = new RouteRequest();
+    RegularRouteRequest options = new RegularRouteRequest();
     DisposableEdgeCollection tempEdges = new DisposableEdgeCollection(graph);
 
     // Sits only on the leftmost edge, not on its reverse.
@@ -624,7 +624,7 @@ public class TestHalfEdges {
   @Test
   public void testTemporaryVerticesContainer() {
     // test that it is possible to travel between two splits on the same street
-    RouteRequest walking = new RouteRequest();
+    RegularRouteRequest walking = new RegularRouteRequest();
     walking.setFrom(new GenericLocation(40.004, -74.0));
     walking.setTo(new GenericLocation(40.008, -74.0));
     try (

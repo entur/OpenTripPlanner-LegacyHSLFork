@@ -23,6 +23,7 @@ import org.opentripplanner.model.plan.Place;
 import org.opentripplanner.model.plan.TripPlan;
 import org.opentripplanner.routing.algorithm.mapping.GraphPathToItineraryMapper;
 import org.opentripplanner.routing.algorithm.mapping.TripPlanMapper;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RequestModes;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.core.TemporaryVerticesContainer;
@@ -242,7 +243,7 @@ public class TestIntermediatePlaces {
     RequestModes modes,
     boolean arriveBy
   ) {
-    RouteRequest request = new RouteRequest();
+    RegularRouteRequest request = new RegularRouteRequest();
     request.journey().setModes(modes);
     request.setDateTime("2016-04-20", "13:00", timeZone);
     request.setArriveBy(arriveBy);

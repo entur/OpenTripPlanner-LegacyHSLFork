@@ -12,7 +12,7 @@ import org.opentripplanner.model.PickDrop;
 import org.opentripplanner.model.StopTime;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.DefaultCostCalculator;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.RaptorCostConverter;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.transit.model.basic.TransitMode;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
@@ -114,7 +114,7 @@ public class RaptorPathToItineraryMapperTest {
       new DefaultTransitService(new TransitModel()),
       null,
       dateTime.atZone(ZoneId.of("CET")),
-      new RouteRequest()
+      new RegularRouteRequest()
     );
   }
 

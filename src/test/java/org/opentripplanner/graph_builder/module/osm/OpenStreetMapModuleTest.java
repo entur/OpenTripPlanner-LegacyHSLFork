@@ -28,6 +28,7 @@ import org.opentripplanner.graph_builder.module.osm.tagmapping.DefaultMapper;
 import org.opentripplanner.openstreetmap.OpenStreetMapProvider;
 import org.opentripplanner.openstreetmap.model.OSMWay;
 import org.opentripplanner.openstreetmap.model.OSMWithTags;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.graph.Edge;
@@ -348,7 +349,7 @@ public class OpenStreetMapModuleTest {
 
     loader.buildGraph();
 
-    RouteRequest request = new RouteRequest();
+    RouteRequest request = new RegularRouteRequest();
 
     //This are vertices that can be connected only over edges on area (with correct permissions)
     //It tests if it is possible to route over area without visibility calculations

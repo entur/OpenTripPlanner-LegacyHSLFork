@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -20,7 +19,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.opentripplanner.TestOtpModel;
 import org.opentripplanner.model.PathTransfer;
 import org.opentripplanner.routing.algorithm.GraphRoutingTest;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
 import org.opentripplanner.routing.graph.Edge;
@@ -30,9 +29,7 @@ import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.basic.TransitMode;
 import org.opentripplanner.transit.model.network.StopPattern;
 import org.opentripplanner.transit.model.network.TripPattern;
-import org.opentripplanner.transit.model.site.RegularStopBuilder;
 import org.opentripplanner.transit.model.site.StopLocation;
-import org.opentripplanner.util.OTPFeature;
 import org.opentripplanner.util.lang.ToStringBuilder;
 
 /**
@@ -58,7 +55,7 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
     var otpModel = model(false);
     var graph = otpModel.graph();
     var transitModel = otpModel.transitModel();
-    var req = new RouteRequest();
+    var req = new RegularRouteRequest();
     req.journey().transfer().setMode(StreetMode.WALK);
     var transferRequests = List.of(req);
     graph.hasStreets = false;
@@ -81,7 +78,7 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
     var graph = otpModel.graph();
     graph.hasStreets = false;
     var transitModel = otpModel.transitModel();
-    var req = new RouteRequest();
+    var req = new RegularRouteRequest();
     req.journey().transfer().setMode(StreetMode.WALK);
     var transferRequests = List.of(req);
 
@@ -115,7 +112,7 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
     var graph = otpModel.graph();
     graph.hasStreets = false;
     var transitModel = otpModel.transitModel();
-    var transferRequests = List.of(new RouteRequest());
+    var transferRequests = List.of(new RegularRouteRequest());
 
     new DirectTransferGenerator(
       graph,
@@ -144,7 +141,7 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
 
   @Test
   public void testSingleRequestWithoutPatterns() {
-    var req = new RouteRequest();
+    var req = new RegularRouteRequest();
     req.journey().transfer().setMode(StreetMode.WALK);
     var transferRequests = List.of(req);
 
@@ -167,7 +164,7 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
 
   @Test
   public void testSingleRequestWithPatterns() {
-    var req = new RouteRequest();
+    var req = new RegularRouteRequest();
     req.journey().transfer().setMode(StreetMode.WALK);
     var transferRequests = List.of(req);
 
@@ -195,10 +192,10 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
 
   @Test
   public void testMultipleRequestsWithoutPatterns() {
-    var reqWalk = new RouteRequest();
+    var reqWalk = new RegularRouteRequest();
     reqWalk.journey().transfer().setMode(StreetMode.WALK);
 
-    var reqBike = new RouteRequest();
+    var reqBike = new RegularRouteRequest();
     reqWalk.journey().transfer().setMode(StreetMode.BIKE);
 
     var transferRequests = List.of(reqWalk, reqBike);
@@ -222,10 +219,10 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
 
   @Test
   public void testMultipleRequestsWithPatterns() {
-    var reqWalk = new RouteRequest();
+    var reqWalk = new RegularRouteRequest();
     reqWalk.journey().transfer().setMode(StreetMode.WALK);
 
-    var reqBike = new RouteRequest();
+    var reqBike = new RegularRouteRequest();
     reqWalk.journey().transfer().setMode(StreetMode.BIKE);
 
     var transferRequests = List.of(reqWalk, reqBike);
@@ -260,7 +257,7 @@ class DirectTransferGeneratorTest extends GraphRoutingTest {
     graph.hasStreets = false;
 
     var transitModel = otpModel.transitModel();
-    var req = new RouteRequest();
+    var req = new RegularRouteRequest();
     req.journey().transfer().setMode(StreetMode.WALK);
     var transferRequests = List.of(req);
 

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers.GeneralizedCostParametersMapper;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.framework.DoubleAlgorithmFunction;
 import org.opentripplanner.routing.api.request.framework.RequestFunctions;
@@ -73,7 +74,7 @@ public class PatternCostCalculatorTest {
   @Test
   @DisplayName("cost mapper should create penalty map")
   public void testMcCostParameterMapping() {
-    RouteRequest routingRequest = new RouteRequest();
+    RegularRouteRequest routingRequest = new RegularRouteRequest();
 
     routingRequest.journey().transit().setUnpreferredRoutes(List.of(UNPREFERRED_ROUTE_ID));
     routingRequest.journey().transit().setUnpreferredAgencies(List.of(UNPREFERRED_AGENCY_ID));
@@ -220,7 +221,7 @@ public class PatternCostCalculatorTest {
     }
 
     RouteRequest createRouteRequest() {
-      var request = new RouteRequest();
+      var request = new RegularRouteRequest();
 
       request.withPreferences(preferences -> {
         preferences.withTransit(transit ->

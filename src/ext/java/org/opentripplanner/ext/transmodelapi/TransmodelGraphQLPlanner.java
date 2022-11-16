@@ -21,6 +21,7 @@ import org.opentripplanner.ext.transmodelapi.support.DataFetcherDecorator;
 import org.opentripplanner.ext.transmodelapi.support.GqlUtil;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.routing.algorithm.mapping.TripPlanMapper;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RequestModes;
 import org.opentripplanner.routing.api.request.RequestModesBuilder;
 import org.opentripplanner.routing.api.request.RouteRequest;
@@ -90,7 +91,7 @@ public class TransmodelGraphQLPlanner {
   private RouteRequest createRequest(DataFetchingEnvironment environment) {
     TransmodelRequestContext context = environment.getContext();
     OtpServerRequestContext serverContext = context.getServerContext();
-    RouteRequest request = serverContext.defaultRouteRequest();
+    RegularRouteRequest request = serverContext.defaultRouteRequest();
 
     DataFetcherDecorator callWith = new DataFetcherDecorator(environment);
 

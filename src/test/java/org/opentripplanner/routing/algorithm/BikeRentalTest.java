@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.request.StreetRequest;
@@ -95,7 +96,7 @@ public class BikeRentalTest extends GraphRoutingTest {
       B,
       C,
       false,
-      new RouteRequest(),
+      new RegularRouteRequest(),
       StreetMode.BIKE
     );
 
@@ -109,7 +110,7 @@ public class BikeRentalTest extends GraphRoutingTest {
       B,
       C,
       false,
-      new RouteRequest(),
+      new RegularRouteRequest(),
       StreetMode.BIKE
     );
 
@@ -599,7 +600,7 @@ public class BikeRentalTest extends GraphRoutingTest {
     boolean arriveBy,
     Consumer<RouteRequest> optionsSetter
   ) {
-    var request = new RouteRequest();
+    var request = new RegularRouteRequest();
 
     request.setArriveBy(arriveBy);
 

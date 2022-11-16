@@ -7,6 +7,7 @@ import org.opentripplanner.inspector.TileRendererManager;
 import org.opentripplanner.routing.RoutingService;
 import org.opentripplanner.routing.algorithm.astar.TraverseVisitor;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graphfinder.GraphFinder;
@@ -45,7 +46,7 @@ public interface OtpServerRequestContext {
    * A RouteRequest containing default parameters that will be cloned when handling each request.
    */
   @HttpRequestScoped
-  RouteRequest defaultRouteRequest();
+  RegularRouteRequest defaultRouteRequest();
 
   /**
    * Return the default routing request locale(without cloning the request).

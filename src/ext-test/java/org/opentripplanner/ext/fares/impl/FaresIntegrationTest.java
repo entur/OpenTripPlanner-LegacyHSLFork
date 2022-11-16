@@ -12,7 +12,7 @@ import org.opentripplanner.TestOtpModel;
 import org.opentripplanner.TestServerContext;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.model.plan.Itinerary;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.core.FareType;
 import org.opentripplanner.routing.core.ItineraryFares;
 import org.opentripplanner.routing.graph.Graph;
@@ -223,7 +223,7 @@ public class FaresIntegrationTest {
     Instant time,
     OtpServerRequestContext serverContext
   ) {
-    RouteRequest request = new RouteRequest();
+    RegularRouteRequest request = new RegularRouteRequest();
     request.setDateTime(time);
     request.setFrom(from);
     request.setTo(to);

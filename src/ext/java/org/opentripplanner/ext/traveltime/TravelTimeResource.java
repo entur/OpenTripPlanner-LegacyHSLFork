@@ -54,6 +54,7 @@ import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers.AccessEgressMapper;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.request.RaptorRoutingRequestTransitData;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.request.RouteRequestTransitDataProviderFilter;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.core.AStarRequest;
@@ -83,7 +84,7 @@ public class TravelTimeResource {
 
   private static final SimpleFeatureType contourSchema = makeContourSchema();
 
-  private final RouteRequest routingRequest;
+  private final RegularRouteRequest routingRequest;
   private final RaptorRoutingRequestTransitData requestTransitDataProvider;
   private final Instant startTime;
   private final Instant endTime;
@@ -219,7 +220,7 @@ public class TravelTimeResource {
   }
 
   private ZSampleGrid<WTWD> getSampleGrid() {
-    final RouteRequest accessRequest = routingRequest.clone();
+    final RegularRouteRequest accessRequest = routingRequest.clone();
 
     accessRequest.withPreferences(preferences ->
       preferences.withStreet(it ->

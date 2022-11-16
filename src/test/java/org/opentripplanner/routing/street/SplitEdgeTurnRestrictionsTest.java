@@ -14,7 +14,7 @@ import org.opentripplanner.TestOtpModel;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.model.plan.StreetLeg;
 import org.opentripplanner.routing.algorithm.mapping.GraphPathToItineraryMapper;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.core.TemporaryVerticesContainer;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -142,7 +142,7 @@ public class SplitEdgeTurnRestrictionsTest {
   }
 
   private static String computeCarPolyline(Graph graph, GenericLocation from, GenericLocation to) {
-    RouteRequest request = new RouteRequest();
+    RegularRouteRequest request = new RegularRouteRequest();
     request.setDateTime(dateTime);
     request.setFrom(from);
     request.setTo(to);

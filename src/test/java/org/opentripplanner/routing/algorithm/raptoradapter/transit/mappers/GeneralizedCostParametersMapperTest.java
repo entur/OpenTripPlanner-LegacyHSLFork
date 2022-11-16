@@ -10,7 +10,7 @@ import com.google.common.collect.Multimap;
 import java.util.BitSet;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.raptor._data.transit.TestRoute;
 import org.opentripplanner.transit.raptor._data.transit.TestTransitData;
@@ -40,7 +40,7 @@ class GeneralizedCostParametersMapperTest {
 
   @Test
   public void shouldExtractRoutesFromAgencies() {
-    var routingRequest = new RouteRequest();
+    var routingRequest = new RegularRouteRequest();
     routingRequest.journey().transit().setUnpreferredAgencies(List.of(unpreferredAgency));
 
     BitSet unpreferredPatterns = GeneralizedCostParametersMapper
@@ -57,7 +57,7 @@ class GeneralizedCostParametersMapperTest {
 
   @Test
   public void dealWithEmptyList() {
-    var routingRequest = new RouteRequest();
+    var routingRequest = new RegularRouteRequest();
     routingRequest.journey().transit().setUnpreferredAgencies(List.of(agencyWithNoRoutes));
 
     assertEquals(

@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.request.StreetRequest;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
@@ -170,7 +170,7 @@ public class CarPickupTest extends GraphRoutingTest {
     Vertex toVertex,
     boolean arriveBy
   ) {
-    var options = new RouteRequest();
+    var options = new RegularRouteRequest();
     options.setArriveBy(arriveBy);
 
     var tree = AStarBuilder

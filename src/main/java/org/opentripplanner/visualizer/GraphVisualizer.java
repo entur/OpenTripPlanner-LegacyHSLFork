@@ -61,7 +61,7 @@ import org.opentripplanner.api.parameter.ApiRequestMode;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.graph_builder.DataImportIssue;
 import org.opentripplanner.routing.algorithm.astar.TraverseVisitor;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.core.BicycleOptimizeType;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.core.TemporaryVerticesContainer;
@@ -466,7 +466,7 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
     if (transitCheckBox.isSelected()) {
       modes.add(ApiRequestMode.TRANSIT.name());
     }
-    RouteRequest options = new RouteRequest();
+    RegularRouteRequest options = new RegularRouteRequest();
     QualifiedModeSet qualifiedModeSet = new QualifiedModeSet(modes.toArray(String[]::new));
     options.journey().setModes(qualifiedModeSet.getRequestModes());
 

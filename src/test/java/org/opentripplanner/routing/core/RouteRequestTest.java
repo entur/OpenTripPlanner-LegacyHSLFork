@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import org.junit.jupiter.api.Test;
 import org.opentripplanner.model.GenericLocation;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 
 public class RouteRequestTest {
@@ -13,7 +14,7 @@ public class RouteRequestTest {
   public void testRequest() {
     // TODO VIA: looks like some parts of this test are obsolete since method no longer exist
 
-    RouteRequest request = new RouteRequest();
+    RouteRequest request = new RegularRouteRequest();
     //
     //    request.addMode(CAR);
     //    assertTrue(request.streetSubRequestModes.getCar());
@@ -49,7 +50,7 @@ public class RouteRequestTest {
   @Test
   public void shouldCloneObjectFields() {
     // TODO VIA (Thomas): There are more objects that are cloned - check freezing
-    RouteRequest request = new RouteRequest();
+    RouteRequest request = new RegularRouteRequest();
 
     var clone = request.clone();
 

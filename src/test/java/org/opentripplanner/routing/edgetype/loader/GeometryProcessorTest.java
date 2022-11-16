@@ -21,7 +21,7 @@ import org.opentripplanner.graph_builder.issues.NegativeHopTime;
 import org.opentripplanner.graph_builder.module.StreetLinkerModule;
 import org.opentripplanner.gtfs.GtfsContext;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.StreetTransitStopLink;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
@@ -143,7 +143,7 @@ public class GeometryProcessorTest {
 
     ShortestPathTree spt;
     GraphPath path;
-    RouteRequest options = new RouteRequest();
+    RegularRouteRequest options = new RegularRouteRequest();
 
     // Friday evening
     options.setDateTime(TestUtils.dateInstant("America/New_York", 2009, 8, 18, 23, 20, 0));
@@ -184,7 +184,7 @@ public class GeometryProcessorTest {
     Vertex stop_p = graph.getVertex(feedId + ":P");
     assertEquals(2, stop_o.getOutgoing().size());
 
-    RouteRequest options = new RouteRequest();
+    RegularRouteRequest options = new RegularRouteRequest();
     options.setDateTime(TestUtils.dateInstant("America/New_York", 2009, 8, 19, 12, 0, 0));
     ShortestPathTree spt = AStarBuilder
       .oneToOne()
@@ -215,7 +215,7 @@ public class GeometryProcessorTest {
   public void testTimelessStops() {
     Vertex stop_d = graph.getVertex(feedId + ":D");
     Vertex stop_c = graph.getVertex(feedId + ":C");
-    RouteRequest options = new RouteRequest();
+    RegularRouteRequest options = new RegularRouteRequest();
     options.setDateTime(TestUtils.dateInstant("America/New_York", 2009, 8, 1, 10, 0, 0));
     ShortestPathTree spt = AStarBuilder
       .oneToOne()
@@ -248,7 +248,7 @@ public class GeometryProcessorTest {
       split_d = e.getToVertex();
     }
 
-    RouteRequest options = new RouteRequest();
+    RegularRouteRequest options = new RegularRouteRequest();
     options.setWheelchair(true);
     options.setDateTime(TestUtils.dateInstant("America/New_York", 2009, 8, 18, 0, 0, 0));
 
@@ -319,7 +319,7 @@ public class GeometryProcessorTest {
     // from R to S.  If we take the direct-but-slower 11.1, we'll miss
     // the 8:50 and have to catch the 9:50.
     Vertex destination = graph.getVertex(feedId + ":T");
-    RouteRequest options = new RouteRequest();
+    RegularRouteRequest options = new RegularRouteRequest();
     // test is designed such that transfers must be instantaneous
     options.withPreferences(pref -> pref.withTransfer(tx -> tx.withSlack(0)));
     LocalDateTime ldt = LocalDateTime.of(2009, 10, 2, 8, 30, 0);
@@ -345,7 +345,7 @@ public class GeometryProcessorTest {
     ShortestPathTree spt;
     GraphPath path;
 
-    RouteRequest options = new RouteRequest();
+    RegularRouteRequest options = new RegularRouteRequest();
     options.setDateTime(TestUtils.dateInstant("America/New_York", 2009, 8, 7, 0, 0, 0));
 
     // U to V - original stop times - shouldn't be used
@@ -402,7 +402,7 @@ public class GeometryProcessorTest {
     Vertex stop = graph.getVertex(feedId + ":A");
     assertNotNull(stop);
 
-    RouteRequest options = new RouteRequest();
+    RegularRouteRequest options = new RegularRouteRequest();
     options.setDateTime(TestUtils.dateInstant("America/New_York", 2009, 8, 1, 16, 0, 0));
     ShortestPathTree spt = AStarBuilder
       .oneToOne()

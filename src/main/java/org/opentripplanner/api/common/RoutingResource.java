@@ -19,6 +19,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.ext.dataoverlay.api.DataOverlayParameters;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.core.BicycleOptimizeType;
 import org.opentripplanner.standalone.api.OtpServerRequestContext;
@@ -644,7 +645,7 @@ public abstract class RoutingResource {
    * @param queryParameters incoming request parameters
    */
   protected RouteRequest buildRequest(MultivaluedMap<String, String> queryParameters) {
-    RouteRequest request = serverContext.defaultRouteRequest();
+    RegularRouteRequest request = serverContext.defaultRouteRequest();
 
     // The routing request should already contain defaults, which are set when it is initialized or
     // in the JSON router configuration and cloned. We check whether each parameter was supplied

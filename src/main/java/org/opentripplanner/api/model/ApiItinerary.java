@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.preference.ItineraryFilterPreferences;
+import org.opentripplanner.routing.api.request.request.VehicleRentalRequest;
 
 /**
  * An Itinerary is one complete way of getting from the start location to the end location.
@@ -92,9 +92,9 @@ public class ApiItinerary {
    * response if explicit asked for in the request.
    * <p>
    * For example when tuning or manually testing the itinerary-filter-chain it you can enable the
-   * {@link ItineraryFilterPreferences#debug} and instead of removing itineraries from the result the
-   * itineraries would be tagged by the filters instead. This enable investigating, why an expected
-   * itinerary is missing from the result set.
+   * {@link ItineraryFilterPreferences#debug()} and instead of removing itineraries from the result
+   * the itineraries would be tagged by the filters instead. This enables investigating, why an
+   * expected itinerary is missing from the result set.
    */
   public List<ApiSystemNotice> systemNotices = null;
 
@@ -105,7 +105,7 @@ public class ApiItinerary {
   public boolean tooSloped = false;
 
   /**
-   * If {@link RouteRequest#allowArrivingInRentalVehicleAtDestination}
+   * If {@link VehicleRentalRequest#allowArrivingInRentedVehicleAtDestination()}
    * is set than it is possible to end a trip without dropping off the rented bicycle.
    */
   public boolean arrivedAtDestinationWithRentedBicycle = false;

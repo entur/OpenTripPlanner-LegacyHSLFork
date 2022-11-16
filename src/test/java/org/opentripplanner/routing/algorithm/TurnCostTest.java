@@ -11,6 +11,7 @@ import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.TurnRestriction;
 import org.opentripplanner.common.TurnRestrictionType;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.request.StreetRequest;
@@ -39,7 +40,7 @@ public class TurnCostTest {
 
   private StreetEdge maple_main1, broad1_2;
 
-  private RouteRequest proto;
+  private RegularRouteRequest proto;
 
   private IntersectionTraversalCalculator calculator;
 
@@ -93,7 +94,7 @@ public class TurnCostTest {
     bottomLeft = broad3;
 
     // Make a prototype routing request.
-    proto = new RouteRequest();
+    proto = new RegularRouteRequest();
     proto.withPreferences(preferences ->
       preferences
         .withCar(it -> it.withSpeed(1.0).withReluctance(1.0))

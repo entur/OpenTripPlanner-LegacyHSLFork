@@ -25,6 +25,7 @@ import org.opentripplanner.graph_builder.module.osm.parameters.OsmExtractParamet
 import org.opentripplanner.graph_builder.module.osm.tagmapping.DefaultMapper;
 import org.opentripplanner.openstreetmap.OpenStreetMapProvider;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RequestModes;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.core.intersection_model.ConstantIntersectionTraversalCalculator;
@@ -193,7 +194,7 @@ public class TriangleInequalityTest {
     assertNotNull(start);
     assertNotNull(end);
 
-    RouteRequest prototypeOptions = new RouteRequest();
+    RegularRouteRequest prototypeOptions = new RegularRouteRequest();
 
     // All reluctance terms are 1.0 so that duration is monotonically increasing in weight.
     prototypeOptions.withPreferences(preferences ->

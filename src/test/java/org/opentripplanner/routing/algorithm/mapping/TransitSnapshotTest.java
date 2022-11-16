@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.opentripplanner.model.GenericLocation;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.transit.model.basic.MainAndSubMode;
 
@@ -64,7 +64,7 @@ public class TransitSnapshotTest extends SnapshotTestBase {
 
   @Test
   public void test_trip_planning_with_walk_only() {
-    RouteRequest request = createTestRequest(2009, 11, 17, 10, 0, 0);
+    RegularRouteRequest request = createTestRequest(2009, 11, 17, 10, 0, 0);
 
     request.journey().direct().setMode(StreetMode.WALK);
     request.journey().transit().setModes(List.of());
@@ -76,7 +76,7 @@ public class TransitSnapshotTest extends SnapshotTestBase {
 
   @Test
   public void test_trip_planning_with_walk_only_stop() {
-    RouteRequest request = createTestRequest(2009, 11, 17, 10, 0, 0);
+    RegularRouteRequest request = createTestRequest(2009, 11, 17, 10, 0, 0);
 
     request.journey().access().setMode(StreetMode.WALK);
     request.journey().egress().setMode(StreetMode.WALK);
@@ -91,7 +91,7 @@ public class TransitSnapshotTest extends SnapshotTestBase {
 
   @Test
   public void test_trip_planning_with_walk_only_stop_collection() {
-    RouteRequest request = createTestRequest(2009, 11, 17, 10, 0, 0);
+    RegularRouteRequest request = createTestRequest(2009, 11, 17, 10, 0, 0);
 
     request.journey().access().setMode(StreetMode.WALK);
     request.journey().egress().setMode(StreetMode.WALK);
@@ -107,7 +107,7 @@ public class TransitSnapshotTest extends SnapshotTestBase {
 
   @Test
   public void test_trip_planning_with_transit() {
-    RouteRequest request = createTestRequest(2009, 11, 17, 10, 0, 0);
+    RegularRouteRequest request = createTestRequest(2009, 11, 17, 10, 0, 0);
 
     request.journey().access().setMode(StreetMode.WALK);
     request.journey().egress().setMode(StreetMode.WALK);
@@ -122,7 +122,7 @@ public class TransitSnapshotTest extends SnapshotTestBase {
 
   @Test
   public void test_trip_planning_with_transit_stop() {
-    RouteRequest request = createTestRequest(2009, 11, 17, 10, 0, 0);
+    RegularRouteRequest request = createTestRequest(2009, 11, 17, 10, 0, 0);
 
     request.journey().access().setMode(StreetMode.WALK);
     request.journey().egress().setMode(StreetMode.WALK);
@@ -139,7 +139,7 @@ public class TransitSnapshotTest extends SnapshotTestBase {
   @Test
   @Disabled
   public void test_trip_planning_with_transit_stop_collection() {
-    RouteRequest request = createTestRequest(2009, 11, 17, 10, 0, 0);
+    RegularRouteRequest request = createTestRequest(2009, 11, 17, 10, 0, 0);
 
     request.journey().access().setMode(StreetMode.WALK);
     request.journey().egress().setMode(StreetMode.WALK);

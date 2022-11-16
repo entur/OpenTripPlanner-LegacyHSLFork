@@ -14,7 +14,7 @@ import org.junit.jupiter.api.parallel.Resources;
 import org.opentripplanner.ConstantsForTests;
 import org.opentripplanner.TestOtpModel;
 import org.opentripplanner.model.GenericLocation;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.core.BicycleOptimizeType;
 import org.opentripplanner.routing.error.RoutingValidationException;
@@ -63,7 +63,7 @@ public class ElevationSnapshotTest extends SnapshotTestBase {
   @DisplayName("Direct WALK")
   @Test
   public void directWalk() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
 
     request.journey().direct().setMode(StreetMode.WALK);
     request.journey().transit().setModes(List.of());
@@ -76,7 +76,7 @@ public class ElevationSnapshotTest extends SnapshotTestBase {
   @DisplayName("Direct BIKE_RENTAL")
   @Test
   public void directBikeRental() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
 
     request.journey().direct().setMode(StreetMode.BIKE_RENTAL);
     request.journey().transit().setModes(List.of());
@@ -89,7 +89,7 @@ public class ElevationSnapshotTest extends SnapshotTestBase {
   @DisplayName("Direct BIKE")
   @Test
   public void directBike() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
 
     request.withPreferences(pref ->
       pref.withBike(bike ->
@@ -111,7 +111,7 @@ public class ElevationSnapshotTest extends SnapshotTestBase {
   @DisplayName("Access BIKE_RENTAL")
   @Test
   public void accessBikeRental() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 14, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 14, 0);
 
     request.journey().access().setMode(StreetMode.BIKE_RENTAL);
     request.journey().egress().setMode(StreetMode.WALK);
@@ -131,7 +131,7 @@ public class ElevationSnapshotTest extends SnapshotTestBase {
   @DisplayName("TRANSIT")
   @Test
   public void transit() {
-    RouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
+    RegularRouteRequest request = createTestRequest(2009, 10, 21, 16, 10, 0);
 
     request.journey().access().setMode(StreetMode.WALK);
     request.journey().egress().setMode(StreetMode.WALK);

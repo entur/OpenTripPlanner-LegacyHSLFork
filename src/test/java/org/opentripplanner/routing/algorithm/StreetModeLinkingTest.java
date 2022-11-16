@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.opentripplanner.graph_builder.module.StreetLinkerModule;
 import org.opentripplanner.model.GenericLocation;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.core.TemporaryVerticesContainer;
@@ -97,7 +98,7 @@ public class StreetModeLinkingTest extends GraphRoutingTest {
         Double latitude,
         Double longitude
       ) ->
-      (RouteRequest rr) -> {
+      (RegularRouteRequest rr) -> {
         rr.setFrom(new GenericLocation(latitude, longitude));
         rr.setTo(new GenericLocation(latitude, longitude));
       };
@@ -195,7 +196,7 @@ public class StreetModeLinkingTest extends GraphRoutingTest {
     StreetMode... streetModes
   ) {
     for (final StreetMode streetMode : streetModes) {
-      var routingRequest = new RouteRequest();
+      var routingRequest = new RegularRouteRequest();
 
       consumer.accept(routingRequest);
 
@@ -219,7 +220,7 @@ public class StreetModeLinkingTest extends GraphRoutingTest {
         }
       }
 
-      routingRequest = new RouteRequest();
+      routingRequest = new RegularRouteRequest();
 
       consumer.accept(routingRequest);
 

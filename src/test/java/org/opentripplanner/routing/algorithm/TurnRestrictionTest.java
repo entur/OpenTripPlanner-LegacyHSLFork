@@ -13,7 +13,7 @@ import org.locationtech.jts.geom.LineString;
 import org.opentripplanner.common.TurnRestriction;
 import org.opentripplanner.common.TurnRestrictionType;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.request.StreetRequest;
 import org.opentripplanner.routing.core.State;
@@ -97,7 +97,7 @@ public class TurnRestrictionTest {
 
   @Test
   public void testForwardDefault() {
-    var request = new RouteRequest();
+    var request = new RegularRouteRequest();
 
     request.withPreferences(preferences ->
       preferences.withCar(it -> it.withSpeed(1.0)).withWalk(w -> w.withSpeed(1.0))
@@ -129,7 +129,7 @@ public class TurnRestrictionTest {
 
   @Test
   public void testForwardAsPedestrian() {
-    var request = new RouteRequest();
+    var request = new RegularRouteRequest();
     request.withPreferences(pref -> pref.withWalk(w -> w.withSpeed(1.0)));
 
     ShortestPathTree tree = AStarBuilder
@@ -158,7 +158,7 @@ public class TurnRestrictionTest {
 
   @Test
   public void testForwardAsCar() {
-    var request = new RouteRequest();
+    var request = new RegularRouteRequest();
     request.withPreferences(p -> p.withCar(it -> it.withSpeed(1.0)));
 
     ShortestPathTree tree = AStarBuilder

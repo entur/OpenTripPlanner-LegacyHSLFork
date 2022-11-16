@@ -43,6 +43,7 @@ import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.model.plan.Itinerary;
 import org.opentripplanner.model.plan.Leg;
 import org.opentripplanner.model.plan.StreetLeg;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.response.RoutingResponse;
@@ -92,7 +93,7 @@ public abstract class SnapshotTestBase {
     return ConstantsForTests.getInstance().getCachedPortlandGraph();
   }
 
-  protected RouteRequest createTestRequest(
+  protected RegularRouteRequest createTestRequest(
     int year,
     int month,
     int day,
@@ -102,7 +103,7 @@ public abstract class SnapshotTestBase {
   ) {
     OtpServerRequestContext serverContext = serverContext();
 
-    RouteRequest request = serverContext.defaultRouteRequest();
+    RegularRouteRequest request = serverContext.defaultRouteRequest();
     request.setDateTime(
       TestUtils.dateInstant(
         serverContext.transitService().getTimeZone().getId(),
@@ -189,7 +190,7 @@ public abstract class SnapshotTestBase {
       () -> expectItinerariesToMatchSnapshot(departByItineraries)
     );
 
-    RouteRequest arriveBy = request.clone();
+    RegularRouteRequest arriveBy = request.clone();
     arriveBy.setArriveBy(true);
     arriveBy.setDateTime(departByItineraries.get(0).lastLeg().getEndTime().toInstant());
 

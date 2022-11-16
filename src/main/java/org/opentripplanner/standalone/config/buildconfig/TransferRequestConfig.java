@@ -3,6 +3,7 @@ package org.opentripplanner.standalone.config.buildconfig;
 import static org.opentripplanner.standalone.config.framework.json.OtpVersion.V2_1;
 
 import java.util.List;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.standalone.config.framework.json.NodeAdapter;
 import org.opentripplanner.standalone.config.routerequest.RouteRequestConfig;
@@ -36,6 +37,6 @@ transfer.
 ```
 """
       )
-      .asObjects(List.of(new RouteRequest()), RouteRequestConfig::mapRouteRequest);
+      .asObjects(List.of(new RegularRouteRequest()), RouteRequestConfig::mapRouteRequest);
   }
 }

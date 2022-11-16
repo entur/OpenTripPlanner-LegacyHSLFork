@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
 import org.opentripplanner.routing.algorithm.astar.strategies.SearchTerminationStrategy;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.SimpleConcreteEdge;
@@ -84,7 +84,7 @@ public class AStarTest {
 
   @Test
   public void testForward() {
-    var request = new RouteRequest();
+    var request = new RegularRouteRequest();
 
     request.withPreferences(pref -> pref.withWalk(w -> w.withSpeed(1.0)));
     Vertex from = graph.getVertex("56th_24th");
@@ -113,7 +113,7 @@ public class AStarTest {
 
   @Test
   public void testBack() {
-    var request = new RouteRequest();
+    var request = new RegularRouteRequest();
 
     request.withPreferences(pref -> pref.withWalk(w -> w.withSpeed(1.0)));
     request.setArriveBy(true);
@@ -153,7 +153,7 @@ public class AStarTest {
 
   @Test
   public void testForwardExtraEdges() {
-    var request = new RouteRequest();
+    var request = new RegularRouteRequest();
 
     request.withPreferences(pref -> pref.withWalk(w -> w.withSpeed(1.0)));
 
@@ -199,7 +199,7 @@ public class AStarTest {
 
   @Test
   public void testBackExtraEdges() {
-    var request = new RouteRequest();
+    var request = new RegularRouteRequest();
 
     request.withPreferences(pref -> pref.withWalk(w -> w.withSpeed(1.0)));
     request.setArriveBy(true);
@@ -246,7 +246,7 @@ public class AStarTest {
 
   @Test
   public void testMultipleTargets() {
-    var request = new RouteRequest();
+    var request = new RegularRouteRequest();
 
     request.withPreferences(pref -> pref.withWalk(w -> w.withSpeed(1.0)));
 

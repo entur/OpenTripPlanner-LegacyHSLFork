@@ -9,8 +9,8 @@ import static org.opentripplanner.standalone.config.routerequest.WheelchairConfi
 
 import java.time.Duration;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RequestModes;
-import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.preference.BikePreferences;
 import org.opentripplanner.routing.api.request.preference.CarPreferences;
@@ -35,7 +35,7 @@ public class RouteRequestConfig {
   private static final Logger LOG = LoggerFactory.getLogger(RouteRequestConfig.class);
   private static final String WHEELCHAIR_ACCESSIBILITY = "wheelchairAccessibility";
 
-  public static RouteRequest mapDefaultRouteRequest(NodeAdapter root, String parameterName) {
+  public static RegularRouteRequest mapDefaultRouteRequest(NodeAdapter root, String parameterName) {
     var c = root
       .of(parameterName)
       .since(V2_0)
@@ -45,15 +45,15 @@ public class RouteRequestConfig {
     return mapRouteRequest(c);
   }
 
-  public static RouteRequest mapRouteRequest(NodeAdapter c) {
-    RouteRequest dft = new RouteRequest();
+  public static RegularRouteRequest mapRouteRequest(NodeAdapter c) {
+    RegularRouteRequest dft = new RegularRouteRequest();
 
     if (c.isEmpty()) {
       return dft;
     }
 
     LOG.debug("Loading default routing parameters from JSON.");
-    RouteRequest request = new RouteRequest();
+    RegularRouteRequest request = new RegularRouteRequest();
     VehicleRentalRequest vehicleRental = request.journey().rental();
     VehicleParkingRequest vehicleParking = request.journey().parking();
 

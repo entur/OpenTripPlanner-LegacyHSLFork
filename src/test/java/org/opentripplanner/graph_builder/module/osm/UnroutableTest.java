@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.opentripplanner.graph_builder.module.osm.tagmapping.DefaultMapper;
 import org.opentripplanner.openstreetmap.OpenStreetMapProvider;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.graph.Edge;
@@ -60,7 +61,7 @@ public class UnroutableTest {
    */
   @Test
   public void testOnBoardRouting() {
-    RouteRequest options = new RouteRequest();
+    RouteRequest options = new RegularRouteRequest();
     options.journey().direct().setMode(StreetMode.BIKE);
 
     Vertex from = graph.getVertex("osm:node:2003617278");

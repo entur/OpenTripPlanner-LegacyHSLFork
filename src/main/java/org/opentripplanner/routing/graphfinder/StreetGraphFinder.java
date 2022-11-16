@@ -9,7 +9,7 @@ import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
 import org.opentripplanner.routing.algorithm.astar.TraverseVisitor;
 import org.opentripplanner.routing.algorithm.astar.strategies.SkipEdgeStrategy;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.core.TemporaryVerticesContainer;
 import org.opentripplanner.routing.graph.Graph;
@@ -80,7 +80,7 @@ public class StreetGraphFinder implements GraphFinder {
   ) {
     // Make a normal OTP routing request so we can traverse edges and use GenericAStar
     // TODO make a function that builds normal routing requests from profile requests
-    RouteRequest rr = new RouteRequest();
+    RegularRouteRequest rr = new RegularRouteRequest();
     rr.setFrom(new GenericLocation(null, null, lat, lon));
     rr.withPreferences(pref -> pref.withWalk(it -> it.withSpeed(1)));
     rr.setNumItineraries(1);

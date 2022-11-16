@@ -26,7 +26,7 @@ import org.opentripplanner.model.StopTime;
 import org.opentripplanner.model.plan.Itinerary;
 import org.opentripplanner.routing.algorithm.raptoradapter.router.AdditionalSearchDays;
 import org.opentripplanner.routing.algorithm.raptoradapter.router.TransitRouter;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.core.AStarRequest;
 import org.opentripplanner.routing.core.FareType;
 import org.opentripplanner.routing.core.State;
@@ -232,7 +232,7 @@ public class ScheduledDeviatedTripTest extends FlexTest {
     GenericLocation to,
     OtpServerRequestContext serverContext
   ) {
-    RouteRequest request = new RouteRequest();
+    RegularRouteRequest request = new RegularRouteRequest();
     Instant dateTime = TestUtils.dateInstant("America/New_York", 2021, 12, 16, 12, 0, 0);
     request.setDateTime(dateTime);
     request.setFrom(from);

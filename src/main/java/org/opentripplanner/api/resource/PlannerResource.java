@@ -17,6 +17,9 @@ import org.opentripplanner.api.mapping.TripPlanMapper;
 import org.opentripplanner.api.mapping.TripSearchMetadataMapper;
 import org.opentripplanner.api.model.error.PlannerError;
 import org.opentripplanner.model.plan.Itinerary;
+import org.opentripplanner.routing.RoutingService;
+import org.opentripplanner.routing.api.request.DepartOnboardRouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.response.RoutingResponse;
 import org.opentripplanner.standalone.api.OtpServerRequestContext;
@@ -68,7 +71,14 @@ public class PlannerResource extends RoutingResource {
       request = super.buildRequest(uriInfo.getQueryParameters());
 
       // Route
-      res = serverContext.routingService().route(request);
+      RoutingService routingService = serverContext.routingService();
+      if (request instanceof RegularRouteRequest regularRouteRequest) {
+        res = routingService.route(regularRouteRequest);
+      } else if (request instanceof DepartOnboardRouteRequest departOnboardRouteRequest) {
+        res = routingService.route(departOnboardRouteRequest);
+      } else {
+        LOG.error("Unknown request type: {}", request);
+      }
 
       // Map to API
       // TODO VIA (Leonard) - we should store the default showIntermediateStops somewhere

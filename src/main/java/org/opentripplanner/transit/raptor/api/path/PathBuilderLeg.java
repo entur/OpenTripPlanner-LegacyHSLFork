@@ -464,8 +464,9 @@ public class PathBuilderLeg<T extends RaptorTripSchedule> {
     var accessPath = asAccessLeg().streetPath;
     var nextTransitLeg = nextTransitLeg();
 
-    @SuppressWarnings("ConstantConditions")
-    int newToTime = nextTransitLeg.transitStopArrivalTimeBefore(slackProvider, hasRides());
+    int newToTime = nextTransitLeg != null
+      ? nextTransitLeg.transitStopArrivalTimeBefore(slackProvider, hasRides())
+      : Integer.MAX_VALUE;
 
     if (next.isTransfer()) {
       newToTime -= next.asTransferLeg().transfer.durationInSeconds();

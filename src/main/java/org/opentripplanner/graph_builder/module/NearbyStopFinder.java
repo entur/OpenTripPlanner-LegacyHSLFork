@@ -20,7 +20,6 @@ import org.opentripplanner.routing.algorithm.astar.AStarBuilder;
 import org.opentripplanner.routing.algorithm.astar.strategies.ComposingSkipEdgeStrategy;
 import org.opentripplanner.routing.algorithm.astar.strategies.DurationSkipEdgeStrategy;
 import org.opentripplanner.routing.algorithm.astar.strategies.SkipEdgeStrategy;
-import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.preference.WalkPreferences;
@@ -187,16 +186,15 @@ public class NearbyStopFinder {
   public List<NearbyStop> findNearbyStopsViaStreets(
     Set<Vertex> originVertices,
     boolean reverseDirection,
-    RouteRequest originalRequest,
+    RouteRequest request,
     StreetRequest streetRequest
   ) {
-    RegularRouteRequest request = originalRequest.clone();
     List<NearbyStop> stopsFound = new ArrayList<>();
 
-    request.setArriveBy(reverseDirection);
     AStarRequest aStarRequest = AStarRequestMapper
       .map(request)
       .withMode(streetRequest.mode())
+      .withArriveBy(reverseDirection)
       .build();
 
     /* Add the origin vertices if they are stops */
@@ -217,6 +215,7 @@ public class NearbyStopFinder {
       .allDirections(getSkipEdgeStrategy(reverseDirection, request))
       .setDominanceFunction(new DominanceFunction.MinimumWeight())
       .setRequest(request)
+      .setArriveBy(reverseDirection)
       .setStreetRequest(streetRequest)
       .setFrom(reverseDirection ? null : originVertices)
       .setTo(reverseDirection ? originVertices : null)

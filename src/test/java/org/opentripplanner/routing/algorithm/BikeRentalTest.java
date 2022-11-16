@@ -431,7 +431,7 @@ public class BikeRentalTest extends GraphRoutingTest {
     Set<String> bannedNetworks,
     Set<String> allowedNetworks
   ) {
-    Consumer<RouteRequest> setter = options -> {
+    Consumer<RegularRouteRequest> setter = options -> {
       options.journey().rental().setAllowedNetworks(allowedNetworks);
       options.journey().rental().setBannedNetworks(bannedNetworks);
     };
@@ -455,7 +455,7 @@ public class BikeRentalTest extends GraphRoutingTest {
     Set<String> bannedNetworks,
     Set<String> allowedNetworks
   ) {
-    Consumer<RouteRequest> setter = options -> {
+    Consumer<RegularRouteRequest> setter = options -> {
       options.journey().rental().setAllowedNetworks(allowedNetworks);
       options.journey().rental().setBannedNetworks(bannedNetworks);
     };
@@ -598,7 +598,7 @@ public class BikeRentalTest extends GraphRoutingTest {
     Vertex fromVertex,
     Vertex toVertex,
     boolean arriveBy,
-    Consumer<RouteRequest> optionsSetter
+    Consumer<RegularRouteRequest> optionsSetter
   ) {
     var request = new RegularRouteRequest();
 

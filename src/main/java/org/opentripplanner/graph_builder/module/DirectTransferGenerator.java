@@ -13,6 +13,7 @@ import org.opentripplanner.graph_builder.DataImportIssueStore;
 import org.opentripplanner.graph_builder.issues.StopNotLinkedForTransfers;
 import org.opentripplanner.graph_builder.model.GraphBuilderModule;
 import org.opentripplanner.model.PathTransfer;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.request.StreetRequest;
 import org.opentripplanner.routing.graph.Edge;
@@ -43,7 +44,7 @@ public class DirectTransferGenerator implements GraphBuilderModule {
 
   private final Duration radiusByDuration;
 
-  private final List<RouteRequest> transferRequests;
+  private final List<RegularRouteRequest> transferRequests;
   private final Graph graph;
   private final TransitModel transitModel;
   private final DataImportIssueStore issueStore;
@@ -53,7 +54,7 @@ public class DirectTransferGenerator implements GraphBuilderModule {
     TransitModel transitModel,
     DataImportIssueStore issueStore,
     Duration radiusByDuration,
-    List<RouteRequest> transferRequests
+    List<RegularRouteRequest> transferRequests
   ) {
     this.graph = graph;
     this.transitModel = transitModel;
@@ -115,7 +116,7 @@ public class DirectTransferGenerator implements GraphBuilderModule {
 
         LOG.debug("Linking stop '{}' {}", stop, ts0);
 
-        for (RouteRequest transferProfile : transferRequests) {
+        for (RegularRouteRequest transferProfile : transferRequests) {
           var streetRequest = transferProfile.clone();
 
           // Make sure we use a generic request, without any specific fields set

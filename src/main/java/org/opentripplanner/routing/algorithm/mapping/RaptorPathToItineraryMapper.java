@@ -139,18 +139,9 @@ public class RaptorPathToItineraryMapper<T extends TripSchedule> {
     }
 
     DefaultAccessEgress accessPath = (DefaultAccessEgress) accessPathLeg.access();
-
-    GraphPath graphPath = new GraphPath(accessPath.getLastState());
-
-    Itinerary subItinerary = graphPathToItineraryMapper.generateItinerary(graphPath);
-
-    if (subItinerary.getLegs().isEmpty()) {
-      return List.of();
-    }
-
-    return subItinerary
-      .withTimeShiftToStartAt(createZonedDateTime(accessPathLeg.fromTime()))
-      .getLegs();
+    ZonedDateTime fromTime = createZonedDateTime(accessPathLeg.fromTime());
+    Itinerary subItinerary = accessPath.getSubItinerary(fromTime, graphPathToItineraryMapper);
+    return subItinerary == null ? List.of() : subItinerary.getLegs();
   }
 
   private Leg mapTransitLeg(Leg prevTransitLeg, TransitPathLeg<T> pathLeg) {
@@ -236,16 +227,8 @@ public class RaptorPathToItineraryMapper<T extends TripSchedule> {
     }
 
     DefaultAccessEgress egressPath = (DefaultAccessEgress) egressPathLeg.egress();
-
-    GraphPath graphPath = new GraphPath(egressPath.getLastState());
-
-    Itinerary subItinerary = graphPathToItineraryMapper.generateItinerary(graphPath);
-
-    if (subItinerary.getLegs().isEmpty()) {
-      return null;
-    }
-
-    return subItinerary.withTimeShiftToStartAt(createZonedDateTime(egressPathLeg.fromTime()));
+    ZonedDateTime fromTime = createZonedDateTime(egressPathLeg.fromTime());
+    return egressPath.getSubItinerary(fromTime, graphPathToItineraryMapper);
   }
 
   private List<Leg> mapNonTransitLeg(

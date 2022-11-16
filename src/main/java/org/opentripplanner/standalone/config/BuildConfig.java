@@ -25,7 +25,7 @@ import org.opentripplanner.graph_builder.module.osm.parameters.OsmExtractParamet
 import org.opentripplanner.graph_builder.services.osm.CustomNamer;
 import org.opentripplanner.model.calendar.ServiceDateInterval;
 import org.opentripplanner.netex.config.NetexFeedParameters;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.fares.FareServiceFactory;
 import org.opentripplanner.standalone.config.buildconfig.DemConfig;
 import org.opentripplanner.standalone.config.buildconfig.NetexConfig;
@@ -151,7 +151,7 @@ public class BuildConfig implements OtpDataStoreConfig {
 
   public final OsmDefaultParameters osmDefaults;
 
-  public final List<RouteRequest> transferRequests;
+  public final List<RegularRouteRequest> transferRequests;
 
   public final int maxAreaNodes;
 

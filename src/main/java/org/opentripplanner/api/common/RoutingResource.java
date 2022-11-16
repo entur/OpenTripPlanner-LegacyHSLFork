@@ -4,6 +4,7 @@ import static org.opentripplanner.api.common.LocationStringParser.fromOldStyleSt
 import static org.opentripplanner.api.common.RequestToPreferencesMapper.setIfNotNull;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -19,11 +20,21 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.ext.dataoverlay.api.DataOverlayParameters;
+import org.opentripplanner.routing.api.request.DepartOnboardRouteRequest;
 import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.request.JourneyRequest;
+import org.opentripplanner.routing.api.response.InputField;
+import org.opentripplanner.routing.api.response.RoutingError;
+import org.opentripplanner.routing.api.response.RoutingErrorCode;
 import org.opentripplanner.routing.core.BicycleOptimizeType;
+import org.opentripplanner.routing.error.RoutingValidationException;
 import org.opentripplanner.standalone.api.OtpServerRequestContext;
+import org.opentripplanner.transit.model.framework.FeedScopedId;
+import org.opentripplanner.transit.model.network.TripPattern;
+import org.opentripplanner.transit.model.timetable.TripTimes;
 import org.opentripplanner.util.OTPFeature;
+import org.opentripplanner.util.time.ServiceDateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -496,25 +507,22 @@ public abstract class RoutingResource {
   protected Boolean batch;
 
   /**
-   * A transit stop required to be the first stop in the search (AgencyId_StopId)
-   *
-   * @deprecated TODO OTP2 Is this in use, what is is used for. It seems to overlap with
-   * the fromPlace parameter. Is is used for onBoard routing only?
+   * A transit stop required to be the first stop in the search (FeedId:StopId)
    */
-  @Deprecated
   @QueryParam("startTransitStopId")
   protected String startTransitStopId;
 
   /**
-   * A transit trip acting as a starting "state" for depart-onboard routing (AgencyId_TripId)
-   *
-   * @deprecated TODO OTP2 Regression. Not currently working in OTP2. We might not implement the
-   * old functionality the same way, but we will try to map this parameter
-   * so it does work similar as before.
+   * A transit trip acting as a starting "state" for depart-onboard routing (FeedId:TripId)
    */
-  @Deprecated
   @QueryParam("startTransitTripId")
   protected String startTransitTripId;
+
+  /**
+   * The service date of the trip acting as a starting "state" for depart-onboard routing
+   */
+  @QueryParam("startTransitServiceDate")
+  protected String startTransitServiceDate;
 
   /**
    * When subtracting initial wait time, do not subtract more than this value, to prevent overly
@@ -645,6 +653,14 @@ public abstract class RoutingResource {
    * @param queryParameters incoming request parameters
    */
   protected RouteRequest buildRequest(MultivaluedMap<String, String> queryParameters) {
+    if (startTransitStopId != null && startTransitTripId != null) {
+      return buildDepartOnboardRequest(queryParameters);
+    }
+
+    return buildRegularRequest(queryParameters);
+  }
+
+  private RegularRouteRequest buildRegularRequest(MultivaluedMap<String, String> queryParameters) {
     RegularRouteRequest request = serverContext.defaultRouteRequest();
 
     // The routing request should already contain defaults, which are set when it is initialized or
@@ -660,7 +676,7 @@ public abstract class RoutingResource {
         LOG.debug("parsing ISO datetime {}", time);
         try {
           // If the time query param doesn't specify a timezone, use the graph's default. See issue #1373.
-          DatatypeFactory df = javax.xml.datatype.DatatypeFactory.newInstance();
+          DatatypeFactory df = DatatypeFactory.newInstance();
           XMLGregorianCalendar xmlGregCal = df.newXMLGregorianCalendar(time);
           ZonedDateTime dateTime = xmlGregCal.toGregorianCalendar().toZonedDateTime();
           if (xmlGregCal.getTimezone() == DatatypeConstants.FIELD_UNDEFINED) {
@@ -680,52 +696,8 @@ public abstract class RoutingResource {
     setIfNotNull(timetableView, request::setTimetableView);
     setIfNotNull(wheelchair, request::setWheelchair);
     setIfNotNull(numItineraries, request::setNumItineraries);
-
-    {
-      var journey = request.journey();
-      /* Temporary code to get bike/car parking and renting working. */
-      if (modes != null && !modes.qModes.isEmpty()) {
-        journey.setModes(modes.getRequestModes());
-      }
-
-      {
-        var rental = journey.rental();
-        setIfNotNull(
-          allowKeepingRentedBicycleAtDestination,
-          rental::setAllowArrivingInRentedVehicleAtDestination
-        );
-        setIfNotNull(allowedVehicleRentalNetworks, rental::setAllowedNetworks);
-        setIfNotNull(bannedVehicleRentalNetworks, rental::setBannedNetworks);
-      }
-      {
-        var parking = journey.parking();
-        setIfNotNull(bannedVehicleParkingTags, parking::setBannedTags);
-        setIfNotNull(requiredVehicleParkingTags, parking::setRequiredTags);
-      }
-
-      setIfNotNull(arriveBy, request::setArriveBy);
-
-      {
-        var transit = journey.transit();
-        // Filter Agencies
-        setIfNotNull(preferredAgencies, transit::setPreferredAgenciesFromString);
-        setIfNotNull(unpreferredAgencies, transit::setUnpreferredAgenciesFromString);
-        setIfNotNull(bannedAgencies, transit::setBannedAgenciesFromSting);
-        setIfNotNull(whiteListedAgencies, transit::setWhiteListedAgenciesFromSting);
-        // Filter Routes
-        setIfNotNull(preferredRoutes, transit::setPreferredRoutesFromString);
-        setIfNotNull(unpreferredRoutes, transit::setUnpreferredRoutesFromString);
-        setIfNotNull(bannedRoutes, transit::setBannedRoutesFromString);
-        setIfNotNull(whiteListedRoutes, transit::setWhiteListedRoutesFromString);
-        // Filter Trips
-        setIfNotNull(bannedTrips, transit::setBannedTripsFromString);
-      }
-      {
-        var debugRaptor = journey.transit().raptorDebugging();
-        setIfNotNull(debugRaptorStops, debugRaptor::withStops);
-        setIfNotNull(debugRaptorPath, debugRaptor::withPath);
-      }
-    }
+    setIfNotNull(arriveBy, request::setArriveBy);
+    setJourney(request.journey());
 
     if (locale != null) {
       request.setLocale(Locale.forLanguageTag(locale.replaceAll("-", "_")));
@@ -743,5 +715,122 @@ public abstract class RoutingResource {
       }
     });
     return request;
+  }
+
+  private DepartOnboardRouteRequest buildDepartOnboardRequest(
+    MultivaluedMap<String, String> queryParameters
+  ) {
+    RegularRouteRequest defaultRequest = serverContext.defaultRouteRequest();
+
+    Locale locale;
+
+    if (this.locale != null) {
+      locale = Locale.forLanguageTag(this.locale.replaceAll("-", "_"));
+    } else {
+      locale = defaultRequest.locale();
+    }
+
+    var transitService = serverContext.transitService();
+
+    var trip = transitService.getTripForId(FeedScopedId.parseId(startTransitTripId));
+
+    if (trip == null) {
+      throw new RoutingValidationException(
+        List.of(new RoutingError(RoutingErrorCode.LOCATION_NOT_FOUND, InputField.FROM_PLACE))
+      );
+    }
+
+    var stop = transitService.getRegularStop(FeedScopedId.parseId(startTransitStopId));
+
+    if (stop == null) {
+      throw new RoutingValidationException(
+        List.of(new RoutingError(RoutingErrorCode.LOCATION_NOT_FOUND, InputField.FROM_PLACE))
+      );
+    }
+
+    LocalDate serviceDate = LocalDate.parse(startTransitServiceDate);
+
+    TripPattern tripPattern = transitService.getPatternForTrip(trip, serviceDate);
+
+    int stopPositionInPattern = tripPattern.findBoardingStopPositionInPattern(stop);
+
+    TripTimes tripTimes = transitService
+      .getTimetableForTripPattern(tripPattern, serviceDate)
+      .getTripTimes(trip);
+
+    long midnight = ServiceDateUtils
+      .asStartOfService(serviceDate, transitService.getTimeZone())
+      .toEpochSecond();
+
+    DepartOnboardRouteRequest request = new DepartOnboardRouteRequest(
+      defaultRequest.journey(),
+      defaultRequest.preferences(),
+      wheelchair,
+      tripTimes,
+      stopPositionInPattern,
+      tripPattern,
+      serviceDate,
+      midnight,
+      fromOldStyleString(toPlace),
+      locale
+    );
+
+    setJourney(request.journey());
+
+    request.withPreferences(preferences -> {
+      // Map all preferences, note dependency on 'isTripPlannedForNow'.
+      new RequestToPreferencesMapper(this, preferences, false).map();
+
+      if (OTPFeature.DataOverlay.isOn()) {
+        var dataOverlayParameters = DataOverlayParameters.parseQueryParams(queryParameters);
+        if (!dataOverlayParameters.isEmpty()) {
+          preferences.withSystem(it -> it.withDataOverlay(dataOverlayParameters));
+        }
+      }
+    });
+    return request;
+  }
+
+  private void setJourney(JourneyRequest journey) {
+    /* Temporary code to get bike/car parking and renting working. */
+    if (modes != null && !modes.qModes.isEmpty()) {
+      journey.setModes(modes.getRequestModes());
+    }
+
+    {
+      var rental = journey.rental();
+      setIfNotNull(
+        allowKeepingRentedBicycleAtDestination,
+        rental::setAllowArrivingInRentedVehicleAtDestination
+      );
+      setIfNotNull(allowedVehicleRentalNetworks, rental::setAllowedNetworks);
+      setIfNotNull(bannedVehicleRentalNetworks, rental::setBannedNetworks);
+    }
+    {
+      var parking = journey.parking();
+      setIfNotNull(bannedVehicleParkingTags, parking::setBannedTags);
+      setIfNotNull(requiredVehicleParkingTags, parking::setRequiredTags);
+    }
+
+    {
+      var transit = journey.transit();
+      // Filter Agencies
+      setIfNotNull(preferredAgencies, transit::setPreferredAgenciesFromString);
+      setIfNotNull(unpreferredAgencies, transit::setUnpreferredAgenciesFromString);
+      setIfNotNull(bannedAgencies, transit::setBannedAgenciesFromSting);
+      setIfNotNull(whiteListedAgencies, transit::setWhiteListedAgenciesFromSting);
+      // Filter Routes
+      setIfNotNull(preferredRoutes, transit::setPreferredRoutesFromString);
+      setIfNotNull(unpreferredRoutes, transit::setUnpreferredRoutesFromString);
+      setIfNotNull(bannedRoutes, transit::setBannedRoutesFromString);
+      setIfNotNull(whiteListedRoutes, transit::setWhiteListedRoutesFromString);
+      // Filter Trips
+      setIfNotNull(bannedTrips, transit::setBannedTripsFromString);
+    }
+    {
+      var debugRaptor = journey.transit().raptorDebugging();
+      setIfNotNull(debugRaptorStops, debugRaptor::withStops);
+      setIfNotNull(debugRaptorPath, debugRaptor::withPath);
+    }
   }
 }

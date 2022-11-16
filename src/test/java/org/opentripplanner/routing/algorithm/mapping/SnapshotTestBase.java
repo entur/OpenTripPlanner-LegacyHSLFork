@@ -173,14 +173,14 @@ public abstract class SnapshotTestBase {
     );
   }
 
-  protected void expectRequestResponseToMatchSnapshot(RouteRequest request) {
+  protected void expectRequestResponseToMatchSnapshot(RegularRouteRequest request) {
     List<Itinerary> itineraries = retrieveItineraries(request);
 
     logDebugInformationOnFailure(request, () -> expectItinerariesToMatchSnapshot(itineraries));
   }
 
-  protected void expectArriveByToMatchDepartAtAndSnapshot(RouteRequest request) {
-    RouteRequest departAt = request.clone();
+  protected void expectArriveByToMatchDepartAtAndSnapshot(RegularRouteRequest request) {
+    RegularRouteRequest departAt = request.clone();
     List<Itinerary> departByItineraries = retrieveItineraries(departAt);
 
     logDebugInformationOnFailure(request, () -> assertFalse(departByItineraries.isEmpty()));
@@ -255,7 +255,7 @@ public abstract class SnapshotTestBase {
     return snapshotSerializer.apply(new Object[] { object });
   }
 
-  private List<Itinerary> retrieveItineraries(RouteRequest request) {
+  private List<Itinerary> retrieveItineraries(RegularRouteRequest request) {
     long startMillis = System.currentTimeMillis();
     RoutingResponse response = serverContext.routingService().route(request);
 

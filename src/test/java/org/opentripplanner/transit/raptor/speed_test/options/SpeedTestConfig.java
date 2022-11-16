@@ -7,7 +7,7 @@ import java.io.File;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.standalone.config.framework.file.ConfigFileLoader;
 import org.opentripplanner.standalone.config.framework.json.NodeAdapter;
 import org.opentripplanner.standalone.config.routerconfig.TransitRoutingConfig;
@@ -32,7 +32,7 @@ public class SpeedTestConfig {
   public final String feedId;
 
   public final TransitRoutingConfig transitRoutingParams;
-  public final RouteRequest request;
+  public final RegularRouteRequest request;
 
   public SpeedTestConfig(JsonNode node) {
     NodeAdapter adapter = new NodeAdapter(node, FILE_NAME);

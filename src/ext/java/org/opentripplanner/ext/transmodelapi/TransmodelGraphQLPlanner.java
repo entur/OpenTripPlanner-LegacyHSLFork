@@ -24,7 +24,6 @@ import org.opentripplanner.routing.algorithm.mapping.TripPlanMapper;
 import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.RequestModes;
 import org.opentripplanner.routing.api.request.RequestModesBuilder;
-import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
 import org.opentripplanner.routing.api.response.RoutingError;
@@ -47,7 +46,7 @@ public class TransmodelGraphQLPlanner {
     PlanResponse response = new PlanResponse();
     TransmodelRequestContext ctx = environment.getContext();
     OtpServerRequestContext serverContext = ctx.getServerContext();
-    RouteRequest request = null;
+    RegularRouteRequest request = null;
     try {
       request = createRequest(environment);
       RoutingResponse res = ctx.getRoutingService().route(request);
@@ -88,7 +87,7 @@ public class TransmodelGraphQLPlanner {
     return new GenericLocation(name, stopId, lat, lon);
   }
 
-  private RouteRequest createRequest(DataFetchingEnvironment environment) {
+  private RegularRouteRequest createRequest(DataFetchingEnvironment environment) {
     TransmodelRequestContext context = environment.getContext();
     OtpServerRequestContext serverContext = context.getServerContext();
     RegularRouteRequest request = serverContext.defaultRouteRequest();

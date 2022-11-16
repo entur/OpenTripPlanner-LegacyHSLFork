@@ -26,7 +26,6 @@ import org.opentripplanner.model.plan.StreetLeg;
 import org.opentripplanner.model.plan.WalkStep;
 import org.opentripplanner.routing.algorithm.mapping.GraphPathToItineraryMapper;
 import org.opentripplanner.routing.api.request.RegularRouteRequest;
-import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.core.TemporaryVerticesContainer;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -166,7 +165,7 @@ public class BarrierRoutingTest {
     GenericLocation from,
     GenericLocation to,
     StreetMode streetMode,
-    Consumer<RouteRequest> options,
+    Consumer<RegularRouteRequest> options,
     Function<List<Itinerary>, Stream<Executable>> assertions
   ) {
     RegularRouteRequest request = new RegularRouteRequest();

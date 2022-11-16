@@ -1,7 +1,10 @@
 package org.opentripplanner.routing.algorithm.raptoradapter.transit;
 
-import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.RaptorCostConverter;
+import java.time.ZonedDateTime;
+import org.opentripplanner.model.plan.Itinerary;
+import org.opentripplanner.routing.algorithm.mapping.GraphPathToItineraryMapper;
 import org.opentripplanner.routing.core.State;
+import org.opentripplanner.routing.spt.GraphPath;
 import org.opentripplanner.transit.raptor.api.transit.RaptorAccessEgress;
 import org.opentripplanner.util.lang.ToStringBuilder;
 
@@ -19,10 +22,15 @@ public class DefaultAccessEgress implements RaptorAccessEgress {
    */
   private final State lastState;
 
-  public DefaultAccessEgress(int stop, State lastState) {
+  public DefaultAccessEgress(
+    int stop,
+    int generalizedCost,
+    int durationInSeconds,
+    State lastState
+  ) {
     this.stop = stop;
-    this.durationInSeconds = (int) lastState.getElapsedTimeSeconds();
-    this.generalizedCost = RaptorCostConverter.toRaptorCost(lastState.getWeight());
+    this.durationInSeconds = durationInSeconds;
+    this.generalizedCost = generalizedCost;
     this.lastState = lastState;
   }
 
@@ -46,7 +54,7 @@ public class DefaultAccessEgress implements RaptorAccessEgress {
     return generalizedCost;
   }
 
-  public State getLastState() {
+  public State lastState() {
     return lastState;
   }
 
@@ -59,5 +67,20 @@ public class DefaultAccessEgress implements RaptorAccessEgress {
       .addNum("generalizedCost", generalizedCost)
       .addObj("state", lastState)
       .toString();
+  }
+
+  public Itinerary getSubItinerary(
+    ZonedDateTime fromTime,
+    GraphPathToItineraryMapper graphPathToItineraryMapper
+  ) {
+    GraphPath graphPath = new GraphPath(lastState());
+
+    Itinerary subItinerary = graphPathToItineraryMapper.generateItinerary(graphPath);
+
+    if (subItinerary.getLegs().isEmpty()) {
+      return null;
+    }
+
+    return subItinerary.withTimeShiftToStartAt(fromTime);
   }
 }

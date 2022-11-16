@@ -46,6 +46,10 @@ public class CalculateTransferToDestination<T extends RaptorTripSchedule>
           destinationArrivals.add(newElement, egress);
         }
       }
+    } else if (newElement.arrivedByAccess() && newElement.accessPath().access().hasRides()) {
+      for (RaptorAccessEgress egress : egressPaths) {
+        destinationArrivals.add(newElement, egress);
+      }
     }
   }
 }

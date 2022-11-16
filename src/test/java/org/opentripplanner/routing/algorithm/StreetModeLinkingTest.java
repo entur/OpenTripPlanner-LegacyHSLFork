@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.opentripplanner.graph_builder.module.StreetLinkerModule;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.routing.api.request.RegularRouteRequest;
-import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.core.TemporaryVerticesContainer;
 import org.opentripplanner.routing.edgetype.StreetTraversalPermission;
@@ -94,7 +93,7 @@ public class StreetModeLinkingTest extends GraphRoutingTest {
 
   @Test
   public void testCarParkLinking() {
-    var setup = (BiFunction<Double, Double, Consumer<RouteRequest>>) (
+    var setup = (BiFunction<Double, Double, Consumer<RegularRouteRequest>>) (
         Double latitude,
         Double longitude
       ) ->
@@ -190,7 +189,7 @@ public class StreetModeLinkingTest extends GraphRoutingTest {
   }
 
   private void assertLinking(
-    Consumer<RouteRequest> consumer,
+    Consumer<RegularRouteRequest> consumer,
     String fromStreetName,
     String toStreetName,
     StreetMode... streetModes

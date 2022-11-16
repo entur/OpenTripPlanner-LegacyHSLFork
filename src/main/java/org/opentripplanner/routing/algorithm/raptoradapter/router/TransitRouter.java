@@ -41,8 +41,9 @@ public class TransitRouter {
   private final DebugTimingAggregator debugTimingAggregator;
   private final ZonedDateTime transitSearchTimeZero;
   private final AdditionalSearchDays additionalSearchDays;
+  RaptorRoutingRequestTransitData requestTransitDataProvider;
 
-  private TransitRouter(
+  TransitRouter(
     RouteRequest request,
     OtpServerRequestContext serverContext,
     ZonedDateTime transitSearchTimeZero,
@@ -73,7 +74,7 @@ public class TransitRouter {
     return transitRouter.route();
   }
 
-  private TransitRouterResult route() {
+  public TransitRouterResult route() {
     if (request.journey().transit().modes().isEmpty()) {
       return new TransitRouterResult(List.of(), null);
     }
@@ -88,7 +89,7 @@ public class TransitRouter {
       ? serverContext.transitService().getTransitLayer()
       : serverContext.transitService().getRealtimeTransitLayer();
 
-    var requestTransitDataProvider = createRequestTransitDataProvider(transitLayer);
+    requestTransitDataProvider = createRequestTransitDataProvider(transitLayer);
 
     debugTimingAggregator.finishedPatternFiltering();
 
@@ -198,7 +199,7 @@ public class TransitRouter {
     return new AccessEgresses(accessList, egressList);
   }
 
-  private Collection<DefaultAccessEgress> getAccessEgresses(
+  Collection<DefaultAccessEgress> getAccessEgresses(
     AccessEgressMapper accessEgressMapper,
     TemporaryVerticesContainer temporaryVertices,
     boolean isEgress

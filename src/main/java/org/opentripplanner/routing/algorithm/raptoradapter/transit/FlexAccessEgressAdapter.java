@@ -1,6 +1,8 @@
 package org.opentripplanner.routing.algorithm.raptoradapter.transit;
 
 import org.opentripplanner.ext.flex.FlexAccessEgress;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.RaptorCostConverter;
+import org.opentripplanner.routing.core.State;
 
 /**
  * This class is used to adapt the FlexAccessEgress into a time-dependent multi-leg DefaultAccessEgress.
@@ -9,10 +11,12 @@ public class FlexAccessEgressAdapter extends DefaultAccessEgress {
 
   private final FlexAccessEgress flexAccessEgress;
 
-  public FlexAccessEgressAdapter(FlexAccessEgress flexAccessEgress, boolean isEgress) {
+  public FlexAccessEgressAdapter(FlexAccessEgress flexAccessEgress, State lastState) {
     super(
       flexAccessEgress.stop.getIndex(),
-      isEgress ? flexAccessEgress.lastState.reverse() : flexAccessEgress.lastState
+      RaptorCostConverter.toRaptorCost(lastState.getWeight()),
+      (int) lastState.getElapsedTimeSeconds(),
+      lastState
     );
     this.flexAccessEgress = flexAccessEgress;
   }

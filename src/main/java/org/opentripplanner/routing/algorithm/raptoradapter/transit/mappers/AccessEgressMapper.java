@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import org.opentripplanner.ext.flex.FlexAccessEgress;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.DefaultAccessEgress;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.FlexAccessEgressAdapter;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.RaptorCostConverter;
+import org.opentripplanner.routing.core.State;
 import org.opentripplanner.routing.graphfinder.NearbyStop;
 import org.opentripplanner.transit.model.site.RegularStop;
 
@@ -17,9 +19,12 @@ public class AccessEgressMapper {
       return null;
     }
 
+    State lastState = isEgress ? nearbyStop.state.reverse() : nearbyStop.state;
     return new DefaultAccessEgress(
       nearbyStop.stop.getIndex(),
-      isEgress ? nearbyStop.state.reverse() : nearbyStop.state
+      RaptorCostConverter.toRaptorCost((lastState).getWeight()),
+      (int) (lastState).getElapsedTimeSeconds(),
+      lastState
     );
   }
 
@@ -40,7 +45,12 @@ public class AccessEgressMapper {
   ) {
     return flexAccessEgresses
       .stream()
-      .map(flexAccessEgress -> new FlexAccessEgressAdapter(flexAccessEgress, isEgress))
+      .map(flexAccessEgress ->
+        new FlexAccessEgressAdapter(
+          flexAccessEgress,
+          isEgress ? flexAccessEgress.lastState.reverse() : flexAccessEgress.lastState
+        )
+      )
       .collect(Collectors.toList());
   }
 }

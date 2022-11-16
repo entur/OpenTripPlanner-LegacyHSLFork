@@ -6,8 +6,10 @@ import java.util.List;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
+import org.opentripplanner.routing.algorithm.DepartOnboardRoutingWorker;
 import org.opentripplanner.routing.algorithm.RoutingWorker;
-import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.DepartOnboardRouteRequest;
+import org.opentripplanner.routing.api.request.RegularRouteRequest;
 import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
 import org.opentripplanner.routing.api.request.request.RouteViaRequest;
 import org.opentripplanner.routing.api.response.RoutingResponse;
@@ -50,9 +52,14 @@ public class RoutingService implements org.opentripplanner.routing.api.request.R
   }
 
   @Override
-  public RoutingResponse route(RouteRequest request) {
+  public RoutingResponse route(RegularRouteRequest request) {
     RoutingWorker worker = new RoutingWorker(serverContext, request, timeZone);
     return worker.route();
+  }
+
+  @Override
+  public RoutingResponse route(DepartOnboardRouteRequest request) {
+    return new DepartOnboardRoutingWorker(serverContext, request, timeZone).route();
   }
 
   @Override

@@ -145,4 +145,6 @@ public interface RouteRequest extends Cloneable, Serializable {
    * be returned. Consider tuning the search-window instead of setting this to a small value.
    */
   int numItineraries();
+
+  RouteRequest clone();
 }

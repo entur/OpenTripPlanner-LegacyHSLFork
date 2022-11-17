@@ -173,8 +173,8 @@ public class SearchParams {
   }
 
   /**
-   * This accept none optimal trips if they are close enough - if and only if they represent an
-   * optimal path for their given iteration. I other words this slack only relax the pareto
+   * Whether to accept non-optimal trips if they are close enough - if and only if they represent an
+   * optimal path for their given iteration. In other words this slack only relaxes the pareto
    * comparison at the destination.
    * <p/>
    * Let {@code c} be the existing minimum pareto optimal cost to to beat. Then a trip with cost

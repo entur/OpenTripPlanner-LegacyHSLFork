@@ -98,6 +98,8 @@ public class RaptorRequestMapper {
       searchParams.maxNumberOfTransfers(preferences.transfer().maxTransfers());
     }
 
+    searchParams.relaxCostAtDestination(preferences.transit().raptor().relaxCostAtDestination());
+
     for (Optimization optimization : preferences.transit().raptor().optimizations()) {
       if (optimization.is(PARALLEL)) {
         if (isMultiThreadedEnbled) {

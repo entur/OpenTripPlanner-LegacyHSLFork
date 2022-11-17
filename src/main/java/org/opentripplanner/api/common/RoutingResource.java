@@ -22,6 +22,7 @@ import org.opentripplanner.ext.dataoverlay.api.DataOverlayParameters;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.core.BicycleOptimizeType;
 import org.opentripplanner.standalone.api.OtpServerRequestContext;
+import org.opentripplanner.transit.raptor.api.request.SearchParams;
 import org.opentripplanner.util.OTPFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -620,6 +621,13 @@ public abstract class RoutingResource {
 
   @QueryParam("useVehicleParkingAvailabilityInformation")
   protected Boolean useVehicleParkingAvailabilityInformation;
+
+  /**
+   * Whether we want to return non-optimal transit paths, this should be set to over 1.0
+   * {@link SearchParams#relaxCostAtDestination()}
+   */
+  @QueryParam("relaxCostAtDestination")
+  protected Double relaxCostAtDestination;
 
   @QueryParam("debugRaptorStops")
   private String debugRaptorStops;

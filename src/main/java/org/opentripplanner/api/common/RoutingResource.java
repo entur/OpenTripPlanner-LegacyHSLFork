@@ -616,6 +616,24 @@ public abstract class RoutingResource {
   @QueryParam("debugItineraryFilter")
   protected Boolean debugItineraryFilter;
 
+  @QueryParam("groupSimilarityKeepOne")
+  Double groupSimilarityKeepOne;
+
+  @QueryParam("groupSimilarityKeepThree")
+  Double groupSimilarityKeepThree;
+
+  @QueryParam("groupedOtherThanSameLegsMaxCostMultiplier")
+  Double groupedOtherThanSameLegsMaxCostMultiplier;
+
+  @QueryParam("transitGeneralizedCostLimitFunction")
+  String transitGeneralizedCostLimitFunction;
+
+  @QueryParam("transitGeneralizedCostLimitIntervalRelaxFactor")
+  Double transitGeneralizedCostLimitIntervalRelaxFactor;
+
+  @QueryParam("nonTransitGeneralizedCostLimitFunction")
+  String nonTransitGeneralizedCostLimitFunction;
+
   @QueryParam("geoidElevation")
   protected Boolean geoidElevation;
 

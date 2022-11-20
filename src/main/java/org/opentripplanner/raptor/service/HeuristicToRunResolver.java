@@ -43,6 +43,11 @@ class HeuristicToRunResolver {
       forward = true;
     }
 
+    // Calculate min rounds for reverse heuristic
+    if (reverse) {
+      forward = true;
+    }
+
     // Callback to set result
     if (forward) {
       turnFwdOn.run();

@@ -35,6 +35,7 @@ public class HeuristicSearchTask<T extends RaptorTripSchedule> {
   private HeuristicSearch<T> search = null;
   private RaptorRequest<T> originalRequest;
   private RaptorRequest<T> heuristicReq;
+  private Heuristics previousHeuristic;
 
   public HeuristicSearchTask(
     RaptorRequest<T> request,
@@ -80,6 +81,11 @@ public class HeuristicSearchTask<T extends RaptorTripSchedule> {
 
   public HeuristicSearchTask<T> withRequest(RaptorRequest<T> request) {
     this.originalRequest = request;
+    return this;
+  }
+
+  public HeuristicSearchTask<T> withPreviousHeuristic(Heuristics previousHeuristic) {
+    this.previousHeuristic = previousHeuristic;
     return this;
   }
 
@@ -142,7 +148,8 @@ public class HeuristicSearchTask<T extends RaptorTripSchedule> {
         config.createHeuristicSearch(
           transitData,
           transitData.multiCriteriaCostCalculator(),
-          heuristicReq
+          heuristicReq,
+          previousHeuristic
         );
     }
   }

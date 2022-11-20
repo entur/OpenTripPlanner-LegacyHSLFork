@@ -66,7 +66,8 @@ public class RaptorConfig<T extends RaptorTripSchedule> {
   public HeuristicSearch<T> createHeuristicSearch(
     RaptorTransitDataProvider<T> transitData,
     CostCalculator<T> costCalculator,
-    RaptorRequest<T> request
+    RaptorRequest<T> request,
+    Heuristics previousHeuristic
   ) {
     SearchContext<T> context = context(transitData, request);
     return new StdRangeRaptorConfig<>(context)

@@ -194,14 +194,14 @@ public class RangeRaptorDynamicSearch<T extends RaptorTripSchedule> {
 
     // Run the first heuristic search
     Heuristics result = runHeuristicSearchTask(tasks.get(0));
-    calculateDynamicSearchParametersFromHeuristics(result);
 
     if (tasks.size() == 1) {
       return;
     }
 
     // Run the second heuristic search
-    runHeuristicSearchTask(tasks.get(1));
+    result = runHeuristicSearchTask(tasks.get(1).withPreviousHeuristic(result));
+    calculateDynamicSearchParametersFromHeuristics(result);
   }
 
   private Heuristics runHeuristicSearchTask(HeuristicSearchTask<T> task) {
@@ -224,11 +224,7 @@ public class RangeRaptorDynamicSearch<T extends RaptorTripSchedule> {
    * with {@code REVERSE} first
    */
   private List<HeuristicSearchTask<T>> listTasksInOrder() {
-    boolean performForwardFirst = originalRequest.searchParams().isEarliestDepartureTimeSet();
-
-    List<HeuristicSearchTask<T>> list = performForwardFirst
-      ? List.of(fwdHeuristics, revHeuristics)
-      : List.of(revHeuristics, fwdHeuristics);
+    List<HeuristicSearchTask<T>> list = List.of(fwdHeuristics, revHeuristics);
 
     return list.stream().filter(HeuristicSearchTask::isEnabled).collect(Collectors.toList());
   }

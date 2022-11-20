@@ -43,6 +43,8 @@ public class TimeAndCostHeuristicState<T extends RaptorTripSchedule> implements 
   private final int[] transitArrivalCosts;
 
   private final BitSet reachedByTransitCurrentRound;
+  private final int[] heuristicRounds;
+  private int roundMaxLimit;
 
   private final RoundProvider roundProvider;
 
@@ -55,7 +57,8 @@ public class TimeAndCostHeuristicState<T extends RaptorTripSchedule> implements 
     int[] egressStops,
     int nStops,
     RoundProvider roundProvider,
-    WorkerLifeCycle lifeCycle
+    WorkerLifeCycle lifeCycle,
+    Heuristics previousHeuristic
   ) {
     this.egressStops = egressStops;
     this.bestNumOfTransfers = intArray(nStops, UNREACHED);
@@ -67,10 +70,14 @@ public class TimeAndCostHeuristicState<T extends RaptorTripSchedule> implements 
     this.reachedCurrentRound = new BitSet(nStops);
     this.reachedLastRound = new BitSet(nStops);
     this.roundProvider = roundProvider;
+    // TODO: Read in max rounds from config
+    this.roundMaxLimit = 12;
+    this.heuristicRounds = previousHeuristic.bestNumOfTransfersToIntArray(roundMaxLimit);
 
     // Attach to Worker life cycle
     lifeCycle.onSetupIteration(ignore -> setupIteration());
     lifeCycle.onPrepareForNextRound(round -> prepareForNextRound());
+    lifeCycle.onRoundComplete(this::roundComplete);
   }
 
   @Override
@@ -150,6 +157,9 @@ public class TimeAndCostHeuristicState<T extends RaptorTripSchedule> implements 
   }
 
   void updateNewBestTimeCostAndRound(int stop, int time, int cost, boolean isTransit) {
+    if (heuristicRounds[stop] + roundProvider.round() > roundMaxLimit) {
+      return;
+    }
     if (!isTransit || updateBestTransitArrivalTime(stop, time)) {
       updateBestTime(stop, time);
     }
@@ -239,5 +249,12 @@ public class TimeAndCostHeuristicState<T extends RaptorTripSchedule> implements 
     swapReachedCurrentAndLastRound();
     reachedCurrentRound.clear();
     reachedByTransitCurrentRound.clear();
+  }
+
+  private void roundComplete(boolean complete) {
+    if (complete) {
+      // TODO read param form config
+      roundMaxLimit = Math.min(roundMaxLimit, roundProvider.round() + 5 + 1);
+    }
   }
 }

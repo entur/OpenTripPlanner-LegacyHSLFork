@@ -439,9 +439,9 @@ public class TripQuery {
           .description(
             """
             Whether non-optimal transit paths should be returned.
-            Let c be the existing minimum pareto optimal cost to to beat. Then a trip with cost c'
+            Let c be the existing minimum pareto optimal cost to beat. Then a trip with cost c'
             is accepted if the following is true: `c' < Math.round(c * relaxCostAtDestination)`
-            If the values is less then 0.0 a normal '<' comparison is performed.
+            If the value is less than 0.0 a normal '<' comparison is performed.
             Values greater than 2.0 are not supported, due to performance reasons.
             """
           )

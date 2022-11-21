@@ -87,8 +87,8 @@ class RequestToPreferencesMapper {
       setIfNotNull(req.otherThanPreferredRoutesPenalty, tr::setOtherThanPreferredRoutesPenalty);
       setIfNotNull(req.ignoreRealtimeUpdates, tr::setIgnoreRealtimeUpdates);
       setIfNotNull(
-        req.relaxCostAtDestination,
-        value -> tr.withRaptor(it -> it.withRelaxCostAtDestination(value))
+        req.relaxRaptorCostCriteria,
+        value -> tr.withRaptor(it -> it.withRelaxRaptorCostCriteria(value))
       );
     });
 

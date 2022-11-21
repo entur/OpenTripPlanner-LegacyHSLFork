@@ -331,22 +331,22 @@ ferries, where the check-in process needs to be done in good time before ride.
           .asLinearFunction(dft.unpreferredCost())
       )
       .withRaptor(it ->
-        it.withRelaxCostAtDestination(
+        it.withRelaxRaptorCostCriteria(
           c
-            .of("relaxCostAtDestination")
+            .of("relaxRaptorCostCriteria")
             .since(V2_3)
             .summary("Whether non-optimal transit paths should be returned")
             .description(
               """
               Let c be the existing minimum pareto optimal cost to beat. Then a trip with cost c'
-              is accepted if the following is true: `c' < Math.round(c * relaxCostAtDestination)`
+              is accepted if the following is true: `c' < Math.round(c * relaxRaptorCostCriteria)`
               
               If the value is less than 0.0 a normal '<' comparison is performed.
               
               Values greater than 2.0 are not supported, due to performance reasons.
               """
             )
-            .asDouble(dft.raptor().relaxCostAtDestination())
+            .asDouble(dft.raptor().relaxRaptorCostCriteria())
         )
       );
   }

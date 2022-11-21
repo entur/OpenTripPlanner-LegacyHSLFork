@@ -644,8 +644,8 @@ public abstract class RoutingResource {
    * Whether we want to return non-optimal transit paths, this should be set to over 1.0
    * {@link SearchParams#relaxCostAtDestination()}
    */
-  @QueryParam("relaxCostAtDestination")
-  protected Double relaxCostAtDestination;
+  @QueryParam("relaxRaptorCostCriteria")
+  protected Double relaxRaptorCostCriteria;
 
   @QueryParam("debugRaptorStops")
   private String debugRaptorStops;

@@ -9,8 +9,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.opentripplanner.routing.api.request.framework.Units;
 import org.opentripplanner.transit.raptor.api.request.Optimization;
 import org.opentripplanner.transit.raptor.api.request.RaptorProfile;
+import org.opentripplanner.transit.raptor.api.request.SearchParams;
 import org.opentripplanner.transit.raptor.api.transit.SearchDirection;
 import org.opentripplanner.util.lang.ToStringBuilder;
 
@@ -22,6 +24,7 @@ import org.opentripplanner.util.lang.ToStringBuilder;
 public final class RaptorPreferences implements Serializable {
 
   public static final RaptorPreferences DEFAULT = new RaptorPreferences();
+  public static final double MAX_RELAX_COST_AT_DESTINATION_VALUE = 2.0;
 
   private final Set<Optimization> optimizations;
 
@@ -31,11 +34,14 @@ public final class RaptorPreferences implements Serializable {
 
   private final Instant timeLimit;
 
+  private final double relaxRaptorCostCriteria;
+
   private RaptorPreferences() {
     this.optimizations = EnumSet.of(Optimization.PARETO_CHECK_AGAINST_DESTINATION);
     this.profile = RaptorProfile.MULTI_CRITERIA;
     this.searchDirection = SearchDirection.FORWARD;
     this.timeLimit = null;
+    this.relaxRaptorCostCriteria = SearchParams.NOT_SET;
   }
 
   private RaptorPreferences(RaptorPreferences.Builder builder) {
@@ -43,6 +49,12 @@ public final class RaptorPreferences implements Serializable {
     this.profile = Objects.requireNonNull(builder.profile);
     this.searchDirection = Objects.requireNonNull(builder.searchDirection);
     this.timeLimit = builder.timeLimit;
+    this.relaxRaptorCostCriteria =
+      Units.reluctance(
+        builder.relaxRaptorCostCriteria,
+        Double.NEGATIVE_INFINITY,
+        MAX_RELAX_COST_AT_DESTINATION_VALUE
+      );
   }
 
   public static Builder of() {
@@ -74,6 +86,10 @@ public final class RaptorPreferences implements Serializable {
     return timeLimit;
   }
 
+  public double relaxRaptorCostCriteria() {
+    return relaxRaptorCostCriteria;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -83,13 +99,20 @@ public final class RaptorPreferences implements Serializable {
       optimizations.equals(that.optimizations) &&
       profile == that.profile &&
       searchDirection == that.searchDirection &&
-      Objects.equals(timeLimit, that.timeLimit)
+      Objects.equals(timeLimit, that.timeLimit) &&
+      relaxRaptorCostCriteria == that.relaxRaptorCostCriteria
     );
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(optimizations, profile, searchDirection, timeLimit);
+    return Objects.hash(
+      optimizations,
+      profile,
+      searchDirection,
+      timeLimit,
+      relaxRaptorCostCriteria
+    );
   }
 
   @Override
@@ -101,6 +124,7 @@ public final class RaptorPreferences implements Serializable {
       .addEnum("searchDirection", searchDirection, DEFAULT.searchDirection)
       // Ignore time limit if null (default value)
       .addDateTime("timeLimit", timeLimit)
+      .addNum("relaxRaptorCostCriteria", relaxRaptorCostCriteria, DEFAULT.relaxRaptorCostCriteria)
       .toString();
   }
 
@@ -112,6 +136,7 @@ public final class RaptorPreferences implements Serializable {
     private SearchDirection searchDirection;
     private Set<Optimization> optimizations;
     private Instant timeLimit;
+    private double relaxRaptorCostCriteria;
 
     public Builder(RaptorPreferences original) {
       this.original = original;
@@ -119,6 +144,7 @@ public final class RaptorPreferences implements Serializable {
       this.searchDirection = original.searchDirection;
       this.optimizations = null;
       this.timeLimit = original.timeLimit;
+      this.relaxRaptorCostCriteria = original.relaxRaptorCostCriteria;
     }
 
     public RaptorPreferences original() {
@@ -142,6 +168,11 @@ public final class RaptorPreferences implements Serializable {
 
     public Builder withTimeLimit(Instant timeLimit) {
       this.timeLimit = timeLimit;
+      return this;
+    }
+
+    public Builder withRelaxRaptorCostCriteria(double relaxRaptorCostCriteria) {
+      this.relaxRaptorCostCriteria = relaxRaptorCostCriteria;
       return this;
     }
 

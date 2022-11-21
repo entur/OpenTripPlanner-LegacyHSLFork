@@ -22,6 +22,7 @@ import org.opentripplanner.ext.dataoverlay.api.DataOverlayParameters;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.core.BicycleOptimizeType;
 import org.opentripplanner.standalone.api.OtpServerRequestContext;
+import org.opentripplanner.transit.raptor.api.request.SearchParams;
 import org.opentripplanner.util.OTPFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -474,19 +475,25 @@ public abstract class RoutingResource {
    * <p>
    * See https://github.com/opentripplanner/OpenTripPlanner/issues/2886
    *
-   * @deprecated TODO OTP2 Regression. A maxTransfers should be set in the router config, not
-   * here. Instead the client should be able to pass in a parameter for
-   * the max number of additional/extra transfers relative to the best
-   * trip (with the fewest possible transfers) within constraint of the
-   * other search parameters.
-   * This might be to complicated to explain to the customer, so we
-   * might stick to the old limit, but that have side-effects that you
-   * might not find any trips on a day where a critical part of the
-   * trip is not available, because of some real-time disruption.
+   * @deprecated Use {@link #maxAdditionalTransfers} instead to pass in the max number of
+   * additional/extra transfers relative to the best trip (with the fewest possible transfers)
+   * within constraint of the other search parameters. This might be too complicated to explain to
+   * the customer, so you might stick to the old limit, but that has side-effects where you might
+   * not find any trips on a day when a critical part of the trip is not available, because of some
+   * real-time disruption.
    */
   @Deprecated
   @QueryParam("maxTransfers")
   protected Integer maxTransfers;
+
+  /**
+   * The maximum number of additional transfers (that is, one plus the maximum number of boardings)
+   * in additiona to hte result with the least number of transfers that a trip will be allowed.
+   * <p>
+   * Consider using the {@link #transferPenalty} instead of this parameter.
+   */
+  @QueryParam("maxAdditionalTransfers")
+  protected Integer maxAdditionalTransfers;
 
   /**
    * If true, goal direction is turned off and a full path tree is built (specify only once)
@@ -618,11 +625,36 @@ public abstract class RoutingResource {
   @QueryParam("debugItineraryFilter")
   protected Boolean debugItineraryFilter;
 
+  @QueryParam("groupSimilarityKeepOne")
+  Double groupSimilarityKeepOne;
+
+  @QueryParam("groupSimilarityKeepThree")
+  Double groupSimilarityKeepThree;
+
+  @QueryParam("groupedOtherThanSameLegsMaxCostMultiplier")
+  Double groupedOtherThanSameLegsMaxCostMultiplier;
+
+  @QueryParam("transitGeneralizedCostLimitFunction")
+  String transitGeneralizedCostLimitFunction;
+
+  @QueryParam("transitGeneralizedCostLimitIntervalRelaxFactor")
+  Double transitGeneralizedCostLimitIntervalRelaxFactor;
+
+  @QueryParam("nonTransitGeneralizedCostLimitFunction")
+  String nonTransitGeneralizedCostLimitFunction;
+
   @QueryParam("geoidElevation")
   protected Boolean geoidElevation;
 
   @QueryParam("useVehicleParkingAvailabilityInformation")
   protected Boolean useVehicleParkingAvailabilityInformation;
+
+  /**
+   * Whether we want to return non-optimal transit paths, this should be set to over 1.0
+   * {@link SearchParams#relaxCostAtDestination()}
+   */
+  @QueryParam("relaxRaptorCostCriteria")
+  protected Double relaxRaptorCostCriteria;
 
   @QueryParam("debugRaptorStops")
   private String debugRaptorStops;

@@ -106,6 +106,12 @@ public class RaptorRequestMapper {
       searchParams.maxNumberOfTransfers(preferences.transfer().maxTransfers());
     }
 
+    if (preferences.transfer().maxAdditionalTransfers() != null) {
+      searchParams.numberOfAdditionalTransfers(preferences.transfer().maxAdditionalTransfers());
+    }
+
+    searchParams.relaxCostAtDestination(preferences.transit().raptor().relaxRaptorCostCriteria());
+
     for (Optimization optimization : preferences.transit().raptor().optimizations()) {
       if (optimization.is(PARALLEL)) {
         if (isMultiThreadedEnbled) {

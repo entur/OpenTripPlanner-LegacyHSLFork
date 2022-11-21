@@ -85,6 +85,7 @@ class TransferPreferencesTest {
       "slack: 150, " +
       "waitReluctance: 0.95, " +
       "maxTransfers: 17, " +
+      "maxAdditionalTransfers: 7, " +
       "optimization: TransferOptimizationPreferences{backTravelWaitTimeFactor: 2.5}, " +
       "nonpreferredCost: 30,000" +
       "}",

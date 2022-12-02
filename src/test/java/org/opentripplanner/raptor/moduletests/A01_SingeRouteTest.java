@@ -55,7 +55,7 @@ public class A01_SingeRouteTest implements RaptorTestConstants {
   @BeforeEach
   public void setup() {
     data.withRoute(
-      route(pattern("R1", STOP_B, STOP_C, STOP_D)).withTimetable(schedule("00:01, 00:03, 00:05"))
+      route(pattern("R1", STOP_B, STOP_C, STOP_D)).withTimetable(schedule("00:01, 00:03, 00:10"))
     );
     requestBuilder
       .searchParams()

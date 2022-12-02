@@ -60,12 +60,20 @@ public class StdRangeRaptorConfig<T extends RaptorTripSchedule> {
     BiFunction<WorkerState<T>, RoutingStrategy<T>, Worker<T>> createWorker,
     CostCalculator<T> costCalculator
   ) {
-    StdRangeRaptorWorkerState<T> state = createState();
+    HeuristicWorkerState<T> state = createHeuristicWorkerState();
     Heuristics heuristics = createHeuristicsAdapter(costCalculator);
     return new HeuristicSearch<>(
-      createWorker.apply(state, createWorkerStrategy(state)),
+      createWorker.apply(state, createHeuristicWorkerStrategy(state)),
       heuristics
     );
+  }
+
+  private HeuristicWorkerStrategy createHeuristicWorkerStrategy(HeuristicWorkerState<T> state) {
+    return new HeuristicWorkerStrategy(ctx.calculator(), ctx.costCalculator(), ctx.roundProvider(), state);
+  }
+
+  private HeuristicWorkerState<T> createHeuristicWorkerState() {
+    return new HeuristicWorkerState<>(ctx.nStops(), ctx.lifeCycle());
   }
 
   public Worker<T> createSearch(
@@ -103,7 +111,6 @@ public class StdRangeRaptorConfig<T extends RaptorTripSchedule> {
   }
 
   private Heuristics createHeuristicsAdapter(CostCalculator<T> costCalculator) {
-    assertNotNull(bestNumberOfTransfers);
     return new HeuristicsAdapter(
       bestTimes(),
       this.bestNumberOfTransfers,

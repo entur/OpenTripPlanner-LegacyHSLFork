@@ -35,7 +35,9 @@ public enum RaptorProfile {
   /**
    * Same as {@link #MIN_TRAVEL_DURATION}, but no paths are computed/returned.
    */
-  MIN_TRAVEL_DURATION_BEST_TIME("MinTravelDurationBT");
+  MIN_TRAVEL_DURATION_BEST_TIME("MinTravelDurationBT"),
+
+  BEST_COST("BestCost");
 
   private final String abbreviation;
 

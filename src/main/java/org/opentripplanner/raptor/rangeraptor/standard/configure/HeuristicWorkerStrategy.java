@@ -9,7 +9,6 @@ import org.opentripplanner.raptor.spi.RaptorAccessEgress;
 import org.opentripplanner.raptor.spi.RaptorTripSchedule;
 import org.opentripplanner.raptor.spi.RaptorTripScheduleBoardOrAlightEvent;
 import org.opentripplanner.raptor.spi.TransitArrival;
-import org.opentripplanner.street.search.state.State;
 
 public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements RoutingStrategy<T> {
 
@@ -22,10 +21,12 @@ public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements Ro
 
 
   private int onTripIndex;
-  private int onTripBoardTime;
+  private int onTripBoardCost;
+
   private int onTripBoardStop;
+
+  private int onTripBoardTime;
   private T onTrip;
-  private int onTripTimeShift;
 
   public HeuristicWorkerStrategy(TransitCalculator<T> transitCalculator, CostCalculator<T> costCalculator, RoundProvider roundProvider, HeuristicWorkerState<T> state) {
     this.transitCalculator = transitCalculator;
@@ -42,10 +43,10 @@ public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements Ro
   @Override
   public void prepareForTransitWith() {
     this.onTripIndex = NOT_SET;
-    this.onTripBoardTime = NOT_SET;
+    this.onTripBoardCost = NOT_SET;
     this.onTripBoardStop = NOT_SET;
+    this.onTripBoardTime = NOT_SET;
     this.onTrip = null;
-    this.onTripTimeShift = NOT_SET;
   }
 
   @Override
@@ -58,18 +59,20 @@ public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements Ro
       // Remove the wait time from the arrival-time. We don´t need to use the transit
       // calculator because of the way we compute the time-shift. It is positive in the case
       // of a forward-search and negative int he case of a reverse-search.
-      final int stopArrivalTime = stopArrivalTime0 - onTripTimeShift;
+
+      int transitTime = onTripBoardTime - stopArrivalTime0;
 
 
-      int cost = costCalculator.transitArrivalCost(0, alightSlack, stopArrivalTime - onTripBoardTime, onTrip, stopIndex);
+      int cost = costCalculator.transitArrivalCost(0, alightSlack, transitTime, onTrip, stopIndex);
 
-      state.transitToStop(stopIndex, cost);
+      state.transitToStop(stopIndex, onTripBoardCost + cost);
     }
   }
 
   @Override
   public void forEachBoarding(int stopIndex, IntConsumer prevStopArrivalTimeConsumer) {
-    prevStopArrivalTimeConsumer.accept(1000000);
+    // pass previous arrival cost
+    prevStopArrivalTimeConsumer.accept(state.bestOverallCost(stopIndex));
 
   }
 
@@ -79,14 +82,12 @@ public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements Ro
   }
 
   @Override
-  public void board(int stopIndex, int earliestBoardTime, RaptorTripScheduleBoardOrAlightEvent<T> boarding) {
+  public void board(int stopIndex, int lowestBoardCost, RaptorTripScheduleBoardOrAlightEvent<T> boarding) {
     onTripIndex = boarding.getTripIndex();
     onTrip = boarding.getTrip();
-    onTripBoardTime = earliestBoardTime;
+    onTripBoardCost = lowestBoardCost;
+    onTripBoardTime = boarding.getTime();
     onTripBoardStop = stopIndex;
-    // Calculate the time-shift, the time-shift will be a positive duration in a
-    // forward-search, and a negative value in case of a reverse-search.
-    onTripTimeShift = boarding.getTime() - onTripBoardTime;
 
   }
 

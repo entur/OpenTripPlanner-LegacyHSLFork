@@ -113,6 +113,10 @@ public class HeuristicWorkerState<T extends RaptorTripSchedule> implements Worke
   }
 
 
+  public int bestOverallCost(int stopIndex) {
+    return overallGeneralizedCosts[stopIndex];
+  }
+
   // Lifecycle
 
   private void setupIteration() {

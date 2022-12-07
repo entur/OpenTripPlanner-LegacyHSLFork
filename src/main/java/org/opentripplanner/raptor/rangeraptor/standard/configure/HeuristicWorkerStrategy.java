@@ -69,7 +69,7 @@ public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements Ro
 
   @Override
   public void forEachBoarding(int stopIndex, IntConsumer prevStopArrivalTimeConsumer) {
-    prevStopArrivalTimeConsumer.accept(0);
+    prevStopArrivalTimeConsumer.accept(1000000);
 
   }
 

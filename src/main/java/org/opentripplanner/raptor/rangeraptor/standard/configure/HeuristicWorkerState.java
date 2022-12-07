@@ -91,9 +91,9 @@ public class HeuristicWorkerState<T extends RaptorTripSchedule> implements Worke
     return false;
   }
 
-  public void transitToStop(int stop, int arrivalTime) {
-    if (newBestTransitGeneralizedCost(stop, arrivalTime)) {
-      newOverallBestGeneralizedCost(stop, arrivalTime);
+  public void transitToStop(int stop, int cost) {
+    if (newBestTransitGeneralizedCost(stop, cost)) {
+      newOverallBestGeneralizedCost(stop, cost);
     }
   }
 

@@ -27,6 +27,7 @@ class HeuristicToRunResolver {
     final SearchParams s = req.searchParams();
 
     if (req.profile().is(MULTI_CRITERIA)) {
+      reverse = true;
       // REV heuristics is required to do destination pruning
       if (req.useDestinationPruning()) {
         reverse = true;

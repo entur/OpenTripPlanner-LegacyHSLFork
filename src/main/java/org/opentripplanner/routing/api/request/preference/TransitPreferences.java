@@ -33,6 +33,7 @@ public final class TransitPreferences implements Serializable {
   private final boolean includePlannedCancellations;
   private final boolean includeRealtimeCancellations;
   private final RaptorPreferences raptor;
+  private final double extraSearchCoachReluctance;
 
   private TransitPreferences() {
     this.boardSlack = this.alightSlack = DurationForEnum.of(TransitMode.class).build();
@@ -43,6 +44,7 @@ public final class TransitPreferences implements Serializable {
     this.includePlannedCancellations = false;
     this.includeRealtimeCancellations = false;
     this.raptor = RaptorPreferences.DEFAULT;
+    this.extraSearchCoachReluctance = 0.0;
   }
 
   private TransitPreferences(Builder builder) {
@@ -55,6 +57,7 @@ public final class TransitPreferences implements Serializable {
     this.includePlannedCancellations = builder.includePlannedCancellations;
     this.includeRealtimeCancellations = builder.includeRealtimeCancellations;
     this.raptor = requireNonNull(builder.raptor);
+    this.extraSearchCoachReluctance = builder.extraSearchCoachReluctance;
   }
 
   public static Builder of() {
@@ -155,6 +158,11 @@ public final class TransitPreferences implements Serializable {
     return raptor;
   }
 
+  /** Zero means turned off. HACK SØRLANDSBANEN */
+  public double extraSearchCoachReluctance() {
+    return extraSearchCoachReluctance;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -169,6 +177,7 @@ public final class TransitPreferences implements Serializable {
       alightSlack.equals(that.alightSlack) &&
       reluctanceForMode.equals(that.reluctanceForMode) &&
       unpreferredCost.equals(that.unpreferredCost) &&
+      extraSearchCoachReluctance == that.extraSearchCoachReluctance &&
       raptor.equals(that.raptor)
     );
   }
@@ -184,6 +193,7 @@ public final class TransitPreferences implements Serializable {
       ignoreRealtimeUpdates,
       includePlannedCancellations,
       includeRealtimeCancellations,
+      extraSearchCoachReluctance,
       raptor
     );
   }
@@ -231,6 +241,7 @@ public final class TransitPreferences implements Serializable {
     private boolean includePlannedCancellations;
     private boolean includeRealtimeCancellations;
     private RaptorPreferences raptor;
+    private double extraSearchCoachReluctance;
 
     public Builder(TransitPreferences original) {
       this.original = original;
@@ -243,6 +254,7 @@ public final class TransitPreferences implements Serializable {
       this.includePlannedCancellations = original.includePlannedCancellations;
       this.includeRealtimeCancellations = original.includeRealtimeCancellations;
       this.raptor = original.raptor;
+      this.extraSearchCoachReluctance = original.extraSearchCoachReluctance;
     }
 
     public TransitPreferences original() {
@@ -304,6 +316,11 @@ public final class TransitPreferences implements Serializable {
 
     public Builder withRaptor(Consumer<RaptorPreferences.Builder> body) {
       this.raptor = raptor.copyOf().apply(body).build();
+      return this;
+    }
+
+    public Builder setExtraSearchCoachReluctance(double extraSearchCoachReluctance) {
+      this.extraSearchCoachReluctance = extraSearchCoachReluctance;
       return this;
     }
 

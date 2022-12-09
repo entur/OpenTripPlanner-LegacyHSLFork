@@ -450,6 +450,7 @@ public class TransmodelGraphQLPlanner {
         "relaxTransitSearchGeneralizedCostAtDestination",
         (Double value) -> tr.withRaptor(it -> it.withRelaxGeneralizedCostAtDestination(value))
       );
+      callWith.argument("extraSearchCoachReluctance", tr::setExtraSearchCoachReluctance);
     });
     preferences.withItineraryFilter(itineraryFilter -> {
       callWith.argument("debugItineraryFilter", itineraryFilter::withDebug);

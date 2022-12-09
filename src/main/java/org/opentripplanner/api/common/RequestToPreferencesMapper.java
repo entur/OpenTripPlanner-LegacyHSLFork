@@ -97,6 +97,7 @@ class RequestToPreferencesMapper {
           v -> tr.withRaptor(r -> r.withRelaxGeneralizedCostAtDestination(v))
         );
       }
+      setIfNotNull(req.extraSearchCoachReluctance, tr::setExtraSearchCoachReluctance);
     });
 
     return new BoardAndAlightSlack(

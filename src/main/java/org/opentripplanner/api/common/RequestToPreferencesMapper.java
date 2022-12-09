@@ -88,6 +88,7 @@ class RequestToPreferencesMapper {
         req.relaxTransitSearchGeneralizedCostAtDestination,
         value -> tr.withRaptor(it -> it.withRelaxGeneralizedCostAtDestination(value))
       );
+      setIfNotNull(req.extraSearchCoachReluctance, tr::setExtraSearchCoachReluctance);
     });
 
     return new BoardAndAlightSlack(

@@ -19,7 +19,6 @@ public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements Ro
   private final RoundProvider roundProvider;
   private final HeuristicWorkerState<T> state;
 
-
   private int onTripIndex;
   private int onTripBoardCost;
 
@@ -28,7 +27,12 @@ public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements Ro
   private int onTripBoardTime;
   private T onTrip;
 
-  public HeuristicWorkerStrategy(TransitCalculator<T> transitCalculator, CostCalculator<T> costCalculator, RoundProvider roundProvider, HeuristicWorkerState<T> state) {
+  public HeuristicWorkerStrategy(
+    TransitCalculator<T> transitCalculator,
+    CostCalculator<T> costCalculator,
+    RoundProvider roundProvider,
+    HeuristicWorkerState<T> state
+  ) {
     this.transitCalculator = transitCalculator;
     this.costCalculator = costCalculator;
     this.roundProvider = roundProvider;
@@ -36,7 +40,11 @@ public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements Ro
   }
 
   @Override
-  public void setAccessToStop(RaptorAccessEgress accessPath, int iterationDepartureTime, int timeDependentDepartureTime) {
+  public void setAccessToStop(
+    RaptorAccessEgress accessPath,
+    int iterationDepartureTime,
+    int timeDependentDepartureTime
+  ) {
     state.setAccessToStop(accessPath, iterationDepartureTime);
   }
 
@@ -51,7 +59,6 @@ public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements Ro
 
   @Override
   public void alight(int stopIndex, int stopPos, int alightSlack) {
-
     if (onTripIndex != NOT_SET) {
       // Trip alightTime + alight-slack(forward-search) or board-slack(reverse-search)
       final int stopArrivalTime0 = transitCalculator.stopArrivalTime(onTrip, stopPos, alightSlack);
@@ -61,7 +68,6 @@ public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements Ro
       // of a forward-search and negative int he case of a reverse-search.
 
       int transitTime = onTripBoardTime - stopArrivalTime0;
-
 
       int cost = costCalculator.transitArrivalCost(0, alightSlack, transitTime, onTrip, stopIndex);
 
@@ -73,7 +79,6 @@ public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements Ro
   public void forEachBoarding(int stopIndex, IntConsumer prevStopArrivalTimeConsumer) {
     // pass previous arrival cost
     prevStopArrivalTimeConsumer.accept(state.bestOverallCost(stopIndex));
-
   }
 
   @Override
@@ -82,16 +87,17 @@ public class HeuristicWorkerStrategy<T extends RaptorTripSchedule> implements Ro
   }
 
   @Override
-  public void board(int stopIndex, int lowestBoardCost, RaptorTripScheduleBoardOrAlightEvent<T> boarding) {
+  public void board(
+    int stopIndex,
+    int lowestBoardCost,
+    RaptorTripScheduleBoardOrAlightEvent<T> boarding
+  ) {
     onTripIndex = boarding.getTripIndex();
     onTrip = boarding.getTrip();
     onTripBoardCost = lowestBoardCost;
     onTripBoardTime = boarding.getTime();
     onTripBoardStop = stopIndex;
-
   }
-
-
 
   private int calculateCostAtBoardTime(
     final int round,

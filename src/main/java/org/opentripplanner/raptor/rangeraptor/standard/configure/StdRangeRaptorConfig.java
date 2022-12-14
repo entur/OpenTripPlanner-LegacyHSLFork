@@ -1,6 +1,7 @@
 package org.opentripplanner.raptor.rangeraptor.standard.configure;
 
 import java.util.function.BiFunction;
+import org.opentripplanner.raptor.api.request.RaptorProfile;
 import org.opentripplanner.raptor.rangeraptor.context.SearchContext;
 import org.opentripplanner.raptor.rangeraptor.internalapi.HeuristicSearch;
 import org.opentripplanner.raptor.rangeraptor.internalapi.Heuristics;
@@ -60,16 +61,30 @@ public class StdRangeRaptorConfig<T extends RaptorTripSchedule> {
     BiFunction<WorkerState<T>, RoutingStrategy<T>, Worker<T>> createWorker,
     CostCalculator<T> costCalculator
   ) {
-    HeuristicWorkerState<T> state = createHeuristicWorkerState();
+    if (ctx.profile() == RaptorProfile.BEST_COST) {
+      HeuristicWorkerState<T> state = createHeuristicWorkerState();
+      Heuristics heuristics = createHeuristicsAdapter(costCalculator);
+      return new HeuristicSearch<>(
+        createWorker.apply(state, createHeuristicWorkerStrategy(state)),
+        heuristics
+      );
+    }
+
+    StdRangeRaptorWorkerState<T> state = createState();
     Heuristics heuristics = createHeuristicsAdapter(costCalculator);
     return new HeuristicSearch<>(
-      createWorker.apply(state, createHeuristicWorkerStrategy(state)),
+      createWorker.apply(state, createWorkerStrategy(state)),
       heuristics
     );
   }
 
-  private HeuristicWorkerStrategy createHeuristicWorkerStrategy(HeuristicWorkerState<T> state) {
-    return new HeuristicWorkerStrategy(ctx.calculator(), ctx.costCalculator(), ctx.roundProvider(), state);
+  private RoutingStrategy<T> createHeuristicWorkerStrategy(HeuristicWorkerState<T> state) {
+    return new HeuristicWorkerStrategy<>(
+      ctx.calculator(),
+      ctx.costCalculator(),
+      ctx.roundProvider(),
+      state
+    );
   }
 
   private HeuristicWorkerState<T> createHeuristicWorkerState() {

@@ -75,7 +75,10 @@ public class SearchContext<T extends RaptorTripSchedule> {
 
     // Note that it is the "new" request that is passed in.
     this.calculator = createCalculator(this.request, tuningParameters);
-    this.costCalculator = transit.multiCriteriaCostCalculator();
+    this.costCalculator =
+      request.profile().isOneOf(RaptorProfile.MULTI_CRITERIA, RaptorProfile.BEST_COST)
+        ? transit.multiCriteriaCostCalculator()
+        : null;
     this.roundTracker =
       new RoundTracker(
         nRounds(),

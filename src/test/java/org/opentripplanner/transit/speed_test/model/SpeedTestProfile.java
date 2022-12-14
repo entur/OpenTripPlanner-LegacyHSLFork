@@ -56,6 +56,8 @@ public enum SpeedTestProfile {
     RaptorProfile.MIN_TRAVEL_DURATION_BEST_TIME,
     SearchDirection.REVERSE
   ),
+  best_cost_reverse("bcr", "Reverse Best Cost", RaptorProfile.BEST_COST, SearchDirection.REVERSE),
+
   mc_range_raptor(
     "mc",
     "Multi-Criteria Range Raptor [ transfers, arrival time, travel time, cost ].",

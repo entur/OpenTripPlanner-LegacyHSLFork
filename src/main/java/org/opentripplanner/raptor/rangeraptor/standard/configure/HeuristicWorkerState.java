@@ -34,14 +34,11 @@ public class HeuristicWorkerState<T extends RaptorTripSchedule> implements Worke
     this.reachedCurrentRound = new BitSet(overallGeneralizedCosts.length);
     this.reachedLastRound = new BitSet(overallGeneralizedCosts.length);
     this.reachedByTransitCurrentRound = new BitSet(overallGeneralizedCosts.length);
-    ;
     this.lifeCycle = lifeCycle;
-
     lifeCycle.onSetupIteration(ignore -> setupIteration());
+
     lifeCycle.onPrepareForNextRound(ignore -> prepareForNextRound());
-
   }
-
 
   @Override
   public boolean isNewRoundAvailable() {
@@ -67,7 +64,7 @@ public class HeuristicWorkerState<T extends RaptorTripSchedule> implements Worke
   public void setAccessToStop(RaptorAccessEgress accessPath, int iterationDepartureTime) {
     final int generalizedCost = accessPath.generalizedCost();
     final int stop = accessPath.stop();
-    if(accessPath.stopReachedOnBoard()) {
+    if (accessPath.stopReachedOnBoard()) {
       newBestTransitGeneralizedCost(stop, generalizedCost);
     }
     newOverallBestGeneralizedCost(stop, generalizedCost);
@@ -98,9 +95,7 @@ public class HeuristicWorkerState<T extends RaptorTripSchedule> implements Worke
   }
 
   @Override
-  public void transferToStops(int fromStop, Iterator<? extends RaptorTransfer> transfers) {
-
-  }
+  public void transferToStops(int fromStop, Iterator<? extends RaptorTransfer> transfers) {}
 
   @Override
   public Collection<Path<T>> extractPaths() {
@@ -111,7 +106,6 @@ public class HeuristicWorkerState<T extends RaptorTripSchedule> implements Worke
   public StopArrivals extractStopArrivals() {
     return null;
   }
-
 
   public int bestOverallCost(int stopIndex) {
     return overallGeneralizedCosts[stopIndex];

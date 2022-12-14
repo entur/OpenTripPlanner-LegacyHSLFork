@@ -126,7 +126,7 @@ public final class RaptorPreferences implements Serializable {
     }
 
     public Builder withOptimizations(Collection<Optimization> optimizations) {
-      this.optimizations = EnumSet.copyOf(optimizations);
+      this.optimizations = optimizations.isEmpty() ? Set.of() : EnumSet.copyOf(optimizations);
       return this;
     }
 

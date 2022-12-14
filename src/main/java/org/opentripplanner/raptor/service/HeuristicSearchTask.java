@@ -124,7 +124,16 @@ public class HeuristicSearchTask<T extends RaptorTripSchedule> {
 
   private void createHeuristicSearchIfNotExist(RaptorRequest<T> request) {
     if (search == null) {
-      var profile = BEST_COST;
+      var profile = MIN_TRAVEL_DURATION_BEST_TIME;
+
+      if (request.searchParams().constrainedTransfersEnabled()) {
+        // We need to look up the previous transit arrival, this is not possible with the
+        // BEST_TIMES only states.
+        profile = MIN_TRAVEL_DURATION;
+      }
+
+      // profile = BEST_COST;
+
       var builder = request
         .mutate()
         // Disable any optimization that is not valid for a heuristic search

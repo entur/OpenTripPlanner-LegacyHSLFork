@@ -193,6 +193,7 @@ public class TransmodelGraphQLSchema {
       QuayType.REF,
       tariffZoneType,
       EstimatedCallType.REF,
+      PtSituationElementType.REF,
       gqlUtil
     );
     GraphQLOutputType quayType = QuayType.create(

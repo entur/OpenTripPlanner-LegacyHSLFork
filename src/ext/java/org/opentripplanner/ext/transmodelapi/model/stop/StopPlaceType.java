@@ -180,7 +180,7 @@ public class StopPlaceType {
               .map(StopLocation::getNetexVehicleSubmode)
               .filter(it -> it != SubMode.UNKNOWN)
               .map(TransmodelTransportSubmode::fromValue)
-              .collect(Collectors.toList())
+              .collect(Collectors.toSet())
           )
           .build()
       )

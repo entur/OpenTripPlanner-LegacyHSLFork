@@ -87,7 +87,9 @@ public class TransmodelGraphQLPlanner {
   }
 
   private RouteRequest createRequest(DataFetchingEnvironment environment) {
-    RouteRequest request = GqlUtil.getServerContext(environment).defaultRouteRequest();
+    // we need to clone the default request as it is request-scoped and this method
+    // can be used by a multiple data fetchers, causing several invocations to use the same instance
+    RouteRequest request = GqlUtil.getServerContext(environment).defaultRouteRequest().clone();
 
     DataFetcherDecorator callWith = new DataFetcherDecorator(environment);
 

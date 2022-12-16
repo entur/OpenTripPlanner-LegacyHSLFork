@@ -1,5 +1,6 @@
 package org.opentripplanner.ext.transmodelapi.support;
 
+import graphql.GraphQLContext;
 import graphql.Scalars;
 import graphql.introspection.Introspection.DirectiveLocation;
 import graphql.schema.DataFetchingEnvironment;
@@ -12,7 +13,7 @@ import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLScalarType;
 import java.time.ZoneId;
 import java.util.List;
-import org.opentripplanner.ext.transmodelapi.TransmodelRequestContext;
+import java.util.function.Consumer;
 import org.opentripplanner.ext.transmodelapi.mapping.TransitIdMapper;
 import org.opentripplanner.ext.transmodelapi.model.scalars.DateScalarFactory;
 import org.opentripplanner.ext.transmodelapi.model.scalars.DateTimeScalarFactory;
@@ -20,6 +21,7 @@ import org.opentripplanner.ext.transmodelapi.model.scalars.DoubleFunctionScalarF
 import org.opentripplanner.ext.transmodelapi.model.scalars.LocalTimeScalarFactory;
 import org.opentripplanner.ext.transmodelapi.model.scalars.TimeScalarFactory;
 import org.opentripplanner.routing.RoutingService;
+import org.opentripplanner.standalone.api.OtpServerRequestContext;
 import org.opentripplanner.transit.service.TransitService;
 
 /**
@@ -34,6 +36,14 @@ public class GqlUtil {
   public final GraphQLScalarType localTimeScalar;
   public final GraphQLObjectType timeScalar;
   public final GraphQLDirective timingData;
+
+  /**
+   * These three objects are the keys for the GraphQLContext. They are private, so all access must
+   * Be through this helper class.
+   */
+  private static final Object SERVER_CONTEXT = new Object();
+  private static final Object ROUTING_SERVICE = new Object();
+  private static final Object TRANSIT_SERVICE = new Object();
 
   /** private to prevent util class from instantiation */
   public GqlUtil(ZoneId timeZone) {
@@ -53,11 +63,29 @@ public class GqlUtil {
   }
 
   public static RoutingService getRoutingService(DataFetchingEnvironment environment) {
-    return ((TransmodelRequestContext) environment.getContext()).getRoutingService();
+    return environment.getGraphQlContext().get(ROUTING_SERVICE);
   }
 
   public static TransitService getTransitService(DataFetchingEnvironment environment) {
-    return ((TransmodelRequestContext) environment.getContext()).getTransitService();
+    return environment.getGraphQlContext().get(TRANSIT_SERVICE);
+  }
+
+  public static OtpServerRequestContext getServerContext(DataFetchingEnvironment environment) {
+    return environment.getGraphQlContext().get(SERVER_CONTEXT);
+  }
+
+  public static Consumer<GraphQLContext.Builder> createGraphQLContext(
+    OtpServerRequestContext serverContext
+  ) {
+    return it ->
+      it.of(
+        SERVER_CONTEXT,
+        serverContext,
+        ROUTING_SERVICE,
+        serverContext.routingService(),
+        TRANSIT_SERVICE,
+        serverContext.transitService()
+      );
   }
 
   public static GraphQLFieldDefinition newTransitIdField() {

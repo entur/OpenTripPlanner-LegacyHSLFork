@@ -17,6 +17,7 @@ import java.util.concurrent.Executors;
 import javax.ws.rs.core.Response;
 import org.opentripplanner.api.json.GraphQLResponseSerializer;
 import org.opentripplanner.ext.actuator.MicrometerGraphQLInstrumentation;
+import org.opentripplanner.ext.transmodelapi.support.GqlUtil;
 import org.opentripplanner.framework.application.OTPFeature;
 import org.opentripplanner.standalone.api.OtpServerRequestContext;
 import org.slf4j.Logger;
@@ -61,17 +62,11 @@ class TransmodelGraph {
       variables = new HashMap<>();
     }
 
-    TransmodelRequestContext transmodelRequestContext = new TransmodelRequestContext(
-      serverContext,
-      serverContext.routingService(),
-      serverContext.transitService()
-    );
-
     ExecutionInput executionInput = ExecutionInput
       .newExecutionInput()
       .query(query)
       .operationName(operationName)
-      .context(transmodelRequestContext)
+      .graphQLContext(GqlUtil.createGraphQLContext(serverContext))
       .root(serverContext)
       .variables(variables)
       .build();

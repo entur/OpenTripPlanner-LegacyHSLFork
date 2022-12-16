@@ -31,7 +31,6 @@ import org.opentripplanner.routing.api.response.RoutingErrorCode;
 import org.opentripplanner.routing.api.response.RoutingResponse;
 import org.opentripplanner.routing.core.BicycleOptimizeType;
 import org.opentripplanner.routing.core.RouteMatcher;
-import org.opentripplanner.standalone.api.OtpServerRequestContext;
 import org.opentripplanner.transit.model.basic.MainAndSubMode;
 import org.opentripplanner.transit.model.basic.TransitMode;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
@@ -44,12 +43,10 @@ public class TransmodelGraphQLPlanner {
 
   public DataFetcherResult<PlanResponse> plan(DataFetchingEnvironment environment) {
     PlanResponse response = new PlanResponse();
-    TransmodelRequestContext ctx = environment.getContext();
-    OtpServerRequestContext serverContext = ctx.getServerContext();
     RouteRequest request = null;
     try {
       request = createRequest(environment);
-      RoutingResponse res = ctx.getRoutingService().route(request);
+      RoutingResponse res = GqlUtil.getRoutingService(environment).route(request);
 
       response.plan = res.getTripPlan();
       response.metadata = res.getMetadata();
@@ -62,7 +59,9 @@ public class TransmodelGraphQLPlanner {
       response.plan = TripPlanMapper.mapTripPlan(request, List.of());
       response.messages.add(new RoutingError(RoutingErrorCode.SYSTEM_ERROR, null));
     }
-    Locale locale = request == null ? serverContext.defaultLocale() : request.locale();
+    Locale locale = request == null
+      ? GqlUtil.getServerContext(environment).defaultLocale()
+      : request.locale();
     return DataFetcherResult
       .<PlanResponse>newResult()
       .data(response)
@@ -88,9 +87,7 @@ public class TransmodelGraphQLPlanner {
   }
 
   private RouteRequest createRequest(DataFetchingEnvironment environment) {
-    TransmodelRequestContext context = environment.getContext();
-    OtpServerRequestContext serverContext = context.getServerContext();
-    RouteRequest request = serverContext.defaultRouteRequest();
+    RouteRequest request = GqlUtil.getServerContext(environment).defaultRouteRequest();
 
     DataFetcherDecorator callWith = new DataFetcherDecorator(environment);
 

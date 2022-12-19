@@ -300,7 +300,7 @@ public class EnumTypes {
     .value("hardLeft", RelativeDirection.HARD_LEFT)
     .value("left", RelativeDirection.LEFT)
     .value("slightlyLeft", RelativeDirection.SLIGHTLY_LEFT)
-    .value("continue", RelativeDirection.CONTINUE)
+    .value("continueOn", RelativeDirection.CONTINUE)
     .value("slightlyRight", RelativeDirection.SLIGHTLY_RIGHT)
     .value("right", RelativeDirection.RIGHT)
     .value("hardRight", RelativeDirection.HARD_RIGHT)

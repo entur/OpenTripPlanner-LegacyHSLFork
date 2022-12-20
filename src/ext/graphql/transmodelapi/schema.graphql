@@ -1380,7 +1380,7 @@ enum RealtimeState {
 enum RelativeDirection {
   circleClockwise
   circleCounterclockwise
-  continueOn
+  continue
   depart
   elevator
   hardLeft

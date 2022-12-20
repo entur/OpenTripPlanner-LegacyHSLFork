@@ -111,3 +111,6 @@ config:
     InputField: org.opentripplanner.routing.api.response.InputField#InputField
     PurchaseWhen: String
     AlternativeLegsFilter: org.opentripplanner.routing.alternativelegs.AlternativeLegsFilter#AlternativeLegsFilter
+  enumValues:
+    RelativeDirection:
+      continue: continueOn

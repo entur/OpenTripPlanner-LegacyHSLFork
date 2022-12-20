@@ -40,6 +40,7 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
+import org.opentripplanner.ext.transmodelapi.generated.TransmodelGraphQLTypes;
 import org.opentripplanner.ext.transmodelapi.mapping.PlaceMapper;
 import org.opentripplanner.ext.transmodelapi.mapping.TransitIdMapper;
 import org.opentripplanner.ext.transmodelapi.model.DefaultRouteRequestType;
@@ -582,24 +583,20 @@ public class TransmodelGraphQLSchema {
           )
           .argument(GraphQLArgument.newArgument().name("name").type(Scalars.GraphQLString).build())
           .dataFetcher(environment -> {
-            if ((environment.getArgument("ids") instanceof List)) {
-              if (
-                environment
-                  .getArguments()
-                  .entrySet()
-                  .stream()
-                  .filter(stringObjectEntry -> stringObjectEntry.getValue() != null)
-                  .count() !=
-                1
-              ) {
+            var args = new TransmodelGraphQLTypes.QueryTypeQuaysArgs(environment.getArguments());
+
+            if (args.getIds() != null) {
+              if (args.getName() != null) {
                 throw new IllegalArgumentException("Unable to combine other filters with ids");
               }
               TransitService transitService = GqlUtil.getTransitService(environment);
-              return ((List<String>) environment.getArgument("ids")).stream()
+              return args
+                .getIds()
+                .stream()
                 .map(id -> transitService.getStopLocation(TransitIdMapper.mapIDToDomain(id)))
                 .collect(Collectors.toList());
             }
-            if (environment.getArgument("name") == null) {
+            if (args.getName() == null) {
               return GqlUtil.getTransitService(environment).listStopLocations();
             }
             //                            else {
@@ -1117,77 +1114,62 @@ public class TransmodelGraphQLSchema {
               .build()
           )
           .dataFetcher(environment -> {
-            if ((environment.getArgument("ids") instanceof List)) {
+            var args = new TransmodelGraphQLTypes.QueryTypeLinesArgs(environment.getArguments());
+            TransitService transitService = GqlUtil.getTransitService(environment);
+            if (args.getIds() != null) {
               if (
-                environment
-                  .getArguments()
-                  .entrySet()
-                  .stream()
-                  .filter(it ->
-                    it.getValue() != null &&
-                    !(it.getKey().equals("flexibleOnly") && it.getValue().equals(false))
-                  )
-                  .count() !=
-                1
+                args.getName() != null ||
+                args.getAuthorities() != null ||
+                args.getPublicCode() != null ||
+                args.getPublicCodes() != null ||
+                args.getTransportModes() != null
               ) {
                 throw new IllegalArgumentException("Unable to combine other filters with ids");
               }
-              return ((List<String>) environment.getArgument("ids")).stream()
+              return args
+                .getIds()
+                .stream()
                 .map(TransitIdMapper::mapIDToDomain)
-                .map(id -> {
-                  return GqlUtil.getTransitService(environment).getRouteForId(id);
-                })
-                .collect(Collectors.toList());
+                .map(transitService::getRouteForId)
+                .toList();
             }
-            Stream<Route> stream = GqlUtil.getTransitService(environment).getAllRoutes().stream();
+            Stream<Route> stream = transitService.getAllRoutes().stream();
 
-            if ((boolean) environment.getArgument("flexibleOnly")) {
-              Collection<Route> flexRoutes = GqlUtil
-                .getTransitService(environment)
-                .getFlexIndex()
-                .getAllFlexRoutes();
+            if (args.getFlexibleOnly()) {
+              Collection<Route> flexRoutes = transitService.getFlexIndex().getAllFlexRoutes();
               stream = stream.filter(flexRoutes::contains);
             }
-            if (environment.getArgument("name") != null) {
+            if (args.getName() != null) {
+              String prefix = args.getName().toLowerCase();
               stream =
                 stream
                   .filter(route -> route.getLongName() != null)
-                  .filter(route ->
-                    route
-                      .getLongName()
-                      .toString()
-                      .toLowerCase()
-                      .startsWith(((String) environment.getArgument("name")).toLowerCase())
-                  );
+                  .filter(route -> route.getLongName().toString().toLowerCase().startsWith(prefix));
             }
-            if (environment.getArgument("publicCode") != null) {
+            if (args.getPublicCode() != null) {
               stream =
                 stream
                   .filter(route -> route.getShortName() != null)
-                  .filter(route ->
-                    route.getShortName().equals(environment.getArgument("publicCode"))
-                  );
+                  .filter(route -> route.getShortName().equals(args.getPublicCode()));
             }
-            if (environment.getArgument("publicCodes") instanceof List) {
-              Set<String> publicCodes = Set.copyOf(environment.getArgument("publicCodes"));
+            if (args.getPublicCodes() != null) {
+              Set<String> publicCodes = Set.copyOf(args.getPublicCodes());
               stream =
                 stream
                   .filter(route -> route.getShortName() != null)
                   .filter(route -> publicCodes.contains(route.getShortName()));
             }
-            if (environment.getArgument("transportModes") != null) {
-              Set<TransitMode> modes = Set.copyOf(environment.getArgument("transportModes"));
+            if (args.getTransportModes() != null) {
+              //TODO
+              Set modes = Set.copyOf(args.getTransportModes());
               stream = stream.filter(route -> modes.contains(route.getMode()));
             }
-            if ((environment.getArgument("authorities") instanceof Collection)) {
-              Collection<String> authorityIds = environment.getArgument("authorities");
+            if (args.getAuthorities() != null) {
+              Collection<String> authorityIds = args.getAuthorities();
               stream =
-                stream.filter(route ->
-                  route.getAgency() != null &&
-                  authorityIds.contains(route.getAgency().getId().getId())
-                );
+                stream.filter(route -> authorityIds.contains(route.getAgency().getId().getId()));
             }
-            return stream.collect(Collectors.toList());
+            return stream.toList();
           })
           .build()
       )

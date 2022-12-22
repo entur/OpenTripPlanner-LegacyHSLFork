@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.ToIntFunction;
-import java.util.stream.Collectors;
 import org.opentripplanner.model.transfer.ConstrainedTransfer;
 import org.opentripplanner.model.transfer.RouteStationTransferPoint;
 import org.opentripplanner.model.transfer.RouteStopTransferPoint;
@@ -26,9 +25,12 @@ import org.opentripplanner.transit.model.network.TripPattern;
 import org.opentripplanner.transit.model.site.Station;
 import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.transit.model.timetable.Trip;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TransferIndexGenerator {
 
+  private static final Logger LOG = LoggerFactory.getLogger(TransferIndexGenerator.class);
   private static final boolean BOARD = true;
   private static final boolean ALIGHT = false;
 
@@ -60,16 +62,21 @@ public class TransferIndexGenerator {
         continue;
       }
 
-      findTPoints(tx.getFrom(), ALIGHT)
-        .stream()
-        .filter(TPoint::canAlight)
-        .forEachOrdered(fromPoint -> {
-          for (var toPoint : findTPoints(tx.getTo(), BOARD)) {
-            if (toPoint.canBoard() && !fromPoint.equals(toPoint)) {
-              fromPoint.addTransferConstraints(tx, toPoint, forwardTransfers, reverseTransfers);
+      try {
+        findTPoints(tx.getFrom(), ALIGHT)
+          .stream()
+          .filter(TPoint::canAlight)
+          .forEachOrdered(fromPoint -> {
+            for (var toPoint : findTPoints(tx.getTo(), BOARD)) {
+              if (toPoint.canBoard() && !fromPoint.equals(toPoint)) {
+                fromPoint.addTransferConstraints(tx, toPoint, forwardTransfers, reverseTransfers);
+              }
             }
-          }
-        });
+          });
+      } catch (Exception e) {
+        LOG.error("Unable to generate transfers:", e);
+        LOG.warn("Affected transfer {}", tx);
+      }
     }
 
     sortTransfers(forwardTransfers);

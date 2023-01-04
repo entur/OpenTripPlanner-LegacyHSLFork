@@ -47,6 +47,7 @@ public class Path<T extends RaptorTripSchedule> implements RaptorPath<T> {
     this.generalizedCost = generalizedCost;
     this.accessLeg = null;
     this.egressPathLeg = null;
+    assertStartTimeIsBeforeEndTime();
   }
 
   public Path(int iterationDepartureTime, AccessPathLeg<T> accessLeg, int generalizedCost) {
@@ -57,6 +58,7 @@ public class Path<T extends RaptorTripSchedule> implements RaptorPath<T> {
     this.egressPathLeg = findEgressLeg(accessLeg);
     this.numberOfTransfers = countNumberOfTransfers(accessLeg, egressPathLeg);
     this.endTime = egressPathLeg.toTime();
+    assertStartTimeIsBeforeEndTime();
   }
 
   public Path(int iterationDepartureTime, AccessPathLeg<T> accessLeg) {
@@ -275,7 +277,6 @@ public class Path<T extends RaptorTripSchedule> implements RaptorPath<T> {
   }
 
   /* private methods */
-
   private static <S extends RaptorTripSchedule> int countNumberOfTransfers(
     AccessPathLeg<S> accessLeg,
     EgressPathLeg<S> egressPathLeg
@@ -296,6 +297,12 @@ public class Path<T extends RaptorTripSchedule> implements RaptorPath<T> {
   private void addWalkDetails(boolean detailed, PathStringBuilder buf, PathLeg<T> leg) {
     if (detailed) {
       buf.timeAndCostCentiSec(leg.fromTime(), leg.toTime(), leg.generalizedCost());
+    }
+  }
+
+  private void assertStartTimeIsBeforeEndTime() {
+    if (startTime > endTime) {
+      throw new IllegalStateException("Illegal path, ends before it starts: " + this);
     }
   }
 }

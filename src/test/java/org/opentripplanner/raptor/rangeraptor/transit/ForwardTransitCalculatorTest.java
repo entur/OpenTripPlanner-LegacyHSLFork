@@ -62,6 +62,13 @@ public class ForwardTransitCalculatorTest {
   }
 
   @Test
+  public void stopArrivalDepartureTime() {
+    var t = TestTripSchedule.schedule().arrivals(10).departures(20).build();
+    assertEquals(10, create().stopArrivalTime(t, 0));
+    assertEquals(20, create().stopDepartureTime(t, 0));
+  }
+
+  @Test
   public void rangeRaptorMinutes() {
     earliestDepartureTime = 500;
     searchWindowSizeInSeconds = 200;

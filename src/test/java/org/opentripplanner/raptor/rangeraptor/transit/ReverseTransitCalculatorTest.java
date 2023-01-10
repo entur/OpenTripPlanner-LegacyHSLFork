@@ -64,6 +64,13 @@ public class ReverseTransitCalculatorTest {
   }
 
   @Test
+  public void stopArrivalDepartureTime() {
+    var t = TestTripSchedule.schedule().arrivals(10).departures(20).build();
+    assertEquals(10, create().stopDepartureTime(t, 0));
+    assertEquals(20, create().stopArrivalTime(t, 0));
+  }
+
+  @Test
   public void rangeRaptorMinutes() {
     latestArrivalTime = 500;
     searchWindowSizeInSeconds = 200;

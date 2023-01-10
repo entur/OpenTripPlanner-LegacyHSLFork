@@ -51,17 +51,21 @@ public final class ForwardTransitCalculator<T extends RaptorTripSchedule>
   }
 
   @Override
-  public int stopArrivalTime(T onTrip, int stopPositionInPattern, int alightSlack) {
+  public int stopArrivalTime(
+    RaptorTripSchedule onTrip,
+    int stopPositionInPattern,
+    int alightSlack
+  ) {
     return onTrip.arrival(stopPositionInPattern) + alightSlack;
   }
 
   @Override
-  public int stopArrivalTime(T trip, int stopPositionInPattern) {
+  public int stopArrivalTime(RaptorTripSchedule trip, int stopPositionInPattern) {
     return trip.arrival(stopPositionInPattern);
   }
 
   @Override
-  public int stopDepartureTime(T trip, int stopPositionInPattern) {
+  public int stopDepartureTime(RaptorTripSchedule trip, int stopPositionInPattern) {
     return trip.departure(stopPositionInPattern);
   }
 

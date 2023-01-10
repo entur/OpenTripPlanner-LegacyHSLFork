@@ -66,7 +66,7 @@ public interface TransitCalculator<T extends RaptorTripSchedule> extends TimeCal
    * @param trip                  the current boarded trip
    * @param stopPositionInPattern the stop position/index
    */
-  int stopArrivalTime(T trip, int stopPositionInPattern, int slack);
+  int stopArrivalTime(RaptorTripSchedule trip, int stopPositionInPattern, int slack);
 
   /**
    * For a forward search return the trip arrival time at stop position. For a reverse search return
@@ -75,7 +75,7 @@ public interface TransitCalculator<T extends RaptorTripSchedule> extends TimeCal
    * @param trip                  the current boarded trip
    * @param stopPositionInPattern the stop position/index
    */
-  int stopArrivalTime(T trip, int stopPositionInPattern);
+  int stopArrivalTime(RaptorTripSchedule trip, int stopPositionInPattern);
 
   /**
    * For a forward search return the trip departure time at stop position. For a reverse search
@@ -84,7 +84,7 @@ public interface TransitCalculator<T extends RaptorTripSchedule> extends TimeCal
    * @param trip                  the current boarded trip
    * @param stopPositionInPattern the stop position/index
    */
-  int stopDepartureTime(T trip, int stopPositionInPattern);
+  int stopDepartureTime(RaptorTripSchedule trip, int stopPositionInPattern);
 
   /**
    * Stop the search when the time exceeds the latest-acceptable-arrival-time. In a reverse search

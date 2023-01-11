@@ -10,6 +10,7 @@ import org.opentripplanner.raptor.rangeraptor.internalapi.WorkerState;
 import org.opentripplanner.raptor.rangeraptor.path.DestinationArrivalPaths;
 import org.opentripplanner.raptor.rangeraptor.path.configure.PathConfig;
 import org.opentripplanner.raptor.rangeraptor.standard.ArrivalTimeRoutingStrategy;
+import org.opentripplanner.raptor.rangeraptor.standard.HeuristicTripRoutingStrategy;
 import org.opentripplanner.raptor.rangeraptor.standard.MinTravelDurationRoutingStrategy;
 import org.opentripplanner.raptor.rangeraptor.standard.StdRangeRaptorWorkerState;
 import org.opentripplanner.raptor.rangeraptor.standard.StdWorkerState;
@@ -79,35 +80,34 @@ public class StdRangeRaptorConfig<T extends RaptorTripSchedule> {
 
   private StdRangeRaptorWorkerState<T> createState() {
     new VerifyRequestIsValid(ctx).verify();
-    switch (ctx.profile()) {
-      case STANDARD:
-      case MIN_TRAVEL_DURATION:
-        return workerState(stdStopArrivalsState());
-      case BEST_TIME:
-      case MIN_TRAVEL_DURATION_BEST_TIME:
-        return workerState(bestTimeStopArrivalsState());
-    }
-    throw new IllegalArgumentException(ctx.profile().toString());
+    return switch (ctx.profile()) {
+      case STANDARD, MIN_TRAVEL_DURATION -> workerState(stdStopArrivalsState());
+      case BEST_TIME,
+        MIN_TRAVEL_DURATION_BEST_TIME,
+        MIN_TRAVEL_DURATION_HEURISTIC_TRIP -> workerState(bestTimeStopArrivalsState());
+      case MULTI_CRITERIA -> throw new IllegalArgumentException(ctx.profile().toString());
+    };
   }
 
   private RoutingStrategy<T> createWorkerStrategy(StdWorkerState<T> state) {
-    switch (ctx.profile()) {
-      case STANDARD:
-      case BEST_TIME:
-        return new ArrivalTimeRoutingStrategy<>(
-          state,
-          ctx.createTimeBasedBoardingSupport(),
-          ctx.calculator()
-        );
-      case MIN_TRAVEL_DURATION:
-      case MIN_TRAVEL_DURATION_BEST_TIME:
-        return new MinTravelDurationRoutingStrategy<>(
-          state,
-          ctx.createTimeBasedBoardingSupport(),
-          ctx.calculator()
-        );
-    }
-    throw new IllegalArgumentException(ctx.profile().toString());
+    return switch (ctx.profile()) {
+      case STANDARD, BEST_TIME -> new ArrivalTimeRoutingStrategy<>(
+        state,
+        ctx.createTimeBasedBoardingSupport(),
+        ctx.calculator()
+      );
+      case MIN_TRAVEL_DURATION,
+        MIN_TRAVEL_DURATION_BEST_TIME -> new MinTravelDurationRoutingStrategy<>(
+        state,
+        ctx.createTimeBasedBoardingSupport(),
+        ctx.calculator()
+      );
+      case MIN_TRAVEL_DURATION_HEURISTIC_TRIP -> new HeuristicTripRoutingStrategy<>(
+        state,
+        ctx.calculator()
+      );
+      case MULTI_CRITERIA -> throw new IllegalArgumentException(ctx.profile().toString());
+    };
   }
 
   private Heuristics createHeuristicsAdapter(CostCalculator<T> costCalculator) {

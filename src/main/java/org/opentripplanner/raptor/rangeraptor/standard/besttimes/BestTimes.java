@@ -42,11 +42,11 @@ public final class BestTimes {
 
   public BestTimes(int nStops, TransitCalculator<?> calculator, WorkerLifeCycle lifeCycle) {
     this.calculator = calculator;
-    this.times = intArray(nStops, calculator.unreachedTime());
+    this.times = intArray(nStops, Integer.MAX_VALUE);
     this.reachedCurrentRound = new BitSet(nStops);
     this.reachedLastRound = new BitSet(nStops);
 
-    this.transitArrivalTimes = intArray(nStops, calculator.unreachedTime());
+    this.transitArrivalTimes = intArray(nStops, Integer.MAX_VALUE);
     this.reachedByTransitCurrentRound = new BitSet(nStops);
 
     // Attach to Worker life cycle
@@ -177,11 +177,11 @@ public final class BestTimes {
   }
 
   private boolean isBestTime(int stop, int time) {
-    return calculator.isBefore(time, times[stop]);
+    return time < times[stop];
   }
 
   private boolean isBestTransitArrivalTime(int stop, int time) {
-    return calculator.isBefore(time, transitArrivalTimes[stop]);
+    return time < transitArrivalTimes[stop];
   }
 
   private void setBestTime(int stop, int time) {

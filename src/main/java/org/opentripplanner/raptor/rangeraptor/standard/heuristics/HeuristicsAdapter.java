@@ -135,7 +135,7 @@ public class HeuristicsAdapter implements Heuristics {
   }
 
   private int bestTravelDuration(int stop) {
-    return calculator.duration(originDepartureTime, times.time(stop));
+    return times.time(stop);
   }
 
   private int bestNumOfTransfers(int stop) {
@@ -183,7 +183,7 @@ public class HeuristicsAdapter implements Heuristics {
           int n = bestNumOfTransfers(it.stop());
           minJourneyNumOfTransfers = Math.min(minJourneyNumOfTransfers, n);
 
-          int eat = times.time(it.stop()) + it.durationInSeconds();
+          int eat = originDepartureTime - (times.time(it.stop()) + it.durationInSeconds());
           earliestArrivalTime = Math.min(earliestArrivalTime, eat);
         }
       }

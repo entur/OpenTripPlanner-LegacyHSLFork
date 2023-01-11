@@ -98,7 +98,7 @@ public final class StdRangeRaptorWorkerState<T extends RaptorTripSchedule>
 
     // The time of arrival at the given stop for the current iteration
     // (or departure time at the last stop if we search backwards).
-    int arrivalTime = calculator.plusDuration(departureTime, durationInSeconds);
+    int arrivalTime = departureTime + durationInSeconds;
 
     if (exceedsTimeLimit(arrivalTime)) {
       return;
@@ -196,10 +196,7 @@ public final class StdRangeRaptorWorkerState<T extends RaptorTripSchedule>
   private void transferToStop(int arrivalTimeTransit, int fromStop, RaptorTransfer transfer) {
     // Use the calculator to make sure the calculation is done correct for a normal
     // forward search and a reverse search.
-    final int arrivalTime = calculator.plusDuration(
-      arrivalTimeTransit,
-      transfer.durationInSeconds()
-    );
+    final int arrivalTime = arrivalTimeTransit + transfer.durationInSeconds();
 
     if (exceedsTimeLimit(arrivalTime)) {
       return;
@@ -225,6 +222,6 @@ public final class StdRangeRaptorWorkerState<T extends RaptorTripSchedule>
   }
 
   private boolean exceedsTimeLimit(int time) {
-    return calculator.exceedsTimeLimit(time);
+    return false;
   }
 }

@@ -1,5 +1,7 @@
 package org.opentripplanner.api.common;
 
+import static org.opentripplanner.routing.api.request.preference.RaptorPreferences.Builder.isRelaxGeneralizedCostAtDestinationValid;
+
 import jakarta.validation.constraints.NotNull;
 import java.util.function.Consumer;
 import org.opentripplanner.routing.algorithm.filterchain.api.TransitGeneralizedCostFilterParams;
@@ -88,7 +90,11 @@ class RequestToPreferencesMapper {
       setIfNotNull(req.ignoreRealtimeUpdates, tr::setIgnoreRealtimeUpdates);
       setIfNotNull(
         req.relaxTransitSearchGeneralizedCostAtDestination,
-        value -> tr.withRaptor(it -> it.withRelaxGeneralizedCostAtDestination(value))
+        value -> {
+          if (isRelaxGeneralizedCostAtDestinationValid(value)) {
+            tr.withRaptor(it -> it.withRelaxGeneralizedCostAtDestination(value));
+          }
+        }
       );
       setIfNotNull(req.extraSearchCoachReluctance, tr::setExtraSearchCoachReluctance);
     });

@@ -1,5 +1,7 @@
 package org.opentripplanner.ext.transmodelapi.mapping;
 
+import static org.opentripplanner.routing.api.request.preference.RaptorPreferences.Builder.isRelaxGeneralizedCostAtDestinationValid;
+
 import graphql.schema.DataFetchingEnvironment;
 import org.opentripplanner.ext.transmodelapi.model.TransportModeSlack;
 import org.opentripplanner.ext.transmodelapi.model.plan.ItineraryFiltersInputType;
@@ -74,7 +76,12 @@ class PreferencesMapper {
       callWith.argument("includeRealtimeCancellations", tr::setIncludeRealtimeCancellations);
       callWith.argument(
         "relaxTransitSearchGeneralizedCostAtDestination",
-        (Double value) -> tr.withRaptor(it -> it.withRelaxGeneralizedCostAtDestination(value))
+        (Double value) ->
+          tr.withRaptor(it -> {
+            if (isRelaxGeneralizedCostAtDestinationValid(value)) {
+              it.withRelaxGeneralizedCostAtDestination(value);
+            }
+          })
       );
       callWith.argument("extraSearchCoachReluctance", tr::setExtraSearchCoachReluctance);
     });

@@ -192,6 +192,23 @@ public final class RaptorPreferences implements Serializable {
       return this;
     }
 
+    /**
+     * Test whether {@param value} is a valid input value for
+     * {@link this#withRelaxGeneralizedCostAtDestination}.
+     */
+    public static boolean isRelaxGeneralizedCostAtDestinationValid(Double value) {
+      try {
+        Units.normalizedOptionalFactor(
+          value,
+          MIN_RELAX_COST_AT_DESTINATION,
+          MAX_RELAX_COST_AT_DESTINATION
+        );
+        return true;
+      } catch (Exception e) {
+        return false;
+      }
+    }
+
     public RaptorPreferences build() {
       var value = new RaptorPreferences(this);
       return original.equals(value) ? original : value;

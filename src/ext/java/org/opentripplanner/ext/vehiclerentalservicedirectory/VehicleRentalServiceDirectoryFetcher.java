@@ -71,7 +71,7 @@ public class VehicleRentalServiceDirectoryFetcher {
             parameters.getLanguage(),
             false,
             parameters.getHeaders(),
-            parameters.getSourceNetworkName()
+            null
           )
         );
         LOG.info("Fetched updater info for {} at url {}", network, updaterUrl);

@@ -370,7 +370,7 @@ public class SiriTimetableSnapshotSource implements TimetableSnapshotProvider {
     }
 
     // If Trip exists by DatedServiceJourney then this is not replacement departure
-    return entityResolver.resolveTripOnServiceDate(vehicleJourney) != null;
+    return entityResolver.resolveTripOnServiceDate(vehicleJourney) == null;
   }
 
   private TimetableSnapshot getTimetableSnapshot(final boolean force) {

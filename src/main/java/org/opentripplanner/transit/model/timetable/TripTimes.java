@@ -283,6 +283,18 @@ public class TripTimes implements Serializable, Comparable<TripTimes> {
     return stopRealTimeStates[stop] == StopRealTimeState.CANCELLED;
   }
 
+  public boolean isAllStopsCancelled() {
+    if (stopRealTimeStates == null) {
+      return false;
+    }
+    for (var stopRealTimeState : stopRealTimeStates) {
+      if (stopRealTimeState != StopRealTimeState.CANCELLED) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   // TODO OTP2 - Unused, but will be used by Transmodel API
   public boolean isRecordedStop(int stop) {
     if (stopRealTimeStates == null) {
@@ -298,7 +310,6 @@ public class TripTimes implements Serializable, Comparable<TripTimes> {
     return stopRealTimeStates[stop] == StopRealTimeState.NO_DATA;
   }
 
-  // TODO OTP2 - Unused, but will be used by Transmodel API
   public boolean isPredictionInaccurate(int stop) {
     if (stopRealTimeStates == null) {
       return false;

@@ -686,6 +686,8 @@ public class SiriTimetableSnapshotSource implements TimetableSnapshotProvider {
       estimatedVehicleJourney.isCancellation() != null && estimatedVehicleJourney.isCancellation()
     ) {
       tripTimes.cancelTrip();
+    } else if (tripTimes.isAllStopsCancelled()) {
+      tripTimes.cancelTrip();
     } else {
       tripTimes.setRealTimeState(RealTimeState.ADDED);
     }
@@ -1007,6 +1009,11 @@ public class SiriTimetableSnapshotSource implements TimetableSnapshotProvider {
               estimatedVehicleJourney,
               getStopLocationById
             );
+
+            // Update realtime state to cancelled, if all stops have been cancelled
+            if (tripTimes.isAllStopsCancelled()) {
+              tripTimes.cancelTrip();
+            }
 
             if (modifiedStops != null && modifiedStops.isEmpty()) {
               // Empty modified stops means that there is no calls for the trip, cancel it

@@ -56,7 +56,7 @@ class FilterMapper {
       (List<String> lines) -> bannedLines.addAll(mapIDsToDomain(lines))
     );
     if (!bannedLines.isEmpty()) {
-      filterRequestBuilder.addSelect(
+      filterRequestBuilder.addNot(
         SelectRequest.of().withRoutes(RouteMatcher.idMatcher(bannedLines)).build()
       );
     }

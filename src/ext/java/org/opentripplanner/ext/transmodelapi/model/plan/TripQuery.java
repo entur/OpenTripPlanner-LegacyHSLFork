@@ -515,6 +515,14 @@ public class TripQuery {
           .type(new GraphQLList(new GraphQLNonNull(durationPerStreetModeType)))
           .build()
       )
+      .argument(
+        GraphQLArgument
+          .newArgument()
+          .name("extraSearchCoachReluctance")
+          .description("FOR TESTING ONLY")
+          .type(Scalars.GraphQLFloat)
+          .build()
+      )
       .dataFetcher(environment -> new TransmodelGraphQLPlanner().plan(environment))
       .build();
   }

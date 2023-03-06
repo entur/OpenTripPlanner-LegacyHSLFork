@@ -66,4 +66,8 @@ public class McRaptorWorkerResult<T extends RaptorTripSchedule> implements Rapto
       }
     };
   }
+
+  public McStopArrivals<T> getStopArrivals() {
+    return stopArrivals;
+  }
 }

@@ -161,12 +161,19 @@ public class SiriEstimatedTimetableGooglePubsubUpdater extends ReadinessBlocking
         }
 
         String projectName = config.path("projectName").asText();
+        String subscriptionProjectName = config.path("subscriptionProjectName").asText();
+        String topicProjectName = config.path("topicProjectName").asText();
+
+        if (subscriptionProjectName == null && topicProjectName == null) {
+            // TODO: Can be removed when config is updated (i.e. "projectName" => "subscriptionProjectName" + "topicProjectName")
+            subscriptionProjectName = projectName;
+            topicProjectName = projectName;
+        }
 
         String topicName = config.path("topicName").asText();
 
-        subscriptionName = ProjectSubscriptionName.of(
-                projectName, subscriptionId);
-        topic = ProjectTopicName.of(projectName, topicName);
+        subscriptionName = ProjectSubscriptionName.of(subscriptionProjectName, subscriptionId);
+        topic = ProjectTopicName.of(topicProjectName, topicName);
 
         pushConfig = PushConfig.getDefaultInstance();
 

@@ -114,24 +114,10 @@ public class SiriEstimatedTimetableGooglePubsubUpdater extends ReadinessBlocking
 
     public SiriEstimatedTimetableGooglePubsubUpdater() {
         try {
-            if (System.getenv("GOOGLE_APPLICATION_CREDENTIALS") != null &&
-                    !System.getenv("GOOGLE_APPLICATION_CREDENTIALS").isEmpty()) {
-
-                /*
-                  Google libraries expects path to credentials json-file is stored in environment variable "GOOGLE_APPLICATION_CREDENTIALS"
-                  Ref.: https://cloud.google.com/docs/authentication/getting-started
-                 */
-
-                subscriptionAdminClient = SubscriptionAdminClient.create();
-
-                addShutdownHook();
-
-            } else {
-                throw new RuntimeException("Google Pubsub updater is configured, but environment variable 'GOOGLE_APPLICATION_CREDENTIALS' is not defined. " +
-                        "See https://cloud.google.com/docs/authentication/getting-started");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+            subscriptionAdminClient = SubscriptionAdminClient.create();
+            addShutdownHook();
+        } catch (Throwable t) {
+            throw new RuntimeException("SiriEstimatedTimetableGooglePubsubUpdater could not be initialized", t);
         }
     }
 

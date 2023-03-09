@@ -18,6 +18,7 @@ import com.google.cloud.pubsub.v1.AckReplyConsumer;
 import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.cloud.pubsub.v1.Subscriber;
 import com.google.cloud.pubsub.v1.SubscriptionAdminClient;
+import com.google.common.base.Strings;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Duration;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -164,7 +165,7 @@ public class SiriEstimatedTimetableGooglePubsubUpdater extends ReadinessBlocking
         String subscriptionProjectName = config.path("subscriptionProjectName").asText();
         String topicProjectName = config.path("topicProjectName").asText();
 
-        if (subscriptionProjectName == null && topicProjectName == null) {
+        if (Strings.isNullOrEmpty(subscriptionProjectName) && Strings.isNullOrEmpty(topicProjectName)) {
             // TODO: Can be removed when config is updated (i.e. "projectName" => "subscriptionProjectName" + "topicProjectName")
             subscriptionProjectName = projectName;
             topicProjectName = projectName;

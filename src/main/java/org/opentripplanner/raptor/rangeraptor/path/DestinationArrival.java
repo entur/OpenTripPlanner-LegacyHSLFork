@@ -43,7 +43,7 @@ public class DestinationArrival<T extends RaptorTripSchedule> implements Arrival
     this.egress = egress;
     this.arrivalTime = arrivalTime;
     this.numberOfTransfers = previous.round() - 1;
-    this.cost = previous.cost() + additionalCost;
+    this.cost = previous.c1() + additionalCost;
   }
 
   @Override
@@ -62,7 +62,7 @@ public class DestinationArrival<T extends RaptorTripSchedule> implements Arrival
   }
 
   @Override
-  public int cost() {
+  public int c1() {
     return cost;
   }
 

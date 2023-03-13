@@ -198,7 +198,7 @@ public class SystemErrDebugLogger implements DebugLogger {
         a.round(),
         IntUtils.intToString(a.stop(), NOT_SET),
         timeToStrLong(a.arrivalTime()),
-        numFormat.format(a.cost()),
+        numFormat.format(a.c1()),
         pattern,
         details(action, optReason, path(a))
       )
@@ -221,7 +221,7 @@ public class SystemErrDebugLogger implements DebugLogger {
   }
 
   private String path(ArrivalView<?> a) {
-    return path(a, new PathStringBuilder(null)).summary(a.cost()).toString();
+    return path(a, new PathStringBuilder(null)).summary(a.c1()).toString();
   }
 
   private PathStringBuilder path(ArrivalView<?> a, PathStringBuilder buf) {

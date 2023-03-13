@@ -10,7 +10,7 @@ import org.opentripplanner.raptor.api.view.AccessPathView;
  *
  * @param <T> The TripSchedule type defined by the user of the raptor API.
  */
-public final class AccessStopArrival<T extends RaptorTripSchedule> extends AbstractStopArrival<T> {
+public final class AccessStopArrival<T extends RaptorTripSchedule> extends McStopArrival<T> {
 
   private final RaptorAccessEgress access;
 
@@ -36,7 +36,7 @@ public final class AccessStopArrival<T extends RaptorTripSchedule> extends Abstr
   }
 
   @Override
-  public AbstractStopArrival<T> timeShiftNewArrivalTime(int newRequestedArrivalTime) {
+  public McStopArrival<T> timeShiftNewArrivalTime(int newRequestedArrivalTime) {
     int newArrivalTime = access.latestArrivalTime(newRequestedArrivalTime);
 
     if (newArrivalTime == RaptorConstants.TIME_NOT_SET) {

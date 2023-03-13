@@ -70,7 +70,7 @@ public final class ReversePathMapper<T extends RaptorTripSchedule> implements Pa
         var transit = arrival.transitPath();
         pathBuilder.transit(transit.trip(), times);
       } else if (arrival.arrivedByTransfer()) {
-        pathBuilder.transfer(arrival.transferPath().transfer(), arrival.previous().stop());
+        pathBuilder.transfer(arrival.transfer(), arrival.previous().stop());
       } else {
         throw new IllegalStateException("Unexpected arrival: " + arrival);
       }

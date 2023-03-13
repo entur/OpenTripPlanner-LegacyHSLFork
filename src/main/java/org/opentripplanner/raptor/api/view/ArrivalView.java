@@ -3,6 +3,7 @@ package org.opentripplanner.raptor.api.view;
 import javax.annotation.Nullable;
 import org.opentripplanner.framework.lang.OtpNumberFormat;
 import org.opentripplanner.framework.time.TimeUtils;
+import org.opentripplanner.raptor.api.model.RaptorTransfer;
 import org.opentripplanner.raptor.api.model.RaptorTripSchedule;
 import org.opentripplanner.raptor.api.model.TransitArrival;
 import org.opentripplanner.raptor.spi.RaptorCostCalculator;
@@ -31,7 +32,7 @@ import org.opentripplanner.raptor.spi.RaptorCostCalculator;
  *     <li>Egress - Arrived at destination</li>
  * </ul>
  * Use the "arrivedByX" methods before accessing the {@link #accessPath()}, {@link #transitPath()},
- * {@link #transferPath()} and {@link #egressPath()}.
+ * {@link #transfer()} and {@link #egressPath()}.
  *
  * @param <T> The TripSchedule type defined by the user of the raptor API.
  */
@@ -130,7 +131,7 @@ public interface ArrivalView<T extends RaptorTripSchedule> {
     return false;
   }
 
-  default TransferPathView transferPath() {
+  default RaptorTransfer transfer() {
     throw new UnsupportedOperationException();
   }
 
@@ -178,7 +179,7 @@ public interface ArrivalView<T extends RaptorTripSchedule> {
         round(),
         stop(),
         arrival,
-        transferPath().transfer()
+        transfer()
       );
     }
     if (arrivedAtDestination()) {

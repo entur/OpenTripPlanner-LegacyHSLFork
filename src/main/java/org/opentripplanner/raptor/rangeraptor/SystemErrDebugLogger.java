@@ -166,7 +166,7 @@ public class SystemErrDebugLogger implements DebugLogger {
       return a.accessPath().access().durationInSeconds();
     }
     if (a.arrivedByTransfer()) {
-      return a.transferPath().durationInSeconds();
+      return a.transfer().durationInSeconds();
     }
     if (a.arrivedAtDestination()) {
       return a.egressPath().egress().durationInSeconds();

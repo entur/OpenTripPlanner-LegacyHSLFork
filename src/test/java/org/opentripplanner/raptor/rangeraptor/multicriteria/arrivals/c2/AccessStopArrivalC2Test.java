@@ -1,4 +1,4 @@
-package org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals.c1;
+package org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals.c2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,8 +11,9 @@ import org.opentripplanner.raptor._data.transit.TestAccessEgress;
 import org.opentripplanner.raptor.api.model.RaptorAccessEgress;
 import org.opentripplanner.raptor.api.model.RaptorTripSchedule;
 import org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals.McStopArrival;
+import org.opentripplanner.raptor.spi.RaptorCostCalculator;
 
-class AccessStopArrivalTest {
+class AccessStopArrivalC2Test {
 
   private static final int ALIGHT_STOP = 100;
   private static final int DEPARTURE_TIME = 8 * 60 * 60;
@@ -21,7 +22,7 @@ class AccessStopArrivalTest {
   private static final TestAccessEgress WALK = TestAccessEgress.walk(ALIGHT_STOP, ACCESS_DURATION);
   private static final int COST = WALK.generalizedCost();
 
-  private final AccessStopArrival<RaptorTripSchedule> subject = new AccessStopArrival<>(
+  private final AccessStopArrivalC2<RaptorTripSchedule> subject = new AccessStopArrivalC2<>(
     DEPARTURE_TIME,
     WALK
   );
@@ -50,7 +51,8 @@ class AccessStopArrivalTest {
 
   @Test
   public void c2() {
-    assertThrows(UnsupportedOperationException.class, subject::c2);
+    // We will add a more meaning-full implementation later
+    assertEquals(RaptorCostCalculator.ZERO_COST, subject.c2());
   }
 
   @Test
@@ -100,7 +102,7 @@ class AccessStopArrivalTest {
   @Test
   public void timeShiftNotAllowed() {
     var access = TestAccessEgress.free(ALIGHT_STOP).openingHoursClosed();
-    var original = new AccessStopArrival<>(DEPARTURE_TIME, access);
+    var original = new AccessStopArrivalC2<>(DEPARTURE_TIME, access);
     assertThrows(IllegalStateException.class, () -> original.timeShiftNewArrivalTime(6000));
   }
 
@@ -114,7 +116,7 @@ class AccessStopArrivalTest {
       .free(ALIGHT_STOP)
       .openingHours(0, ALIGHT_TIME + dTime);
 
-    original = new AccessStopArrival<>(DEPARTURE_TIME, access);
+    original = new AccessStopArrivalC2<>(DEPARTURE_TIME, access);
 
     result = original.timeShiftNewArrivalTime(ALIGHT_TIME + 7200);
 

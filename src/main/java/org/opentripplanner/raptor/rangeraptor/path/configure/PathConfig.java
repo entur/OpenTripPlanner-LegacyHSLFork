@@ -2,6 +2,7 @@ package org.opentripplanner.raptor.rangeraptor.path.configure;
 
 import static org.opentripplanner.raptor.rangeraptor.path.PathParetoSetComparators.paretoComparator;
 
+import org.opentripplanner.raptor.api.model.IncValueRelaxFunction;
 import org.opentripplanner.raptor.api.model.RaptorTripSchedule;
 import org.opentripplanner.raptor.api.model.SearchDirection;
 import org.opentripplanner.raptor.api.path.RaptorStopNameResolver;
@@ -56,7 +57,8 @@ public class PathConfig<T extends RaptorTripSchedule> {
         ctx.searchParams().timetable(),
         ctx.searchParams().preferLateArrival(),
         ctx.searchDirection(),
-        ctx.multiCriteria().relaxCostAtDestination().orElse(null)
+        null,
+        ctx.multiCriteria().relaxCostAtDestination().map(IncValueRelaxFunction::ofCost).orElse(null)
       ),
       ctx.calculator(),
       includeCost ? ctx.costCalculator() : null,

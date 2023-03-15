@@ -2,10 +2,11 @@ package org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.opentripplanner.raptor.api.model.IncValueRelaxFunction.NORMAL;
 
 import org.junit.jupiter.api.Test;
 import org.opentripplanner.raptor._data.transit.TestTripSchedule;
-import org.opentripplanner.raptor.api.model.RelaxFunction;
+import org.opentripplanner.raptor.api.model.IncValueRelaxFunction;
 
 class McStopArrivalTest {
 
@@ -18,8 +19,6 @@ class McStopArrivalTest {
   private static final int PARETO_ROUND_TWO = 2;
   private static final int ARRIVAL_TIME_EARLY = 12;
   private static final int ARRIVAL_TIME_LATE = 13;
-
-  private static final RelaxFunction NORMAL = new RelaxFunction(1.0, 0);
 
   @Test
   void compareArrivalTimeRoundAndCostTest() {
@@ -115,7 +114,7 @@ class McStopArrivalTest {
     int bestArrivalTime = 600;
     int okArrivalTime = 899;
     int rejectArrivalTime = okArrivalTime + 1;
-    RelaxFunction relaxArrivalTime = new RelaxFunction(1.5, 0);
+    var relaxArrivalTime = IncValueRelaxFunction.ofIncreasingTime(1.5, 0);
     var referenceArrival = new A(
       bestArrivalTime,
       PARETO_ROUND_ONE,
@@ -166,7 +165,7 @@ class McStopArrivalTest {
     int bestC1 = 600;
     int okC1 = 799;
     int rejectC1 = okC1 + 1;
-    RelaxFunction relaxC1 = new RelaxFunction(1.0, 200);
+    var relaxC1 = IncValueRelaxFunction.ofCost(1.0, 200);
     var referenceArrival = new A(
       ARRIVAL_TIME_EARLY,
       PARETO_ROUND_ONE,

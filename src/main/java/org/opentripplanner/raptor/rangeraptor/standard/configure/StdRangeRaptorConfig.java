@@ -5,6 +5,7 @@ import static org.opentripplanner.raptor.rangeraptor.path.PathParetoSetComparato
 
 import java.util.HashSet;
 import java.util.Set;
+import org.opentripplanner.raptor.api.model.IncValueRelaxFunction;
 import org.opentripplanner.raptor.api.model.RaptorTripSchedule;
 import org.opentripplanner.raptor.rangeraptor.context.SearchContext;
 import org.opentripplanner.raptor.rangeraptor.internalapi.Heuristics;
@@ -256,7 +257,12 @@ public class StdRangeRaptorConfig<T extends RaptorTripSchedule> {
           ctx.searchParams().timetable(),
           ctx.searchParams().preferLateArrival(),
           ctx.searchDirection(),
-          ctx.multiCriteria().relaxCostAtDestination().orElse(null)
+          null,
+          ctx
+            .multiCriteria()
+            .relaxCostAtDestination()
+            .map(IncValueRelaxFunction::ofCost)
+            .orElse(null)
         ),
         ctx.lifeCycle()
       ),

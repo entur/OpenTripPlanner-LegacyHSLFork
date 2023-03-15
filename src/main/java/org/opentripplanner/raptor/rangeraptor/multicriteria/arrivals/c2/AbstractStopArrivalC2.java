@@ -1,8 +1,8 @@
 package org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals.c2;
 
 import org.opentripplanner.raptor.api.model.DominanceFunction;
+import org.opentripplanner.raptor.api.model.IncValueRelaxFunction;
 import org.opentripplanner.raptor.api.model.RaptorTripSchedule;
-import org.opentripplanner.raptor.api.model.RelaxFunction;
 import org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals.McStopArrival;
 import org.opentripplanner.raptor.util.paretoset.ParetoComparator;
 
@@ -65,8 +65,8 @@ abstract class AbstractStopArrivalC2<T extends RaptorTripSchedule> extends McSto
   public static <
     T extends RaptorTripSchedule
   > ParetoComparator<AbstractStopArrivalC2<T>> compareArrivalTimeRoundC1AndC2(
-    RelaxFunction relaxArrivalTime,
-    RelaxFunction relaxC1,
+    IncValueRelaxFunction relaxArrivalTime,
+    IncValueRelaxFunction relaxC1,
     DominanceFunction dominanceFunctionC2
   ) {
     // If c2 dominates, then a slack is added to arrival-time and cost (c1)
@@ -83,8 +83,8 @@ abstract class AbstractStopArrivalC2<T extends RaptorTripSchedule> extends McSto
   public static <
     T extends RaptorTripSchedule
   > ParetoComparator<AbstractStopArrivalC2<T>> compareArrivalTimeRoundC1C2AndOnBoardArrival(
-    RelaxFunction relaxArrivalTime,
-    RelaxFunction relaxC1,
+    IncValueRelaxFunction relaxArrivalTime,
+    IncValueRelaxFunction relaxC1,
     DominanceFunction dominanceFunctionC2
   ) {
     return (l, r) ->

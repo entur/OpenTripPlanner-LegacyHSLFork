@@ -64,12 +64,21 @@ public class StopArrivalStateParetoSetTest {
     BASE_COST
   );
 
-  private final StopArrivalParetoSet<RaptorTripSchedule> subject = createStopArrivalSet(null);
-
   private static Stream<Arguments> testCases() {
     return Stream.of(
-      Arguments.of("Stop Arrival - regular", createStopArrivalSet(null)),
-      Arguments.of("Stop Arrival - w/egress", createEgressStopArrivalSet(List.of(), null, null))
+      Arguments.of(
+        "Stop Arrival - regular",
+        createStopArrivalSet(McStopArrival.compareArrivalTimeRoundAndCost(), null)
+      ),
+      Arguments.of(
+        "Stop Arrival - w/egress",
+        createEgressStopArrivalSet(
+          McStopArrival.compareArrivalTimeRoundCostAndOnBoardArrival(),
+          List.of(),
+          null,
+          null
+        )
+      )
     );
   }
 
@@ -153,7 +162,7 @@ public class StopArrivalStateParetoSetTest {
    */
   @Test
   public void testTransitAndTransferDoesNotAffectDominance() {
-    var subject = createStopArrivalSet(null);
+    var subject = createStopArrivalSet(McStopArrival.compareArrivalTimeRoundAndCost(), null);
     subject.add(newAccessStopState(STOP_1, 20, ANY));
     subject.add(newTransitStopState(ROUND_1, STOP_2, 10, ANY));
     subject.add(newTransferStopState(ROUND_1, STOP_4, 8, ANY));
@@ -168,7 +177,12 @@ public class StopArrivalStateParetoSetTest {
    */
   @Test
   public void testTransitAndTransferDoesAffectDominanceForStopArrivalsWithEgress() {
-    var subject = createEgressStopArrivalSet(List.of(), null, null);
+    var subject = createEgressStopArrivalSet(
+      McStopArrival.compareArrivalTimeRoundCostAndOnBoardArrival(),
+      List.of(),
+      null,
+      null
+    );
     subject.add(newAccessStopState(STOP_1, 20, ANY));
     subject.add(newTransitStopState(ROUND_1, STOP_2, 10, ANY));
     subject.add(newTransferStopState(ROUND_1, STOP_4, 8, ANY));

@@ -11,12 +11,20 @@ import org.opentripplanner.raptor._data.transit.TestTripSchedule;
 import org.opentripplanner.raptor.api.model.IncValueRelaxFunction;
 
 class RaptorPathTest {
+
   private static final int VALUE = 150;
   private static final int SMALL = 100;
 
   private final APath subject = new APath(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
   private final APath same = new APath(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
-  private final APath smallIterationDepartureTime = new APath(SMALL, VALUE, VALUE, VALUE, VALUE, VALUE);
+  private final APath smallIterationDepartureTime = new APath(
+    SMALL,
+    VALUE,
+    VALUE,
+    VALUE,
+    VALUE,
+    VALUE
+  );
   private final APath smallDepartureTime = new APath(VALUE, SMALL, VALUE, VALUE, VALUE, VALUE);
   private final APath smallArrivalTime = new APath(VALUE, VALUE, SMALL, VALUE, VALUE, VALUE);
   private final APath smallDuration = new APath(VALUE, VALUE, VALUE, SMALL, VALUE, VALUE);
@@ -45,7 +53,13 @@ class RaptorPathTest {
     assertFalse(RaptorPath.compareArrivalTime(subject, same));
     assertFalse(RaptorPath.compareArrivalTime(subject, smallArrivalTime));
     assertTrue(RaptorPath.compareArrivalTime(smallArrivalTime, subject));
-    assertTrue(RaptorPath.compareArrivalTime(IncValueRelaxFunction.ofIncreasingTime(1.0, 51), subject, smallArrivalTime));
+    assertTrue(
+      RaptorPath.compareArrivalTime(
+        IncValueRelaxFunction.ofIncreasingTime(1.0, 51),
+        subject,
+        smallArrivalTime
+      )
+    );
   }
 
   @Test
@@ -70,8 +84,13 @@ class RaptorPathTest {
     assertFalse(RaptorPath.compareC1(subject, same));
     assertFalse(RaptorPath.compareC1(subject, smallC1));
     assertTrue(RaptorPath.compareC1(smallC1, subject));
-    assertTrue(RaptorPath.compareArrivalTime(IncValueRelaxFunction.ofCost(1.25, 26), subject, smallArrivalTime));
-
+    assertTrue(
+      RaptorPath.compareArrivalTime(
+        IncValueRelaxFunction.ofCost(1.25, 26),
+        subject,
+        smallArrivalTime
+      )
+    );
   }
 
   private record APath(
@@ -81,8 +100,8 @@ class RaptorPathTest {
     int durationInSeconds,
     int numberOfTransfers,
     int c1
-  ) implements RaptorPath<TestTripSchedule> {
-
+  )
+    implements RaptorPath<TestTripSchedule> {
     @Override
     public int numberOfTransfersExAccessEgress() {
       return -1;

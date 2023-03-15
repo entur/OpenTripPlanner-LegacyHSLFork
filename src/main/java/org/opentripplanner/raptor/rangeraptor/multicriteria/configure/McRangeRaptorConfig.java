@@ -10,6 +10,8 @@ import org.opentripplanner.raptor.rangeraptor.internalapi.RoutingStrategy;
 import org.opentripplanner.raptor.rangeraptor.multicriteria.McRangeRaptorWorkerState;
 import org.opentripplanner.raptor.rangeraptor.multicriteria.McStopArrivals;
 import org.opentripplanner.raptor.rangeraptor.multicriteria.MultiCriteriaRoutingStrategy;
+import org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals.ArrivalParetoSetComparatorFactory;
+import org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals.McStopArrival;
 import org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals.McStopArrivalFactory;
 import org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals.c1.StopArrivalFactoryC1;
 import org.opentripplanner.raptor.rangeraptor.multicriteria.heuristic.HeuristicsProvider;
@@ -18,7 +20,7 @@ import org.opentripplanner.raptor.rangeraptor.path.DestinationArrivalPaths;
 import org.opentripplanner.raptor.rangeraptor.path.configure.PathConfig;
 
 /**
- * Configure and create multicriteria worker, state and child classes.
+ * Configure and create multi-criteria worker, state and child classes.
  *
  * @param <T> The TripSchedule type defined by the user of the raptor API.
  */
@@ -79,11 +81,13 @@ public class McRangeRaptorConfig<T extends RaptorTripSchedule> {
   }
 
   private McStopArrivals<T> createStopArrivals() {
+    ArrivalParetoSetComparatorFactory<McStopArrival<T>> factoryParetoComparator = createFactoryParetoComparator();
     return new McStopArrivals<>(
       context.nStops(),
       context.egressPaths(),
       context.accessPaths(),
       createDestinationArrivalPaths(),
+      factoryParetoComparator,
       context.debugFactory()
     );
   }
@@ -106,5 +110,11 @@ public class McRangeRaptorConfig<T extends RaptorTripSchedule> {
       paths = pathConfig.createDestArrivalPathsWithGeneralizedCost();
     }
     return paths;
+  }
+
+  private ArrivalParetoSetComparatorFactory<McStopArrival<T>> createFactoryParetoComparator() {
+    var relaxArrivalTime = context.multiCriteria().relaxArrivalTime().orElse(null);
+    var relaxC1 = context.multiCriteria().relaxC1().orElse(null);
+    return ArrivalParetoSetComparatorFactory.factory(relaxArrivalTime, relaxC1);
   }
 }

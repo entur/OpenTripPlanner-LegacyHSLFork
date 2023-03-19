@@ -19,6 +19,7 @@ import org.opentripplanner.transit.model.basic.TransitMode;
 import org.opentripplanner.transit.model.framework.Deduplicator;
 import org.opentripplanner.transit.model.framework.EntityById;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
+import org.opentripplanner.transit.model.network.EnturTransitCompetitionGroups;
 import org.opentripplanner.transit.model.network.StopPattern;
 import org.opentripplanner.transit.model.network.TripPattern;
 import org.opentripplanner.transit.model.network.TripPatternBuilder;
@@ -79,6 +80,8 @@ class TripPatternMapper {
 
   private final Deduplicator deduplicator;
 
+  private final EnturTransitCompetitionGroups transitCompetitionGroups;
+
   private TripPatternMapperResult result;
 
   TripPatternMapper(
@@ -102,6 +105,7 @@ class TripPatternMapper {
     Multimap<String, DatedServiceJourney> datedServiceJourneysBySJId,
     Map<String, FeedScopedId> serviceIds,
     Deduplicator deduplicator,
+    EnturTransitCompetitionGroups transitCompetitionGroups,
     double maxStopToShapeSnapDistance
   ) {
     this.issueStore = issueStore;
@@ -143,6 +147,7 @@ class TripPatternMapper {
         maxStopToShapeSnapDistance
       );
     this.deduplicator = deduplicator;
+    this.transitCompetitionGroups = transitCompetitionGroups;
 
     this.datedServiceJourneyById = datedServiceJourneyById;
     this.serviceJourneyById = serviceJourneyById;
@@ -242,7 +247,7 @@ class TripPatternMapper {
     }
 
     TripPatternBuilder tripPatternBuilder = TripPattern
-      .of(idFactory.createId(journeyPattern.getId()))
+      .of(idFactory.createId(journeyPattern.getId()), transitCompetitionGroups)
       .withRoute(lookupRoute(journeyPattern))
       .withStopPattern(stopPattern)
       .withMode(trips.get(0).getMode())

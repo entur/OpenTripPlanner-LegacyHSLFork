@@ -72,7 +72,7 @@ public class TransitModelForTest {
   }
 
   public static TripPatternBuilder tripPattern(String id, Route route) {
-    return TripPattern.of(id(id)).withRoute(route);
+    return TripPattern.of(id(id), null).withRoute(route);
   }
 
   /** Create a valid Bus Route to use in unit tests */

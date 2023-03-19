@@ -3,6 +3,7 @@ package org.opentripplanner.raptor.api.model;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.Objects;
+import org.opentripplanner.framework.time.DurationUtils;
 
 /**
  * This relax-function is used to relax increasing values by:
@@ -16,16 +17,16 @@ import java.util.Objects;
  */
 public final class IncValueRelaxFunction implements RelaxFunction {
 
-  private static final int ONE_HOUR = (int) Duration.ofHours(1).toSeconds();
+  private static final int FOUR_HOURS = (int) Duration.ofHours(4).toSeconds();
 
   /** Max time slack is set to 1 hour */
-  public static final int SLACK_TIME_MAX = ONE_HOUR;
+  public static final int SLACK_TIME_MAX = FOUR_HOURS;
 
   /**
    * Max cost slack is set to the cost equivalent of riding transit for 1 hour.
    * Raptor cost is in centi-seconds.
    */
-  public static final int SLACK_COST_MAX = ONE_HOUR * 100;
+  public static final int SLACK_COST_MAX = FOUR_HOURS * 100;
   public static final int SLACK_MIN = 0;
 
   /** Keep the RATIO_RESOLUTION a power of 2 for performance reasons. */
@@ -35,9 +36,20 @@ public final class IncValueRelaxFunction implements RelaxFunction {
   private final int ratioOf16s;
   private final int slack;
 
-  private IncValueRelaxFunction(double ratio, int slack, int maxSlack) {
-    this.ratioOf16s = (int) Math.round(assertRatioInRange(ratio) * RATIO_RESOLUTION);
-    this.slack = assertSlackInRange(slack, maxSlack);
+  private IncValueRelaxFunction(int normalizedRatio, int slack) {
+    this.ratioOf16s = normalizedRatio;
+    this.slack = slack;
+  }
+
+  private static RelaxFunction of(double ratio, int slack, int maxSlack) {
+    assertRatioInRange(ratio);
+    assertSlackInRange(slack, maxSlack);
+
+    int normalizedRatio = normalizedRatio(ratio);
+    if (isNormal(normalizedRatio, slack)) {
+      return NORMAL;
+    }
+    return new IncValueRelaxFunction(normalizedRatio, slack);
   }
 
   /**
@@ -46,11 +58,11 @@ public final class IncValueRelaxFunction implements RelaxFunction {
    * with {@code departure-time} and {@code iteration-departure-time}.
    */
   public static RelaxFunction ofIncreasingTime(double ratio, int slack) {
-    return new IncValueRelaxFunction(ratio, slack, SLACK_TIME_MAX);
+    return of(ratio, slack, SLACK_TIME_MAX);
   }
 
   public static RelaxFunction ofCost(double ratio, int slack) {
-    return new IncValueRelaxFunction(ratio, slack, SLACK_COST_MAX);
+    return of(ratio, slack, SLACK_COST_MAX);
   }
 
   public static RelaxFunction ofCost(double ratio) {
@@ -63,7 +75,12 @@ public final class IncValueRelaxFunction implements RelaxFunction {
 
   @Override
   public String toString() {
-    return "f()=" + ratioOf16s + "/16 * v + " + slack;
+    return String.format(
+      Locale.ROOT,
+      "f(v) = %.2f*v + %s",
+      ratioOf16s / 16.0,
+      DurationUtils.durationToStr(slack)
+    );
   }
 
   @Override
@@ -79,16 +96,23 @@ public final class IncValueRelaxFunction implements RelaxFunction {
     return Objects.hash(ratioOf16s, slack);
   }
 
-  private static int assertSlackInRange(int slack, int max) {
+  private static int normalizedRatio(double ratio) {
+    return (int) Math.round(ratio * RATIO_RESOLUTION);
+  }
+
+  private static boolean isNormal(int normalizedRatio, int slack) {
+    return normalizedRatio == RATIO_RESOLUTION && slack == 0;
+  }
+
+  private static void assertSlackInRange(int slack, int max) {
     if (slack < SLACK_MIN || slack > max) {
       throw new IllegalArgumentException(
         "Value is not in range. v=%d != [%d..%d]".formatted(slack, SLACK_MIN, max)
       );
     }
-    return slack;
   }
 
-  private static double assertRatioInRange(double ratio) {
+  private static void assertRatioInRange(double ratio) {
     if (ratio < RATIO_MIN || ratio > RATIO_MAX) {
       throw new IllegalArgumentException(
         String.format(
@@ -100,6 +124,5 @@ public final class IncValueRelaxFunction implements RelaxFunction {
         )
       );
     }
-    return ratio;
   }
 }

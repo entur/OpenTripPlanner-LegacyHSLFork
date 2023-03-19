@@ -21,7 +21,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.opentripplanner.api.parameter.QualifiedModeSet;
 import org.opentripplanner.ext.dataoverlay.api.DataOverlayParameters;
 import org.opentripplanner.framework.application.OTPFeature;
-import org.opentripplanner.model.modes.ExcludeAllTransitFilter;
 import org.opentripplanner.raptor.api.request.SearchParams;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.request.filter.SelectRequest;
@@ -649,6 +648,9 @@ public abstract class RoutingResource {
 
   @QueryParam("useVehicleParkingAvailabilityInformation")
   protected Boolean useVehicleParkingAvailabilityInformation;
+
+  @QueryParam("relaxC1")
+  protected String relaxC1;
 
   /**
    * Whether non-optimal transit paths at the destination should be returned.

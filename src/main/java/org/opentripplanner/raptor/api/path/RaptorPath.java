@@ -144,14 +144,6 @@ public interface RaptorPath<T extends RaptorTripSchedule> extends Comparable<Rap
     return l.endTime() < r.endTime();
   }
 
-  static <T extends RaptorTripSchedule> boolean compareArrivalTime(
-    RelaxFunction relax,
-    RaptorPath<T> l,
-    RaptorPath<T> r
-  ) {
-    return l.endTime() < relax.relax(r.endTime());
-  }
-
   static <T extends RaptorTripSchedule> boolean compareDepartureTime(
     RaptorPath<T> l,
     RaptorPath<T> r

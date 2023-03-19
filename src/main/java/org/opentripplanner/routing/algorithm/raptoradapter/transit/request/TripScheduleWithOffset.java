@@ -68,6 +68,11 @@ public final class TripScheduleWithOffset implements TripSchedule {
   }
 
   @Override
+  public int transitPriorityGroup() {
+    return pattern.transitPriorityGroup();
+  }
+
+  @Override
   public Accessibility wheelchairBoarding() {
     return pattern.wheelchairBoardingForTrip(tripIndexForDates);
   }

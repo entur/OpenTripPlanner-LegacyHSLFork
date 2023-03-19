@@ -35,6 +35,8 @@ public final class RaptorPreferences implements Serializable {
 
   private final Instant timeLimit;
 
+  private final boolean transitGroupPriority;
+  private final Relax c1Relax;
   private final Double relaxGeneralizedCostAtDestination;
 
   private RaptorPreferences() {
@@ -42,6 +44,8 @@ public final class RaptorPreferences implements Serializable {
     this.profile = RaptorProfile.MULTI_CRITERIA;
     this.searchDirection = SearchDirection.FORWARD;
     this.timeLimit = null;
+    this.transitGroupPriority = false;
+    this.c1Relax = Relax.NORMAL;
     this.relaxGeneralizedCostAtDestination = null;
   }
 
@@ -50,6 +54,9 @@ public final class RaptorPreferences implements Serializable {
     this.profile = Objects.requireNonNull(builder.profile);
     this.searchDirection = Objects.requireNonNull(builder.searchDirection);
     this.timeLimit = builder.timeLimit;
+
+    this.transitGroupPriority = builder.transitGroupPriority;
+    this.c1Relax = Objects.requireNonNull(builder.c1Relax);
 
     this.relaxGeneralizedCostAtDestination =
       Units.normalizedOptionalFactor(
@@ -88,9 +95,18 @@ public final class RaptorPreferences implements Serializable {
     return timeLimit;
   }
 
+  public boolean transitGroupPriority() {
+    return transitGroupPriority;
+  }
+
+  public Relax c1Relax() {
+    return c1Relax;
+  }
+
   /**
    * See {@link SearchParams#relaxCostAtDestination()} for documentation.
    */
+  @Deprecated
   public Optional<Double> relaxGeneralizedCostAtDestination() {
     return Optional.ofNullable(relaxGeneralizedCostAtDestination);
   }
@@ -110,6 +126,8 @@ public final class RaptorPreferences implements Serializable {
       profile == that.profile &&
       searchDirection == that.searchDirection &&
       Objects.equals(timeLimit, that.timeLimit) &&
+      transitGroupPriority == that.transitGroupPriority &&
+      Objects.equals(c1Relax, that.c1Relax) &&
       Objects.equals(relaxGeneralizedCostAtDestination, that.relaxGeneralizedCostAtDestination)
     );
   }
@@ -121,6 +139,8 @@ public final class RaptorPreferences implements Serializable {
       profile,
       searchDirection,
       timeLimit,
+      transitGroupPriority,
+      c1Relax,
       relaxGeneralizedCostAtDestination
     );
   }
@@ -134,6 +154,8 @@ public final class RaptorPreferences implements Serializable {
       .addEnum("searchDirection", searchDirection, DEFAULT.searchDirection)
       // Ignore time limit if null (default value)
       .addDateTime("timeLimit", timeLimit)
+      .addBoolIfTrue("transitGroupPriority", transitGroupPriority)
+      .addObj("c1Relax", c1Relax, Relax.NORMAL)
       .addNum(
         "relaxGeneralizedCostAtDestination",
         relaxGeneralizedCostAtDestination,
@@ -150,6 +172,9 @@ public final class RaptorPreferences implements Serializable {
     private SearchDirection searchDirection;
     private Set<Optimization> optimizations;
     private Instant timeLimit;
+    private boolean transitGroupPriority;
+    private Relax c1Relax;
+
     private Double relaxGeneralizedCostAtDestination;
 
     public Builder(RaptorPreferences original) {
@@ -158,6 +183,8 @@ public final class RaptorPreferences implements Serializable {
       this.searchDirection = original.searchDirection;
       this.optimizations = null;
       this.timeLimit = original.timeLimit;
+      this.transitGroupPriority = original.transitGroupPriority;
+      this.c1Relax = original.c1Relax;
       this.relaxGeneralizedCostAtDestination = original.relaxGeneralizedCostAtDestination;
     }
 
@@ -181,6 +208,16 @@ public final class RaptorPreferences implements Serializable {
 
     public Builder withTimeLimit(Instant timeLimit) {
       this.timeLimit = timeLimit;
+      return this;
+    }
+
+    public Builder withExploreTransitGroups(boolean value) {
+      this.transitGroupPriority = value;
+      return this;
+    }
+
+    public Builder withC1Relax(Relax c1Relax) {
+      this.c1Relax = c1Relax;
       return this;
     }
 

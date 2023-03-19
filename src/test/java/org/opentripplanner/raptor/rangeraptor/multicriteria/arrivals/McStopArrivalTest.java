@@ -2,7 +2,6 @@ package org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.opentripplanner.raptor.api.model.IncValueRelaxFunction.NORMAL;
 
 import org.junit.jupiter.api.Test;
 import org.opentripplanner.raptor._data.transit.TestTripSchedule;
@@ -110,57 +109,6 @@ class McStopArrivalTest {
   }
 
   @Test
-  void compareRelaxedArrivalTimeTest() {
-    int bestArrivalTime = 600;
-    int okArrivalTime = 899;
-    int rejectArrivalTime = okArrivalTime + 1;
-    var relaxArrivalTime = IncValueRelaxFunction.ofIncreasingTime(1.5, 0);
-    var referenceArrival = new A(
-      bestArrivalTime,
-      PARETO_ROUND_ONE,
-      COST_100,
-      COST_100,
-      ARRIVED_ON_BOARD
-    );
-
-    // Test base
-    assertFalse(
-      McStopArrival
-        .compareArrivalTimeRoundAndCost(relaxArrivalTime, NORMAL)
-        .leftDominanceExist(
-          new A(rejectArrivalTime, PARETO_ROUND_TWO, COST_777, COST_777, ARRIVED_ON_FOOT),
-          referenceArrival
-        )
-    );
-    assertTrue(
-      McStopArrival
-        .compareArrivalTimeRoundAndCost(relaxArrivalTime, NORMAL)
-        .leftDominanceExist(
-          new A(okArrivalTime, PARETO_ROUND_TWO, COST_777, COST_777, ARRIVED_ON_FOOT),
-          referenceArrival
-        )
-    );
-
-    // Test OnBoardArrival
-    assertFalse(
-      McStopArrival
-        .compareArrivalTimeRoundCostAndOnBoardArrival(relaxArrivalTime, NORMAL)
-        .leftDominanceExist(
-          new A(rejectArrivalTime, PARETO_ROUND_TWO, COST_777, COST_777, ARRIVED_ON_FOOT),
-          referenceArrival
-        )
-    );
-    assertTrue(
-      McStopArrival
-        .compareArrivalTimeRoundCostAndOnBoardArrival(relaxArrivalTime, NORMAL)
-        .leftDominanceExist(
-          new A(okArrivalTime, PARETO_ROUND_TWO, COST_777, COST_777, ARRIVED_ON_FOOT),
-          referenceArrival
-        )
-    );
-  }
-
-  @Test
   void compareRelaxedC1Test() {
     int bestC1 = 600;
     int okC1 = 799;
@@ -177,7 +125,7 @@ class McStopArrivalTest {
     // Test base
     assertFalse(
       McStopArrival
-        .compareArrivalTimeRoundAndCost(NORMAL, relaxC1)
+        .compareArrivalTimeRoundAndCost(relaxC1)
         .leftDominanceExist(
           new A(ARRIVAL_TIME_LATE, PARETO_ROUND_TWO, rejectC1, COST_777, ARRIVED_ON_FOOT),
           referenceArrival
@@ -185,7 +133,7 @@ class McStopArrivalTest {
     );
     assertTrue(
       McStopArrival
-        .compareArrivalTimeRoundAndCost(NORMAL, relaxC1)
+        .compareArrivalTimeRoundAndCost(relaxC1)
         .leftDominanceExist(
           new A(ARRIVAL_TIME_LATE, PARETO_ROUND_TWO, okC1, COST_777, ARRIVED_ON_FOOT),
           referenceArrival
@@ -195,7 +143,7 @@ class McStopArrivalTest {
     // Test OnBoardArrival
     assertFalse(
       McStopArrival
-        .compareArrivalTimeRoundCostAndOnBoardArrival(NORMAL, relaxC1)
+        .compareArrivalTimeRoundCostAndOnBoardArrival(relaxC1)
         .leftDominanceExist(
           new A(ARRIVAL_TIME_LATE, PARETO_ROUND_TWO, rejectC1, COST_777, ARRIVED_ON_FOOT),
           referenceArrival
@@ -203,7 +151,7 @@ class McStopArrivalTest {
     );
     assertTrue(
       McStopArrival
-        .compareArrivalTimeRoundCostAndOnBoardArrival(NORMAL, relaxC1)
+        .compareArrivalTimeRoundCostAndOnBoardArrival(relaxC1)
         .leftDominanceExist(
           new A(ARRIVAL_TIME_LATE, PARETO_ROUND_TWO, okC1, COST_777, ARRIVED_ON_FOOT),
           referenceArrival

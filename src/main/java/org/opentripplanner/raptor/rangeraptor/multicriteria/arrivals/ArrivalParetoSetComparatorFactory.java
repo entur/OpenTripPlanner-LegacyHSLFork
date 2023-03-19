@@ -1,5 +1,6 @@
 package org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals;
 
+import org.opentripplanner.raptor.api.model.DominanceFunction;
 import org.opentripplanner.raptor.api.model.RelaxFunction;
 import org.opentripplanner.raptor.util.paretoset.ParetoComparator;
 
@@ -21,39 +22,72 @@ public interface ArrivalParetoSetComparatorFactory<T extends McStopArrival<?>> {
   ParetoComparator<T> compareArrivalTimeRoundCostAndOnBoardArrival();
 
   static <T extends McStopArrival<?>> ArrivalParetoSetComparatorFactory<T> factory(
-    final RelaxFunction relaxArrivalTime,
+    final DominanceFunction c2DominanceFunction,
     final RelaxFunction relaxC1
   ) {
-    if (relaxArrivalTime == null && relaxC1 == null) {
-      return new ArrivalParetoSetComparatorFactory<T>() {
-        @Override
-        public ParetoComparator<T> compareArrivalTimeRoundAndCost() {
-          return McStopArrival::compareBase;
-        }
-
-        @Override
-        public ParetoComparator<T> compareArrivalTimeRoundCostAndOnBoardArrival() {
-          return (l, r) ->
-            McStopArrival.compareBase(l, r) || McStopArrival.compareArrivedOnBoard(l, r);
-        }
-      };
-    } else {
-      final RelaxFunction rat = relaxArrivalTime == null ? RelaxFunction.NORMAL : relaxArrivalTime;
-      final RelaxFunction rc1 = relaxC1 == null ? RelaxFunction.NORMAL : relaxC1;
-
-      return new ArrivalParetoSetComparatorFactory<>() {
-        @Override
-        public ParetoComparator<T> compareArrivalTimeRoundAndCost() {
-          return (l, r) -> McStopArrival.relaxedCompareBase(rat, rc1, l, r);
-        }
-
-        @Override
-        public ParetoComparator<T> compareArrivalTimeRoundCostAndOnBoardArrival() {
-          return (l, r) ->
-            McStopArrival.relaxedCompareBase(rat, rc1, l, r) ||
-            McStopArrival.compareArrivedOnBoard(l, r);
-        }
-      };
+    if (relaxC1.isNormal()) {
+      return createFactoryC1();
     }
+
+    return c2DominanceFunction == null
+      ? createFactoryRelaxC1(relaxC1)
+      : createFactoryRelaxC2(c2DominanceFunction, relaxC1);
+  }
+
+  private static <
+    T extends McStopArrival<?>
+  > ArrivalParetoSetComparatorFactory<T> createFactoryRelaxC1(RelaxFunction rc1) {
+    return new ArrivalParetoSetComparatorFactory<>() {
+      @Override
+      public ParetoComparator<T> compareArrivalTimeRoundAndCost() {
+        return (l, r) -> McStopArrival.relaxedCompareBase(rc1, l, r);
+      }
+
+      @Override
+      public ParetoComparator<T> compareArrivalTimeRoundCostAndOnBoardArrival() {
+        return (l, r) ->
+          McStopArrival.relaxedCompareBase(rc1, l, r) ||
+          McStopArrival.compareArrivedOnBoard(l, r);
+      }
+    };
+  }
+
+  private static <
+    T extends McStopArrival<?>
+  > ArrivalParetoSetComparatorFactory<T> createFactoryC1() {
+    return new ArrivalParetoSetComparatorFactory<T>() {
+      @Override
+      public ParetoComparator<T> compareArrivalTimeRoundAndCost() {
+        return McStopArrival::compareBase;
+      }
+
+      @Override
+      public ParetoComparator<T> compareArrivalTimeRoundCostAndOnBoardArrival() {
+        return (l, r) ->
+          McStopArrival.compareBase(l, r) || McStopArrival.compareArrivedOnBoard(l, r);
+      }
+    };
+  }
+
+  private static <
+    T extends McStopArrival<?>
+  > ArrivalParetoSetComparatorFactory<T> createFactoryRelaxC2(
+    DominanceFunction c2DominanceFunction,
+    RelaxFunction rc1
+  ) {
+    return new ArrivalParetoSetComparatorFactory<>() {
+      @Override
+      public ParetoComparator<T> compareArrivalTimeRoundAndCost() {
+        return McStopArrival.compareArrivalTimeRoundC1RelaxIfC2(rc1, c2DominanceFunction);
+      }
+
+      @Override
+      public ParetoComparator<T> compareArrivalTimeRoundCostAndOnBoardArrival() {
+        return McStopArrival.compareArrivalTimeRoundC1AndOnBoardArrivalRelaxIfC2(
+          rc1,
+          c2DominanceFunction
+        );
+      }
+    };
   }
 }

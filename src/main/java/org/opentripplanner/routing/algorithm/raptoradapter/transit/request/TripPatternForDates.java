@@ -175,6 +175,10 @@ public class TripPatternForDates
     return tripPattern.transitReluctanceFactorIndex();
   }
 
+  public int transitPriorityGroup() {
+    return tripPattern.transitPriorityGroup();
+  }
+
   @Override
   public String debugInfo() {
     return tripPattern.debugInfo();

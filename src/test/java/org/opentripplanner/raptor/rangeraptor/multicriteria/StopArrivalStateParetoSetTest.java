@@ -17,6 +17,7 @@ import org.opentripplanner.raptor._data.transit.TestTripSchedule;
 import org.opentripplanner.raptor.api.model.RaptorTripSchedule;
 import org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals.McStopArrival;
 import org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals.c1.StopArrivalFactoryC1;
+import org.opentripplanner.raptor.rangeraptor.multicriteria.ride.c1.PatternRideC1;
 
 public class StopArrivalStateParetoSetTest {
 
@@ -207,7 +208,8 @@ public class StopArrivalStateParetoSetTest {
     int cost
   ) {
     var prev = prev(round);
-    return STOP_ARRIVAL_FACTORY.createTransitStopArrival(prev, stop, arrivalTime, cost, ANY_TRIP);
+    var anyRide = new PatternRideC1<>(prev, ANY, ANY, ANY, ANY, ANY, ANY, ANY_TRIP);
+    return STOP_ARRIVAL_FACTORY.createTransitStopArrival(anyRide, stop, arrivalTime, cost);
   }
 
   private static McStopArrival<RaptorTripSchedule> newTransferStopState(

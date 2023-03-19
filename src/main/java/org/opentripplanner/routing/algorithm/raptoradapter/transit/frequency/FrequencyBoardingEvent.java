@@ -43,4 +43,9 @@ final class FrequencyBoardingEvent<T extends DefaultTripSchedule>
   public int departure(int stopPosInPattern) {
     return tripTimes.getDepartureTime(stopPosInPattern) + offset;
   }
+
+  @Override
+  public int transitPriorityGroup() {
+    throw new IllegalStateException();
+  }
 }

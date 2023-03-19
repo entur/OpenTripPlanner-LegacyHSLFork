@@ -38,7 +38,7 @@ class IncValueRelaxFunctionTest {
 
   @Test
   void testToString() {
-    assertEquals("f()=16/16 * v + 12", IncValueRelaxFunction.ofIncreasingTime(1.0, 12).toString());
+    assertEquals("f(v) = 1.00*v + 12s", IncValueRelaxFunction.ofIncreasingTime(1.0, 12).toString());
   }
 
   @Test

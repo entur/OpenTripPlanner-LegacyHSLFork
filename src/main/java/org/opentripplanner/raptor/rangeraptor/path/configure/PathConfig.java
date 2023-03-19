@@ -4,6 +4,7 @@ import static org.opentripplanner.raptor.rangeraptor.path.PathParetoSetComparato
 
 import org.opentripplanner.raptor.api.model.IncValueRelaxFunction;
 import org.opentripplanner.raptor.api.model.RaptorTripSchedule;
+import org.opentripplanner.raptor.api.model.RelaxFunction;
 import org.opentripplanner.raptor.api.model.SearchDirection;
 import org.opentripplanner.raptor.api.path.RaptorPath;
 import org.opentripplanner.raptor.api.path.RaptorStopNameResolver;
@@ -66,18 +67,23 @@ public class PathConfig<T extends RaptorTripSchedule> {
   }
 
   private ParetoComparator<RaptorPath<T>> createPathParetoComparator(boolean includeCost) {
-    var relaxCost = ctx
-      .multiCriteria()
-      .relaxC1()
-      .orElse(
-        ctx.multiCriteria().relaxCostAtDestination().map(IncValueRelaxFunction::ofCost).orElse(null)
-      );
+    RelaxFunction relaxCost;
+
+    if (ctx.multiCriteria().relaxC1().isNormal()) {
+      relaxCost =
+        ctx
+          .multiCriteria()
+          .relaxCostAtDestination()
+          .map(IncValueRelaxFunction::ofCost)
+          .orElse(RelaxFunction.NORMAL);
+    } else {
+      relaxCost = ctx.multiCriteria().relaxC1();
+    }
     return paretoComparator(
       includeCost,
       ctx.searchParams().timetable(),
       ctx.searchParams().preferLateArrival(),
       ctx.searchDirection(),
-      ctx.multiCriteria().relaxArrivalTime().orElse(null),
       relaxCost
     );
   }

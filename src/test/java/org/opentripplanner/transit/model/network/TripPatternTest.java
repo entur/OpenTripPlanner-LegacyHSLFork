@@ -19,7 +19,7 @@ class TripPatternTest {
   private static final Route ROUTE = TransitModelForTest.route("routeId").build();
   private static final StopPattern STOP_PATTERN = TransitModelForTest.stopPattern(10);
   private static final TripPattern subject = TripPattern
-    .of(TransitModelForTest.id(ID))
+    .of(TransitModelForTest.id(ID), null)
     .withName(NAME)
     .withRoute(ROUTE)
     .withStopPattern(STOP_PATTERN)

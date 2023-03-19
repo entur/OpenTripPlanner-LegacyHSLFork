@@ -53,13 +53,6 @@ class RaptorPathTest {
     assertFalse(RaptorPath.compareArrivalTime(subject, same));
     assertFalse(RaptorPath.compareArrivalTime(subject, smallArrivalTime));
     assertTrue(RaptorPath.compareArrivalTime(smallArrivalTime, subject));
-    assertTrue(
-      RaptorPath.compareArrivalTime(
-        IncValueRelaxFunction.ofIncreasingTime(1.0, 51),
-        subject,
-        smallArrivalTime
-      )
-    );
   }
 
   @Test
@@ -85,7 +78,7 @@ class RaptorPathTest {
     assertFalse(RaptorPath.compareC1(subject, smallC1));
     assertTrue(RaptorPath.compareC1(smallC1, subject));
     assertTrue(
-      RaptorPath.compareArrivalTime(
+      RaptorPath.compareC1(
         IncValueRelaxFunction.ofCost(1.25, 26),
         subject,
         smallArrivalTime

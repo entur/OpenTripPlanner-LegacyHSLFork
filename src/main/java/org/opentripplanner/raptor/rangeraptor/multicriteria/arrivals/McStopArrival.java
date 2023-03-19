@@ -1,5 +1,6 @@
 package org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals;
 
+import org.opentripplanner.raptor.api.model.DominanceFunction;
 import org.opentripplanner.raptor.api.model.RaptorTripSchedule;
 import org.opentripplanner.raptor.api.model.RelaxFunction;
 import org.opentripplanner.raptor.api.view.ArrivalView;
@@ -98,10 +99,9 @@ public abstract class McStopArrival<T extends RaptorTripSchedule> implements Arr
    * Same as {@link #compareArrivalTimeRoundAndCost}, but relax arrival-time and c1.
    */
   public static <T extends McStopArrival<?>> ParetoComparator<T> compareArrivalTimeRoundAndCost(
-    final RelaxFunction relaxArrivalTime,
     final RelaxFunction relaxC1
   ) {
-    return (l, r) -> relaxedCompareBase(relaxArrivalTime, relaxC1, l, r);
+    return (l, r) -> relaxedCompareBase(relaxC1, l, r);
   }
 
   /**
@@ -110,11 +110,50 @@ public abstract class McStopArrival<T extends RaptorTripSchedule> implements Arr
   public static <
     T extends McStopArrival<?>
   > ParetoComparator<T> compareArrivalTimeRoundCostAndOnBoardArrival(
-    final RelaxFunction relaxArrivalTime,
     final RelaxFunction relaxC1
   ) {
     return (l, r) ->
-      relaxedCompareBase(relaxArrivalTime, relaxC1, l, r) || compareArrivedOnBoard(l, r);
+      relaxedCompareBase(relaxC1, l, r) || compareArrivedOnBoard(l, r);
+  }
+
+  /**
+   * TODO C2 - DOC
+   *
+   * This comparator is used to compare regular stop arrivals. It uses {@code arrivalTime},
+   * {@code paretoRound} and {@code generalizedCost} to compare arrivals. It does NOT include
+   * {@code arrivedOnBoard}. Normally arriving on-board should give the arrival an advantage
+   * - you can continue on foot, walking to the next stop. But, we only do this if it happens
+   * in the same Raptor iteration and round - if it does it is taken care of by the order
+   * witch the algorithm work - not by this comparator.
+   */
+  public static <T extends McStopArrival<?>> ParetoComparator<T> compareArrivalTimeRoundC1RelaxIfC2(
+    RelaxFunction relaxC1,
+    DominanceFunction dominanceFunctionC2
+  ) {
+    // If c2 dominates, then a slack is added to arrival-time and cost (c1)
+    return (l, r) ->
+      dominanceFunctionC2.leftDominateRight(l.c2(), r.c2())
+        ? relaxedCompareBase(relaxC1, l, r)
+        : compareBase(l, r);
+  }
+
+  /**
+   * This includes {@code arrivedOnBoard} in the comparison compared with
+   * {@link #compareArrivalTimeRoundAndCost()}.
+   */
+  public static <
+    T extends McStopArrival<?>
+  > ParetoComparator<T> compareArrivalTimeRoundC1AndOnBoardArrivalRelaxIfC2(
+    RelaxFunction relaxC1,
+    DominanceFunction dominanceFunctionC2
+  ) {
+    return (l, r) ->
+      (
+        dominanceFunctionC2.leftDominateRight(l.c2(), r.c2())
+          ? relaxedCompareBase(relaxC1, l, r)
+          : compareBase(l, r)
+      ) ||
+      compareArrivedOnBoard(l, r);
   }
 
   @Override
@@ -190,13 +229,12 @@ public abstract class McStopArrival<T extends RaptorTripSchedule> implements Arr
    * Compare arrivalTime, paretoRound and c1, relaxing arrivalTime and c1.
    */
   protected static boolean relaxedCompareBase(
-    final RelaxFunction relaxArrivalTime,
     final RelaxFunction relaxC1,
     McStopArrival<?> l,
     McStopArrival<?> r
   ) {
     return (
-      l.arrivalTime() < relaxArrivalTime.relax(r.arrivalTime()) ||
+      l.arrivalTime() < r.arrivalTime() ||
       l.paretoRound() < r.paretoRound() ||
       l.c1() < relaxC1.relax(r.c1())
     );

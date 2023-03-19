@@ -2,7 +2,6 @@ package org.opentripplanner.raptor.rangeraptor.multicriteria;
 
 import org.opentripplanner.raptor.api.model.RaptorAccessEgress;
 import org.opentripplanner.raptor.api.model.RaptorTripSchedule;
-import org.opentripplanner.raptor.api.view.PatternRideView;
 import org.opentripplanner.raptor.rangeraptor.internalapi.RoutingStrategy;
 import org.opentripplanner.raptor.rangeraptor.internalapi.SlackProvider;
 import org.opentripplanner.raptor.rangeraptor.multicriteria.arrivals.McStopArrival;
@@ -13,9 +12,7 @@ import org.opentripplanner.raptor.spi.RaptorBoardOrAlightEvent;
 import org.opentripplanner.raptor.spi.RaptorConstrainedBoardingSearch;
 import org.opentripplanner.raptor.spi.RaptorCostCalculator;
 import org.opentripplanner.raptor.spi.RaptorTimeTable;
-import org.opentripplanner.raptor.util.paretoset.ParetoComparator;
 import org.opentripplanner.raptor.util.paretoset.ParetoSet;
-import org.opentripplanner.raptor.util.paretoset.ParetoSetEventListener;
 
 /**
  * The purpose of this class is to implement the multi-criteria specific functionality of the
@@ -41,15 +38,14 @@ public final class MultiCriteriaRoutingStrategy<
     PatternRideFactory<T, R> patternRideFactory,
     RaptorCostCalculator<T> generalizedCostCalculator,
     SlackProvider slackProvider,
-    ParetoComparator<R> patternRideComparator,
-    ParetoSetEventListener<PatternRideView<?, ?>> paretoSetPatternRideListener
+    ParetoSet<R> patternRides
   ) {
     this.state = state;
     this.boardingSupport = boardingSupport;
     this.patternRideFactory = patternRideFactory;
     this.generalizedCostCalculator = generalizedCostCalculator;
     this.slackProvider = slackProvider;
-    this.patternRides = new ParetoSet<>(patternRideComparator, paretoSetPatternRideListener);
+    this.patternRides = patternRides;
   }
 
   @Override

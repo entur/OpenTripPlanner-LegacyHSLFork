@@ -11,7 +11,21 @@ public interface RelaxFunction {
   /**
    * This relax-function should give the same result as not using
    */
-  RelaxFunction NORMAL = v -> v;
+  RelaxFunction NORMAL = new RelaxFunction() {
+    @Override
+    public int relax(int value) {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return "NORMAL";
+    }
+  };
 
   int relax(int value);
+
+  default boolean isNormal() {
+    return this == NORMAL;
+  }
 }

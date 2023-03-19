@@ -18,6 +18,8 @@ import org.opentripplanner.transit.model.framework.FeedScopedId;
 public final class TripPatternBuilder
   extends AbstractEntityBuilder<TripPattern, TripPatternBuilder> {
 
+  private final EnturTransitCompetitionGroups transitCompetitionGroups;
+
   private Route route;
   private TransitMode mode;
   private SubMode netexSubMode;
@@ -31,8 +33,9 @@ public final class TripPatternBuilder
   private TripPattern originalTripPattern;
   private List<LineString> hopGeometries;
 
-  TripPatternBuilder(FeedScopedId id) {
+  TripPatternBuilder(FeedScopedId id, EnturTransitCompetitionGroups transitCompetitionGroups) {
     super(id);
+    this.transitCompetitionGroups = transitCompetitionGroups;
   }
 
   TripPatternBuilder(TripPattern original) {
@@ -50,6 +53,7 @@ public final class TripPatternBuilder
       original.getGeometry() == null
         ? null
         : IntStream.range(0, original.numberOfStops()).mapToObj(original::getHopGeometry).toList();
+    this.transitCompetitionGroups = null;
   }
 
   public TripPatternBuilder withName(String name) {
@@ -105,6 +109,15 @@ public final class TripPatternBuilder
   // TODO: Change the calculation to be injectable if required
   public int transitReluctanceFactorIndex() {
     return route.getMode().ordinal();
+  }
+
+  public int transitPriorityGroup() {
+    return transitCompetitionGroups != null
+      ? transitCompetitionGroups.resolveCompetitionGroup(
+      mode,
+      netexSubMode,
+      route.getAgency().getId()
+    ) : 0;
   }
 
   @Override

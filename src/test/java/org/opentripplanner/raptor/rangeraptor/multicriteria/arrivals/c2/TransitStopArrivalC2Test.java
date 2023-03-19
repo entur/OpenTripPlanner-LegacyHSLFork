@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.opentripplanner.raptor._data.transit.TestAccessEgress;
 import org.opentripplanner.raptor._data.transit.TestTripSchedule;
 import org.opentripplanner.raptor.api.model.RaptorTripSchedule;
-import org.opentripplanner.raptor.spi.RaptorCostCalculator;
 
 class TransitStopArrivalC2Test {
 
@@ -38,13 +37,15 @@ class TransitStopArrivalC2Test {
     .build();
   private static final int TRANSIT_TRAVEL_DURATION =
     ACCESS_DURATION + BOARD_SLACK + TRANSIT_LEG_DURATION;
-  private static final int TRANSIT_COST = 128000;
+  private static final int TRANSIT_C1 = 128000;
+  private static final int TRANSIT_C2 = 8000;
   private static final int ROUND = 1;
   private final TransitStopArrivalC2<RaptorTripSchedule> subject = new TransitStopArrivalC2<>(
     ACCESS_ARRIVAL.timeShiftNewArrivalTime(TRANSIT_BOARD_TIME - BOARD_SLACK),
     TRANSIT_TO_STOP,
     TRANSIT_ALIGHT_TIME,
-    ACCESS_ARRIVAL.c1() + TRANSIT_COST,
+    ACCESS_ARRIVAL.c1() + TRANSIT_C1,
+    TRANSIT_C2,
     TRANSIT_TRIP
   );
 
@@ -77,13 +78,12 @@ class TransitStopArrivalC2Test {
 
   @Test
   public void c1() {
-    assertEquals(ACCESS_COST + TRANSIT_COST, subject.c1());
+    assertEquals(ACCESS_COST + TRANSIT_C1, subject.c1());
   }
 
   @Test
   public void c2() {
-    // We will add a more meaning-full implementation later
-    assertEquals(RaptorCostCalculator.ZERO_COST, subject.c2());
+    assertEquals(TRANSIT_C2, subject.c2());
   }
 
   @Test

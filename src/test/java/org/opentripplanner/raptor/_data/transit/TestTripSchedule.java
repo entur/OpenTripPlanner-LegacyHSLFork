@@ -4,11 +4,14 @@ import static org.opentripplanner.transit.model.basic.Accessibility.NO_INFORMATI
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.stream.IntStream;
+import org.opentripplanner.framework.lang.IntUtils;
 import org.opentripplanner.framework.time.TimeUtils;
 import org.opentripplanner.framework.tostring.ToStringBuilder;
 import org.opentripplanner.raptor.api.model.RaptorTripSchedule;
 import org.opentripplanner.routing.algorithm.raptoradapter.api.DefaultTripPattern;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.grouppriority.TestTransitPriorityCalculator;
 import org.opentripplanner.transit.model.basic.Accessibility;
 import org.opentripplanner.transit.model.network.TripPattern;
 import org.opentripplanner.transit.model.timetable.TripTimes;
@@ -28,11 +31,14 @@ public class TestTripSchedule implements TripSchedule {
   private final Accessibility wheelchairBoarding;
   private final TripPattern originalPattern;
 
+  private final int transitPriorityGroup;
+
   protected TestTripSchedule(
     TestTripPattern pattern,
     int[] arrivalTimes,
     int[] departureTimes,
     int transitReluctanceIndex,
+    int transitPriorityGroupIndex,
     Accessibility wheelchairBoarding,
     TripPattern originalPattern
   ) {
@@ -40,6 +46,7 @@ public class TestTripSchedule implements TripSchedule {
     this.arrivalTimes = arrivalTimes;
     this.departureTimes = departureTimes;
     this.transitReluctanceIndex = transitReluctanceIndex;
+    this.transitPriorityGroup = TestTransitPriorityCalculator.groupId(transitPriorityGroupIndex);
     this.wheelchairBoarding = wheelchairBoarding;
     this.originalPattern = originalPattern;
   }
@@ -94,6 +101,11 @@ public class TestTripSchedule implements TripSchedule {
     return wheelchairBoarding;
   }
 
+  @Override
+  public int transitPriorityGroup() {
+    return transitPriorityGroup;
+  }
+
   public int size() {
     return arrivalTimes.length;
   }
@@ -136,6 +148,7 @@ public class TestTripSchedule implements TripSchedule {
     private int[] departureTimes;
     private int arrivalDepartureOffset = DEFAULT_DEPARTURE_DELAY;
     private int transitReluctanceIndex = 0;
+    private int transitPriorityGroupIndex = 0;
     private Accessibility wheelchairBoarding = NO_INFORMATION;
     private TripPattern originalPattern;
 
@@ -147,6 +160,19 @@ public class TestTripSchedule implements TripSchedule {
     public TestTripSchedule.Builder originalPattern(TripPattern pattern) {
       this.originalPattern = pattern;
       return this;
+    }
+
+    public TestTripSchedule.Builder copy() {
+      var b = new TestTripSchedule.Builder();
+      b.pattern = pattern;
+      b.arrivalTimes = arrivalTimes;
+      b.departureTimes = departureTimes;
+      b.arrivalDepartureOffset = arrivalDepartureOffset;
+      b.transitReluctanceIndex = transitReluctanceIndex;
+      b.transitPriorityGroupIndex = transitPriorityGroupIndex;
+      b.wheelchairBoarding = wheelchairBoarding;
+      b.originalPattern = originalPattern;
+      return b;
     }
 
     public TestTripSchedule.Builder pattern(String name, int... stops) {
@@ -199,6 +225,26 @@ public class TestTripSchedule implements TripSchedule {
     }
 
     /**
+     * Shift all arrival/departure times by the given {@code offset}. Be careful, this
+     * method change the builder instance, use {@link #copy()} if you need the original.
+     * <p>
+     * Offset unit is seconds.
+     */
+    public TestTripSchedule.Builder shiftTimes(int offset) {
+      if (arrivalTimes == departureTimes) {
+        arrivalTimes = departureTimes = IntUtils.shiftArray(offset, arrivalTimes);
+      } else {
+        if (arrivalTimes != null) {
+          arrivalTimes = IntUtils.shiftArray(offset, arrivalTimes);
+        }
+        if (departureTimes != null) {
+          departureTimes = IntUtils.shiftArray(offset, departureTimes);
+        }
+      }
+      return this;
+    }
+
+    /**
      * Set the transit-reluctance-index.
      * <p>
      * The default is 0.
@@ -208,9 +254,25 @@ public class TestTripSchedule implements TripSchedule {
       return this;
     }
 
+    /**
+     * Set priority group index, a value from zero(0) to 31 (max value). This is
+     * mapped to transit-priority-group-id used during routing.
+     */
+    public TestTripSchedule.Builder transitPriorityGroupIndex(int value) {
+      this.transitPriorityGroupIndex = value;
+      return this;
+    }
+
     public TestTripSchedule.Builder wheelchairBoarding(Accessibility wcb) {
       this.wheelchairBoarding = wcb;
       return this;
+    }
+
+    public TestTripSchedule.Builder[] repeat(int nTimes, int everySeconds) {
+      return IntStream
+        .range(0, nTimes)
+        .mapToObj(i -> copy().shiftTimes(i * everySeconds))
+        .toArray(Builder[]::new);
     }
 
     public TestTripSchedule build() {
@@ -246,6 +308,7 @@ public class TestTripSchedule implements TripSchedule {
         arrivalTimes,
         departureTimes,
         transitReluctanceIndex,
+        transitPriorityGroupIndex,
         wheelchairBoarding,
         originalPattern
       );

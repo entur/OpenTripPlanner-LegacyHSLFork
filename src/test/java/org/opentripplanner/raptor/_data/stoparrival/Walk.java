@@ -4,7 +4,6 @@ import org.opentripplanner.raptor._data.transit.TestTransfer;
 import org.opentripplanner.raptor._data.transit.TestTripSchedule;
 import org.opentripplanner.raptor.api.model.RaptorTransfer;
 import org.opentripplanner.raptor.api.view.ArrivalView;
-import org.opentripplanner.raptor.api.view.TransferPathView;
 
 public class Walk extends AbstractStopArrival {
 
@@ -40,7 +39,12 @@ public class Walk extends AbstractStopArrival {
   }
 
   @Override
-  public TransferPathView transferPath() {
-    return () -> transfer;
+  public RaptorTransfer transfer() {
+    return transfer;
+  }
+
+  @Override
+  public boolean arrivedOnBoard() {
+    return false;
   }
 }

@@ -43,4 +43,9 @@ final class FrequencyAlightEvent<T extends DefaultTripSchedule>
   public int departure(int stopPosInPattern) {
     return tripTimes.getDepartureTime(stopPosInPattern) - headway + offset;
   }
+
+  @Override
+  public int transitPriorityGroup() {
+    throw new IllegalStateException();
+  }
 }

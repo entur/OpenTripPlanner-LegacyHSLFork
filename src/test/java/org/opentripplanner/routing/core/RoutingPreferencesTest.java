@@ -14,7 +14,11 @@ public class RoutingPreferencesTest {
   public void copyOfShouldReturnTheSameInstanceWhenBuild() {
     var pref = new RoutingPreferences();
     var copy = pref.copyOf().build();
+    assertSame(pref, copy);
+
+    copy = pref.copyOf().withSystem(b -> b.withGeoidElevation(true)).build();
     assertNotSame(pref, copy);
+    assertNotSame(pref.system(), copy.system());
 
     // Immutable classes should not change
     assertSame(pref.car(), copy.car());
@@ -26,7 +30,6 @@ public class RoutingPreferencesTest {
     assertSame(pref.street(), copy.street());
     assertSame(pref.rental(), copy.rental());
     assertSame(pref.itineraryFilter(), copy.itineraryFilter());
-    assertSame(pref.system(), copy.system());
   }
 
   @Test

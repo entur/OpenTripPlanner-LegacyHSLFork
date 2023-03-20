@@ -14,4 +14,6 @@ public interface DefaultTripSchedule extends RaptorTripSchedule {
    * give non-wheelchair friendly trips a generalized-cost penalty.
    */
   Accessibility wheelchairBoarding();
+
+  int transitPriorityGroup();
 }

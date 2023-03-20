@@ -104,7 +104,14 @@ public final class TripPattern
   }
 
   public static TripPatternBuilder of(@Nonnull FeedScopedId id) {
-    return new TripPatternBuilder(id);
+    return of(id, null);
+  }
+
+  public static TripPatternBuilder of(
+    @Nonnull FeedScopedId id,
+    EnturTransitCompetitionGroups transitCompetitionGroups
+  ) {
+    return new TripPatternBuilder(id, transitCompetitionGroups);
   }
 
   /** The human-readable, unique name for this trip pattern. */

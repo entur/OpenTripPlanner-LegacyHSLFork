@@ -22,6 +22,7 @@ import org.opentripplanner.transit.model.basic.Notice;
 import org.opentripplanner.transit.model.framework.AbstractTransitEntity;
 import org.opentripplanner.transit.model.framework.Deduplicator;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
+import org.opentripplanner.transit.model.network.EnturTransitCompetitionGroups;
 import org.opentripplanner.transit.model.network.GroupOfRoutes;
 import org.opentripplanner.transit.model.network.Route;
 import org.opentripplanner.transit.model.organization.Agency;
@@ -61,6 +62,8 @@ public class NetexMapper {
   private final FeedScopedIdFactory idFactory;
   private final OtpTransitServiceBuilder transitBuilder;
   private final Deduplicator deduplicator;
+
+  private final EnturTransitCompetitionGroups transitCompetitionGroups = new EnturTransitCompetitionGroups();
   private final DataImportIssueStore issueStore;
   private final CalendarServiceBuilder calendarServiceBuilder;
   private final TripCalendarBuilder tripCalendarBuilder;
@@ -153,6 +156,7 @@ public class NetexMapper {
     ) {
       transitBuilder.getCalendars().add(emptyCalendar);
     }
+    transitCompetitionGroups.printList();
   }
 
   /**
@@ -443,6 +447,7 @@ public class NetexMapper {
       currentMapperIndexes.getDatedServiceJourneysBySjId(),
       serviceIds,
       deduplicator,
+      transitCompetitionGroups,
       maxStopToShapeSnapDistance
     );
 

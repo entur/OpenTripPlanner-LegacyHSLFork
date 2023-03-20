@@ -26,6 +26,7 @@ public class RoutingTripPattern implements DefaultTripPattern, Serializable {
   private final BitSet wheelchairAccessible;
   private final int slackIndex;
   private final int transitReluctanceFactorIndex;
+  private final int transitPriorityGroup;
 
   RoutingTripPattern(TripPattern pattern, TripPatternBuilder builder) {
     this.pattern = pattern;
@@ -45,6 +46,7 @@ public class RoutingTripPattern implements DefaultTripPattern, Serializable {
 
     this.slackIndex = builder.slackIndex();
     this.transitReluctanceFactorIndex = builder.transitReluctanceFactorIndex();
+    this.transitPriorityGroup = builder.transitPriorityGroup();
   }
 
   /**
@@ -102,6 +104,10 @@ public class RoutingTripPattern implements DefaultTripPattern, Serializable {
 
   public int transitReluctanceFactorIndex() {
     return transitReluctanceFactorIndex;
+  }
+
+  public int transitPriorityGroup() {
+    return transitPriorityGroup;
   }
 
   @Override

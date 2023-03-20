@@ -6,18 +6,21 @@ import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import org.opentripplanner.ext.sorlandsbanen.EnturHackSorlandsBanen;
 import org.opentripplanner.framework.application.OTPFeature;
 import org.opentripplanner.raptor.api.RaptorConstants;
+import org.opentripplanner.raptor.api.model.IncValueRelaxFunction;
 import org.opentripplanner.raptor.api.model.RaptorAccessEgress;
+import org.opentripplanner.raptor.api.model.RelaxFunction;
 import org.opentripplanner.raptor.api.request.Optimization;
 import org.opentripplanner.raptor.api.request.RaptorRequest;
 import org.opentripplanner.raptor.api.request.RaptorRequestBuilder;
 import org.opentripplanner.raptor.rangeraptor.SystemErrDebugLogger;
 import org.opentripplanner.routing.algorithm.raptoradapter.router.performance.PerformanceTimersForRaptor;
-import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.RaptorCostConverter;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.grouppriority.TransitPriorityGroup32n;
 import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.preference.Relax;
 
 public class RaptorRequestMapper {
 
@@ -28,22 +31,18 @@ public class RaptorRequestMapper {
   private final boolean isMultiThreadedEnbled;
   private final MeterRegistry meterRegistry;
 
-  private final TransitLayer transitLayer;
-
   private RaptorRequestMapper(
     RouteRequest request,
     boolean isMultiThreaded,
     Collection<? extends RaptorAccessEgress> accessPaths,
     Collection<? extends RaptorAccessEgress> egressPaths,
     long transitSearchTimeZeroEpocSecond,
-    MeterRegistry meterRegistry,
-    TransitLayer transitLayer
+    MeterRegistry meterRegistry
   ) {
     this.request = request;
     this.isMultiThreadedEnbled = isMultiThreaded;
     this.accessPaths = accessPaths;
     this.egressPaths = egressPaths;
-    this.transitLayer = transitLayer;
     this.transitSearchTimeZeroEpocSecond = transitSearchTimeZeroEpocSecond;
     this.meterRegistry = meterRegistry;
   }
@@ -54,8 +53,7 @@ public class RaptorRequestMapper {
     boolean isMultiThreaded,
     Collection<? extends RaptorAccessEgress> accessPaths,
     Collection<? extends RaptorAccessEgress> egressPaths,
-    MeterRegistry meterRegistry,
-    TransitLayer transitLayer
+    MeterRegistry meterRegistry
   ) {
     return new RaptorRequestMapper(
       request,
@@ -63,8 +61,7 @@ public class RaptorRequestMapper {
       accessPaths,
       egressPaths,
       transitSearchTimeZero.toEpochSecond(),
-      meterRegistry,
-      transitLayer
+      meterRegistry
     )
       .doMap();
   }
@@ -107,12 +104,14 @@ public class RaptorRequestMapper {
     if (preferences.transfer().maxAdditionalTransfers() != null) {
       searchParams.numberOfAdditionalTransfers(preferences.transfer().maxAdditionalTransfers());
     }
-
-    preferences
-      .transit()
-      .raptor()
-      .relaxGeneralizedCostAtDestination()
-      .ifPresent(searchParams::relaxCostAtDestination);
+    builder.withMultiCriteria(mcBuilder -> {
+      var r = preferences.transit().raptor();
+      if (r.transitGroupPriority()) {
+        mcBuilder.withTransitPriorityCalculator(TransitPriorityGroup32n.priorityCalculator());
+      }
+      mcBuilder.withRelaxC1(mapRelaxCost(r.c1Relax()));
+      r.relaxGeneralizedCostAtDestination().ifPresent(mcBuilder::withRelaxCostAtDestination);
+    });
 
     for (Optimization optimization : preferences.transit().raptor().optimizations()) {
       if (optimization.is(PARALLEL)) {
@@ -163,7 +162,17 @@ public class RaptorRequestMapper {
       )
     );
 
-    return EnturHackSorlandsBanen.enableHack(builder.build(), request, transitLayer);
+    return builder.build();
+  }
+
+  static RelaxFunction mapRelaxCost(Relax relax) {
+    if (relax == null) {
+      return null;
+    }
+    return IncValueRelaxFunction.ofCost(
+      relax.ratio(),
+      RaptorCostConverter.toRaptorCost(relax.slack())
+    );
   }
 
   private int relativeTime(Instant time) {

@@ -6,7 +6,7 @@ import org.opentripplanner.raptor.api.path.RaptorStopNameResolver;
 import org.opentripplanner.raptor.path.PathBuilder;
 import org.opentripplanner.raptor.rangeraptor.internalapi.WorkerLifeCycle;
 import org.opentripplanner.raptor.rangeraptor.transit.TripTimesSearch;
-import org.opentripplanner.raptor.spi.CostCalculator;
+import org.opentripplanner.raptor.spi.RaptorCostCalculator;
 import org.opentripplanner.raptor.spi.RaptorPathConstrainedTransferSearch;
 import org.opentripplanner.raptor.spi.RaptorSlackProvider;
 
@@ -25,7 +25,7 @@ import org.opentripplanner.raptor.spi.RaptorSlackProvider;
 public final class ReversePathMapper<T extends RaptorTripSchedule> implements PathMapper<T> {
 
   private final RaptorSlackProvider slackProvider;
-  private final CostCalculator<T> costCalculator;
+  private final RaptorCostCalculator<T> costCalculator;
   private final RaptorStopNameResolver stopNameResolver;
   private final BoardAndAlightTimeSearch tripSearch;
   private final RaptorPathConstrainedTransferSearch<T> transferConstraintsSearch;
@@ -34,7 +34,7 @@ public final class ReversePathMapper<T extends RaptorTripSchedule> implements Pa
 
   public ReversePathMapper(
     RaptorSlackProvider slackProvider,
-    CostCalculator<T> costCalculator,
+    RaptorCostCalculator<T> costCalculator,
     RaptorStopNameResolver stopNameResolver,
     RaptorPathConstrainedTransferSearch<T> transferConstraintsSearch,
     WorkerLifeCycle lifeCycle,
@@ -52,6 +52,7 @@ public final class ReversePathMapper<T extends RaptorTripSchedule> implements Pa
   public RaptorPath<T> mapToPath(final DestinationArrival<T> destinationArrival) {
     var pathBuilder = PathBuilder.tailPathBuilder(
       slackProvider,
+      destinationArrival.arrivalTime(),
       costCalculator,
       stopNameResolver,
       transferConstraintsSearch
@@ -63,13 +64,13 @@ public final class ReversePathMapper<T extends RaptorTripSchedule> implements Pa
     while (true) {
       if (arrival.arrivedByAccess()) {
         pathBuilder.egress(arrival.accessPath().access());
-        return pathBuilder.build(iterationDepartureTime);
+        return pathBuilder.build();
       } else if (arrival.arrivedByTransit()) {
         var times = tripSearch.find(arrival);
         var transit = arrival.transitPath();
         pathBuilder.transit(transit.trip(), times);
       } else if (arrival.arrivedByTransfer()) {
-        pathBuilder.transfer(arrival.transferPath().transfer(), arrival.previous().stop());
+        pathBuilder.transfer(arrival.transfer(), arrival.previous().stop());
       } else {
         throw new IllegalStateException("Unexpected arrival: " + arrival);
       }

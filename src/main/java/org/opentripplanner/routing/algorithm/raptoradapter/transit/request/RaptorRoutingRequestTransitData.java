@@ -13,9 +13,9 @@ import org.opentripplanner.model.transfer.TransferService;
 import org.opentripplanner.raptor.api.model.RaptorConstrainedTransfer;
 import org.opentripplanner.raptor.api.model.RaptorTransfer;
 import org.opentripplanner.raptor.api.path.RaptorStopNameResolver;
-import org.opentripplanner.raptor.spi.CostCalculator;
 import org.opentripplanner.raptor.spi.IntIterator;
 import org.opentripplanner.raptor.spi.RaptorConstrainedBoardingSearch;
+import org.opentripplanner.raptor.spi.RaptorCostCalculator;
 import org.opentripplanner.raptor.spi.RaptorPathConstrainedTransferSearch;
 import org.opentripplanner.raptor.spi.RaptorRoute;
 import org.opentripplanner.raptor.spi.RaptorSlackProvider;
@@ -26,7 +26,7 @@ import org.opentripplanner.routing.algorithm.raptoradapter.transit.SlackProvider
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.constrainedtransfer.ConstrainedBoardingSearch;
-import org.opentripplanner.routing.algorithm.raptoradapter.transit.constrainedtransfer.TransferForPatternByStopPos;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.constrainedtransfer.ConstrainedTransfersForPatterns;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.CostCalculatorFactory;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.DefaultCostCalculator;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.FactorStrategy;
@@ -60,13 +60,11 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
    */
   private final RaptorTransferIndex transferIndex;
 
-  private final List<TransferForPatternByStopPos> forwardConstrainedTransfers;
-
-  private final List<TransferForPatternByStopPos> reverseConstrainedTransfers;
+  private final ConstrainedTransfersForPatterns constrainedTransfers;
 
   private final ZonedDateTime transitSearchTimeZero;
 
-  private final CostCalculator<TripSchedule> generalizedCostCalculator;
+  private final RaptorCostCalculator<TripSchedule> generalizedCostCalculator;
 
   private final RaptorSlackProvider slackProvider;
 
@@ -101,9 +99,7 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
     this.patternIndex = transitDataCreator.createPatternIndex(tripPatterns);
     this.activeTripPatternsPerStop = transitDataCreator.createTripPatternsPerStop(tripPatterns);
     this.transferIndex = transitLayer.getRaptorTransfersForRequest(request);
-
-    this.forwardConstrainedTransfers = transitLayer.getForwardConstrainedTransfers();
-    this.reverseConstrainedTransfers = transitLayer.getReverseConstrainedTransfers();
+    this.constrainedTransfers = transitLayer.getConstrainedTransfers();
 
     var mcCostParams = GeneralizedCostParametersMapper.map(request, patternIndex);
 
@@ -168,7 +164,7 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
   }
 
   @Override
-  public CostCalculator<TripSchedule> multiCriteriaCostCalculator() {
+  public RaptorCostCalculator<TripSchedule> multiCriteriaCostCalculator() {
     return generalizedCostCalculator;
   }
 
@@ -227,22 +223,26 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
   public RaptorConstrainedBoardingSearch<TripSchedule> transferConstraintsForwardSearch(
     int routeIndex
   ) {
-    var transfers = forwardConstrainedTransfers.get(routeIndex);
-    if (transfers == null) {
+    var fromStopTransfers = constrainedTransfers.fromStop(routeIndex);
+    var toStopTransfers = constrainedTransfers.toStop(routeIndex);
+
+    if (fromStopTransfers == null && toStopTransfers == null) {
       return ConstrainedBoardingSearch.NOOP_SEARCH;
     }
-    return new ConstrainedBoardingSearch(true, transfers);
+    return new ConstrainedBoardingSearch(true, fromStopTransfers, toStopTransfers);
   }
 
   @Override
   public RaptorConstrainedBoardingSearch<TripSchedule> transferConstraintsReverseSearch(
     int routeIndex
   ) {
-    TransferForPatternByStopPos transfers = reverseConstrainedTransfers.get(routeIndex);
-    if (transfers == null) {
+    var fromStopTransfers = constrainedTransfers.toStop(routeIndex);
+    var toStopTransfers = constrainedTransfers.fromStop(routeIndex);
+
+    if (fromStopTransfers == null && toStopTransfers == null) {
       return ConstrainedBoardingSearch.NOOP_SEARCH;
     }
-    return new ConstrainedBoardingSearch(false, transfers);
+    return new ConstrainedBoardingSearch(false, toStopTransfers, fromStopTransfers);
   }
 
   /*--  HACK SØRLANDSBANEN  ::  BEGIN  --*/
@@ -257,8 +257,7 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
     this.patternIndex = original.patternIndex;
     this.transferIndex = original.transferIndex;
     this.transferService = original.transferService;
-    this.forwardConstrainedTransfers = original.forwardConstrainedTransfers;
-    this.reverseConstrainedTransfers = original.reverseConstrainedTransfers;
+    this.constrainedTransfers = original.constrainedTransfers;
     this.validTransitDataStartTime = original.validTransitDataStartTime;
     this.validTransitDataEndTime = original.validTransitDataEndTime;
     this.generalizedCostCalculator =

@@ -239,6 +239,8 @@ travel time `x` (in seconds).
           .asFeedScopedIds(request.journey().transit().unpreferredAgencies())
       );
 
+    TransitPriorityGroupConfig.mapTransitRequest(c, request.journey().transit());
+
     // Map preferences
     request.withPreferences(preferences -> mapPreferences(c, preferences));
 

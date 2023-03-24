@@ -10,7 +10,6 @@ import org.opentripplanner.ext.transmodelapi.support.DataFetcherDecorator;
 import org.opentripplanner.ext.transmodelapi.support.GqlUtil;
 import org.opentripplanner.routing.api.request.StreetMode;
 import org.opentripplanner.routing.api.request.preference.RoutingPreferences;
-import org.opentripplanner.routing.api.request.preference.StreetPreferences;
 import org.opentripplanner.routing.core.BicycleOptimizeType;
 
 class PreferencesMapper {
@@ -90,6 +89,10 @@ class PreferencesMapper {
           (Object v) -> TransportModeSlack.mapIntoDomain(builder, v)
         );
       });
+      callWith.argument(
+        "relaxTransitPriorityGroup",
+        tr::withTransitGroupPriorityGeneralizedCostSlack
+      );
       callWith.argument("ignoreRealtimeUpdates", tr::setIgnoreRealtimeUpdates);
       callWith.argument("includePlannedCancellations", tr::setIncludePlannedCancellations);
       callWith.argument("includeRealtimeCancellations", tr::setIncludeRealtimeCancellations);

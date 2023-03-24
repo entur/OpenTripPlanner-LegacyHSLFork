@@ -67,7 +67,12 @@ public class McRaptorWorkerResult<T extends RaptorTripSchedule> implements Rapto
     };
   }
 
-  public McStopArrivals<T> getStopArrivals() {
+  @Override
+  public boolean isDestinationReached() {
+    return !paths.isEmpty();
+  }
+
+  public McStopArrivals<T> xgetStopArrivals() {
     return stopArrivals;
   }
 }

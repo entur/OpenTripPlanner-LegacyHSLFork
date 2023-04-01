@@ -7,7 +7,6 @@ import java.util.List;
 import org.opentripplanner.framework.tostring.ToStringBuilder;
 import org.opentripplanner.model.modes.AllowTransitModeFilter;
 import org.opentripplanner.transit.model.basic.MainAndSubMode;
-import org.opentripplanner.transit.model.framework.AbstractTransitEntity;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.network.TripPattern;
 import org.opentripplanner.transit.model.timetable.TripTimes;
@@ -75,10 +74,23 @@ public class SelectRequest implements Serializable {
   public boolean matches(TripTimes tripTimes) {
     var trip = tripTimes.getTrip();
 
-    return (
-      this.transportModeFilter == null ||
-      this.transportModeFilter.match(trip.getMode(), trip.getNetexSubMode())
-    );
+    if (
+      // If the pattern contains multiple modes, we will do the filtering in
+      // SelectRequest.matches(TripTimes)
+      this.transportModeFilter != null &&
+      !this.transportModeFilter.match(trip.getMode(), trip.getNetexSubMode())
+    ) {
+      return false;
+    }
+
+    if (!agencies.isEmpty() && !agencies.contains(trip.getRoute().getAgency().getId())) {
+      return false;
+    }
+
+    if (!routes.isEmpty() && !routes.contains(trip.getRoute().getId())) {
+      return false;
+    }
+    return true;
   }
 
   @Override

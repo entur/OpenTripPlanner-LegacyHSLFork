@@ -24,15 +24,18 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - restore_cache: # The cache key is static, change it if OTP is updated with new dependencies.
-          key: dep-cache-otp2-2022-04-01
+      - restore_cache:
+          keys:
+            - dep-cache-{{ checksum "pom.xml" }}
+            # fallback to the most recent cache if there is no exact match for this pom.xml
+            - dep-cache-
       - run: wget https://raw.githubusercontent.com/entur/circleci-toolbox-image-java11/master/tools/m2/settings.xml -O .circleci/settings.xml
       - run: *jfrog-login
       - run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s .circleci/settings.xml
       - save_cache:
           paths:
             - ~/.m2
-          key: dep-cache-otp2-2022-04-01
+          key: dep-cache-{{ checksum "pom.xml" }}
       - run: mvn install org.apache.maven.plugins:maven-deploy-plugin:2.8.2:deploy -s .circleci/settings.xml -DaltDeploymentRepository=snapshots::default::https://entur2.jfrog.io/entur2/libs-release-local
       - run: *post_build
 

@@ -9,7 +9,9 @@ import java.util.Collection;
 import org.opentripplanner.ext.sorlandsbanen.EnturHackSorlandsBanen;
 import org.opentripplanner.framework.application.OTPFeature;
 import org.opentripplanner.raptor.api.RaptorConstants;
+import org.opentripplanner.raptor.api.model.GeneralizedCostRelaxFunction;
 import org.opentripplanner.raptor.api.model.RaptorAccessEgress;
+import org.opentripplanner.raptor.api.model.RelaxFunction;
 import org.opentripplanner.raptor.api.request.Optimization;
 import org.opentripplanner.raptor.api.request.RaptorRequest;
 import org.opentripplanner.raptor.api.request.RaptorRequestBuilder;
@@ -17,7 +19,10 @@ import org.opentripplanner.raptor.rangeraptor.SystemErrDebugLogger;
 import org.opentripplanner.routing.algorithm.raptoradapter.router.performance.PerformanceTimersForRaptor;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.RaptorCostConverter;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.grouppriority.TransitPriorityGroup32n;
 import org.opentripplanner.routing.api.request.RouteRequest;
+import org.opentripplanner.routing.api.request.preference.Relax;
 
 public class RaptorRequestMapper {
 
@@ -108,11 +113,14 @@ public class RaptorRequestMapper {
       searchParams.numberOfAdditionalTransfers(preferences.transfer().maxAdditionalTransfers());
     }
     builder.withMultiCriteria(mcBuilder -> {
-      preferences
-        .transit()
-        .raptor()
-        .relaxGeneralizedCostAtDestination()
-        .ifPresent(mcBuilder::withRelaxCostAtDestination);
+      var pt = preferences.transit();
+      var r = pt.raptor();
+      if (pt.relaxTransitPriorityGroup().hasEffect()) {
+        mcBuilder.withTransitPriorityCalculator(TransitPriorityGroup32n.priorityCalculator());
+        mcBuilder.withRelaxC1(mapRelaxCost(pt.relaxTransitPriorityGroup()));
+      } else {
+        r.relaxGeneralizedCostAtDestination().ifPresent(mcBuilder::withRelaxCostAtDestination);
+      }
     });
 
     for (Optimization optimization : preferences.transit().raptor().optimizations()) {
@@ -165,6 +173,16 @@ public class RaptorRequestMapper {
     );
 
     return EnturHackSorlandsBanen.enableHack(builder.build(), request, transitLayer);
+  }
+
+  static RelaxFunction mapRelaxCost(Relax relax) {
+    if (relax == null) {
+      return null;
+    }
+    return GeneralizedCostRelaxFunction.of(
+      relax.ratio(),
+      RaptorCostConverter.toRaptorCost(relax.slack())
+    );
   }
 
   private int relativeTime(Instant time) {

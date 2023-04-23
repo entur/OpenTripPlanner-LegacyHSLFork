@@ -36,7 +36,7 @@ jobs:
           paths:
             - ~/.m2
           key: dep-cache-{{ checksum "pom.xml" }}
-      - run: mvn install org.apache.maven.plugins:maven-deploy-plugin:2.8.2:deploy -s .circleci/settings.xml -DaltDeploymentRepository=snapshots::default::https://entur2.jfrog.io/entur2/libs-release-local
+      - run: mvn install -PprettierSkip org.apache.maven.plugins:maven-deploy-plugin:2.8.2:deploy -s .circleci/settings.xml -DaltDeploymentRepository=snapshots::default::https://entur2.jfrog.io/entur2/libs-release-local
       - run: *post_build
 
 workflows:

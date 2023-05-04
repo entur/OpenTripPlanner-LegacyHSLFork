@@ -324,19 +324,12 @@ public class TimetableSnapshot {
     for (Iterator<TripPattern> it = timetables.keySet().iterator(); it.hasNext();) {
       TripPattern pattern = it.next();
       SortedSet<Timetable> sortedTimetables = timetables.get(pattern);
-      SortedSet<Timetable> toKeepTimetables = new TreeSet<>(new SortedTimetableComparator());
-      for (Timetable timetable : sortedTimetables) {
-        if (serviceDate.compareTo(timetable.getServiceDate()) < 0) {
-          toKeepTimetables.add(timetable);
-        } else {
-          modified = true;
-        }
-      }
-
-      if (toKeepTimetables.isEmpty()) {
+      modified |=
+        sortedTimetables.removeIf(timetable ->
+          serviceDate.compareTo(timetable.getServiceDate()) >= 0
+        );
+      if (sortedTimetables.isEmpty()) {
         it.remove();
-      } else {
-        timetables.put(pattern, toKeepTimetables);
       }
     }
 

@@ -15,9 +15,15 @@ import org.opentripplanner.framework.application.RequestCorrelationID;
 
 public class CorrelationIdHeaderFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
-  // TODO - Is there a de-facto standard for this, what should we use?
-  //        "X-Correlation-ID", "Correlation-ID", "X-Request-ID" ?
-  private static final String HEADER_CORRELATION_ID = "X-Correlation-ID";
+  /**
+   * This can not be final since it is injected at startup time. The value must be set in
+   * the router config {@code server.}.
+   */
+  private static String headerCorrelationID;
+
+  public static void initCorrelationIdHeader(String value) {
+    headerCorrelationID = value;
+  }
 
   @Override
   public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -29,10 +35,10 @@ public class CorrelationIdHeaderFilter implements ContainerRequestFilter, Contai
     ContainerRequestContext requestContext,
     ContainerResponseContext responseContext
   ) throws IOException {
-    responseContext.getHeaders().add(HEADER_CORRELATION_ID, RequestCorrelationID.get());
+    responseContext.getHeaders().add(headerCorrelationID, RequestCorrelationID.get());
   }
 
   private String getHttpRequestCorrelationID(ContainerRequestContext requestContext) {
-    return requestContext.getHeaderString(HEADER_CORRELATION_ID);
+    return requestContext.getHeaderString(headerCorrelationID);
   }
 }

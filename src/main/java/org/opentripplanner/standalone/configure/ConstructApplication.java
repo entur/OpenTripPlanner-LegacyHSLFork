@@ -136,7 +136,7 @@ public class ConstructApplication {
   private Application createApplication() {
     LOG.info("Wiring up and configuring server.");
     setupTransitRoutingServer();
-    return new OTPWebApplication(this::createServerContext);
+    return new OTPWebApplication(routerConfig().server(), this::createServerContext);
   }
 
   private void setupTransitRoutingServer() {

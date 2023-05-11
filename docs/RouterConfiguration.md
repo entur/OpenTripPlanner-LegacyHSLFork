@@ -39,6 +39,7 @@ A full list of them can be found in the [RouteRequest](RouteRequest.md).
 | [routingDefaults](RouteRequest.md)                                                        |        `object`       | The default parameters for the routing query.                                                     | *Optional* |               |  2.0  |
 | [server](#server)                                                                         |        `object`       | Configuration for router server.                                                                  | *Optional* |               |  2.4  |
 |    [apiProcessingTimeout](#server_apiProcessingTimeout)                                   |       `duration`      | Maximum processing time for an API request                                                        | *Optional* | `"PT-1S"`     |  2.4  |
+|    [httpCorrelationIDHeader](#server_httpCorrelationIDHeader)                             |        `string`       | The HTTP Correlation-ID-Header to use                                                             | *Optional* |               |  2.4  |
 | timetableUpdates                                                                          |        `object`       | Global configuration for timetable updaters.                                                      | *Optional* |               |  2.2  |
 |    [maxSnapshotFrequency](#timetableUpdates_maxSnapshotFrequency)                         |       `duration`      | How long a snapshot should be cached.                                                             | *Optional* | `"PT1S"`      |  2.2  |
 |    purgeExpiredData                                                                       |       `boolean`       | Should expired realtime data be purged from the graph. Apply to GTFS-RT and Siri updates.         | *Optional* | `true`        |  2.2  |
@@ -118,6 +119,25 @@ This timeout limits the server-side processing time for a given API request.
 This does not include network latency nor waiting time in the HTTP server thread pool.
 The default value is `-1s` (no timeout).
 The timeout is applied to all APIs (REST, Transmodel , Legacy GraphQL).
+
+
+<h3 id="server_httpCorrelationIDHeader">httpCorrelationIDHeader</h3>
+
+**Since version:** `2.4` ∙ **Type:** `string` ∙ **Cardinality:** `Optional`   
+**Path:** /server 
+
+The HTTP Correlation-ID-Header to use
+
+  The HTTP request/response correlation-id header to use.The de-facto standard for this
+  parameter is {@code "X-Correlation-ID"}, but OTP uses the value set in the config file,
+  if no parameter is set not correlation-id is used.
+  <p>
+  If set OTP will fetch the correlation id from the http request headers and use it. If the
+  header is missing ir no correlation-id value exist, a unique 6-character id is generated
+  and used. The id is logged in every log message in the request scope and set on the http
+  response with the given header name.
+  <p>
+  To disable this feature skip this parameter or set it to an empty string.
 
 
 <h3 id="timetableUpdates_maxSnapshotFrequency">maxSnapshotFrequency</h3>

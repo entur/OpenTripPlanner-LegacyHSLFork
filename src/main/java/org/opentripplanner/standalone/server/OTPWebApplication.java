@@ -5,11 +5,13 @@ import io.micrometer.core.instrument.binder.jersey.server.DefaultJerseyTagsProvi
 import io.micrometer.core.instrument.binder.jersey.server.MetricsApplicationEventListener;
 import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
+import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.core.Application;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.glassfish.jersey.CommonProperties;
@@ -37,6 +39,8 @@ public class OTPWebApplication extends Application {
   /* This object groups together all the modules for a single running OTP server. */
   private final Supplier<OtpServerRequestContext> contextProvider;
 
+  private final OTPWebApplicationParameters parameters;
+
   static {
     // Remove existing handlers attached to the j.u.l root logger
     SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -45,7 +49,11 @@ public class OTPWebApplication extends Application {
     SLF4JBridgeHandler.install();
   }
 
-  public OTPWebApplication(Supplier<OtpServerRequestContext> contextProvider) {
+  public OTPWebApplication(
+    OTPWebApplicationParameters parameters,
+    Supplier<OtpServerRequestContext> contextProvider
+  ) {
+    this.parameters = parameters;
     this.contextProvider = contextProvider;
   }
 
@@ -62,17 +70,21 @@ public class OTPWebApplication extends Application {
     // Add API Endpoints defined in the api package
     Set<Class<?>> classes = new HashSet<>(APIEndpoints.listAPIEndpoints());
 
-    /* Features and Filters: extend Jersey, manipulate requests and responses. */
-    classes.addAll(
-      Set.of(
-        CorrelationIdHeaderFilter.class,
-        CorsFilter.class,
-        EtagRequestFilter.class,
-        VaryRequestFilter.class
-      )
-    );
+    classes.addAll(resolveFilterClasses());
 
     return classes;
+  }
+
+  /**
+   * Features and Filters: extend Jersey, manipulate requests and responses.
+   */
+  private Set<Class<? extends ContainerResponseFilter>> resolveFilterClasses() {
+    var set = new HashSet<Class<? extends ContainerResponseFilter>>();
+    correlationIdHeaderFilter().ifPresent(set::add);
+    set.add(CorsFilter.class);
+    set.add(EtagRequestFilter.class);
+    set.add(VaryRequestFilter.class);
+    return set;
   }
 
   /**
@@ -166,5 +178,14 @@ public class OTPWebApplication extends Application {
         bind(prometheusRegistry).to(PrometheusMeterRegistry.class);
       }
     };
+  }
+
+  private Optional<Class<? extends ContainerResponseFilter>> correlationIdHeaderFilter() {
+    if (parameters.correlationIDEnabled()) {
+      CorrelationIdHeaderFilter.initCorrelationIdHeader(parameters.httpCorrelationIDHeader());
+      return Optional.of(CorrelationIdHeaderFilter.class);
+    } else {
+      return Optional.empty();
+    }
   }
 }

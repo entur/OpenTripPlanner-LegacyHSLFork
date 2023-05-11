@@ -48,6 +48,7 @@ public class OTPMain {
    */
   public static void main(String[] args) {
     try {
+      Thread.currentThread().setName("OTPMain");
       CommandLineParameters params = parseAndValidateCmdLine(args);
       OtpStartupInfo.logInfo();
       startOTPServer(params);

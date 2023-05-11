@@ -63,7 +63,14 @@ public class OTPWebApplication extends Application {
     Set<Class<?>> classes = new HashSet<>(APIEndpoints.listAPIEndpoints());
 
     /* Features and Filters: extend Jersey, manipulate requests and responses. */
-    classes.addAll(Set.of(CorsFilter.class, EtagRequestFilter.class, VaryRequestFilter.class));
+    classes.addAll(
+      Set.of(
+        CorrelationIdHeaderFilter.class,
+        CorsFilter.class,
+        EtagRequestFilter.class,
+        VaryRequestFilter.class
+      )
+    );
 
     return classes;
   }

@@ -5,11 +5,11 @@ import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import java.io.IOException;
-import org.opentripplanner.framework.application.RequestCorrelationID;
+import org.opentripplanner.framework.application.RequestCorrelationId;
 
 /**
  * Retrieve the {@code CorrelationId} from the HTTP request header and inject it in the
- * OTPServer context(see {@link RequestCorrelationID}). The correlation id is set on the
+ * OTPServer context(see {@link RequestCorrelationId}). The correlation id is set on the
  * response before returning.
  */
 
@@ -27,7 +27,7 @@ public class CorrelationIdHeaderFilter implements ContainerRequestFilter, Contai
 
   @Override
   public void filter(ContainerRequestContext requestContext) throws IOException {
-    RequestCorrelationID.initRequest(getHttpRequestCorrelationID(requestContext));
+    RequestCorrelationId.initRequest(getHttpRequestCorrelationID(requestContext));
   }
 
   @Override
@@ -35,7 +35,7 @@ public class CorrelationIdHeaderFilter implements ContainerRequestFilter, Contai
     ContainerRequestContext requestContext,
     ContainerResponseContext responseContext
   ) throws IOException {
-    responseContext.getHeaders().add(headerCorrelationID, RequestCorrelationID.get());
+    responseContext.getHeaders().add(headerCorrelationID, RequestCorrelationId.get());
   }
 
   private String getHttpRequestCorrelationID(ContainerRequestContext requestContext) {

@@ -16,9 +16,9 @@ import org.slf4j.MDC;
  * should be more than enough to ensure uniqueness within a timeframe of 1 hour depending
  * on the number of requests processed. There are 36^6 ≈ 2*10^9 possible id.
  */
-public class RequestCorrelationID {
+public class RequestCorrelationId {
 
-  private static final String LOG_KEY = "correlationID";
+  private static final String LOG_KEY = "correlationId";
   private static final String MIN_ID_BASE = "100000";
   private static final long MIN_ID = Long.parseLong(MIN_ID_BASE, Character.MAX_RADIX);
   private static final long MAX_ID = Long.parseLong(MIN_ID_BASE + "0", Character.MAX_RADIX);
@@ -31,8 +31,21 @@ public class RequestCorrelationID {
    */
   private static final Random ID_GEN = new Random(new SecureRandom().nextLong());
 
+  private static boolean enabled = false;
+
   // private constructor to prevent creating new instances
-  private RequestCorrelationID() {}
+  private RequestCorrelationId() {}
+
+  /**
+   * Enable CorrelationID in logs and in http request/response.
+   */
+  public static void enable() {
+    RequestCorrelationId.enabled = true;
+  }
+
+  public static boolean isEnabled() {
+    return RequestCorrelationId.enabled;
+  }
 
   /**
    * Set the CorrelationID value in the local thread context.
@@ -40,7 +53,7 @@ public class RequestCorrelationID {
    * instead.
    */
   public static void initRequest(String id) {
-    set(pad(initIdIfNotSet(id)));
+    set(initIdIfNotSet(id));
   }
 
   /**
@@ -48,7 +61,7 @@ public class RequestCorrelationID {
    */
   @Nullable
   public static String get() {
-    return trim(MDC.get(LOG_KEY));
+    return enabled ? MDC.get(LOG_KEY) : null;
   }
 
   /**
@@ -59,11 +72,13 @@ public class RequestCorrelationID {
   }
 
   public static void clear() {
-    MDC.remove(LOG_KEY);
+    if (enabled) {
+      MDC.remove(LOG_KEY);
+    }
   }
 
   private static void set(@Nullable String value) {
-    if (value != null) {
+    if (enabled && value != null) {
       MDC.put(LOG_KEY, value);
     }
   }
@@ -77,23 +92,5 @@ public class RequestCorrelationID {
     }
     long v = ID_GEN.nextLong(MIN_ID, MAX_ID);
     return Long.toString(v, Character.MAX_RADIX);
-  }
-
-  /**
-   * We add a space(" ") prefix to the correlation-id value to separate it from the thread name
-   * in the log output. We need to do this because we do not want the extra space in the log if
-   * the correlation-id is empty/null. Typically, the pattern used in the log formatter look like
-   * '[%thread%X{correlationID}]'. So, when the correlationID is set, we get "[MainThread asc45f]"
-   * and when it is not set just "[MainThread]" <- no space.
-   */
-  private static String trim(String id) {
-    return id == null ? null : id.substring(1);
-  }
-
-  /**
-   * @see #trim(String)
-   */
-  private static String pad(String id) {
-    return " " + id;
   }
 }

@@ -2,21 +2,20 @@ package org.opentripplanner.framework.concurrent;
 
 import org.opentripplanner.framework.application.RequestCorrelationId;
 
-class CorrelationIdRunnableDecorator implements Runnable {
+class CorrelationIdAndTimeoutRunnableDecorator extends TimeoutRunnableDecorator {
 
-  private final Runnable delegate;
   private final String parentCorrelationID;
 
-  public CorrelationIdRunnableDecorator(Runnable delegate) {
+  CorrelationIdAndTimeoutRunnableDecorator(Runnable delegate) {
+    super(delegate);
     this.parentCorrelationID = RequestCorrelationId.get();
-    this.delegate = delegate;
   }
 
   @Override
   public void run() {
     try {
-      RequestCorrelationId.setInChildThread(parentCorrelationID);
-      delegate.run();
+      RequestCorrelationId.setOnLocalThread(parentCorrelationID);
+      super.run();
     } finally {
       RequestCorrelationId.clear();
     }

@@ -67,7 +67,7 @@ public class RequestCorrelationId {
   /**
    * Set correlation ID in the slf4j Mapped Diagnostic Context
    */
-  public static void setInChildThread(@Nullable String value) {
+  public static void setOnLocalThread(@Nullable String value) {
     set(value);
   }
 

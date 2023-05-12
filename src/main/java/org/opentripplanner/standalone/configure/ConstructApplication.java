@@ -6,6 +6,7 @@ import org.opentripplanner.datastore.api.DataSource;
 import org.opentripplanner.ext.geocoder.LuceneIndex;
 import org.opentripplanner.ext.transmodelapi.TransmodelAPI;
 import org.opentripplanner.framework.application.OTPFeature;
+import org.opentripplanner.framework.application.RequestCorrelationId;
 import org.opentripplanner.framework.logging.ProgressTracker;
 import org.opentripplanner.graph_builder.GraphBuilder;
 import org.opentripplanner.graph_builder.GraphBuilderDataSources;
@@ -136,12 +137,12 @@ public class ConstructApplication {
   private Application createApplication() {
     LOG.info("Wiring up and configuring server.");
     setupTransitRoutingServer();
-    return new OTPWebApplication(this::createServerContext);
+    return new OTPWebApplication(routerConfig().server(), this::createServerContext);
   }
 
   private void setupTransitRoutingServer() {
-    // Create MetricsLogging
-    factory.metricsLogging();
+    enableCorrelationIdIfConfigured();
+    createMetricsLogging();
 
     creatTransitLayerForRaptor(transitModel(), routerConfig().transitTuningConfig());
 
@@ -276,5 +277,15 @@ public class ConstructApplication {
 
   private OtpServerRequestContext createServerContext() {
     return factory.createServerContext();
+  }
+
+  private void enableCorrelationIdIfConfigured() {
+    if (routerConfig().server().correlationIDEnabled()) {
+      RequestCorrelationId.enable();
+    }
+  }
+
+  private void createMetricsLogging() {
+    factory.metricsLogging();
   }
 }

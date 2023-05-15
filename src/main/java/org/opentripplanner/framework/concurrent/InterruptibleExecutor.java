@@ -21,7 +21,8 @@ public class InterruptibleExecutor {
    * is the number of available processors minus 1.
    */
   private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(
-    Runtime.getRuntime().availableProcessors() - 1
+    Runtime.getRuntime().availableProcessors() - 1,
+    OtpRequestThreadFactory.of("request-%d")
   );
 
   /**

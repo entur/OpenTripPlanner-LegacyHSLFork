@@ -39,9 +39,7 @@ public class OTPExceptionMapper implements ExceptionMapper<Exception> {
     }
     if (ex instanceof OTPRequestTimeoutException) {
       return Response
-        .status(
-          Response.Status.fromStatusCode(OtpHttpStatus.STATUS_UNPROCESSABLE_ENTITY.statusCode())
-        )
+        .status(OtpHttpStatus.STATUS_UNPROCESSABLE_ENTITY.statusCode())
         .entity("OTP API Processing Timeout")
         .type("text/plain")
         .build();
@@ -50,8 +48,7 @@ public class OTPExceptionMapper implements ExceptionMapper<Exception> {
     // Show the exception in the server log
     LOG.error("Unhandled exception", ex);
     // Return the short form message to the client
-    return Response
-      .status(Response.Status.INTERNAL_SERVER_ERROR)
+    return Response.serverError()
       .entity(ex.toString() + " " + ex.getMessage())
       .type("text/plain")
       .build();

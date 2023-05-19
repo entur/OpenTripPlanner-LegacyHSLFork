@@ -153,6 +153,7 @@ public class TransmodelAPI {
   @POST
   @Path("/graphql/batch")
   @Consumes(MediaType.APPLICATION_JSON)
+  @Deprecated
   public Response getGraphQLBatch(
     List<HashMap<String, Object>> queries,
     @HeaderParam("OTPTimeout") @DefaultValue("10000") int timeout,
@@ -186,7 +187,7 @@ public class TransmodelAPI {
           operationName,
           maxResolves,
           getTagsFromHeaders(headers)
-        )
+        ).result()
       );
     }
 

@@ -13,6 +13,7 @@ representation of the transportation network from open data in open standard fil
 GTFS and OpenStreetMap). It applies real-time updates and alerts with immediate visibility to
 clients, finding itineraries that account for disruptions and service changes.
 
+
 Note that this branch contains **OpenTripPlanner 2**, the second major version of OTP, which has
 been under development since Q2 2018. The latest version of OTP is v2.2.0, released in November 2022.
 

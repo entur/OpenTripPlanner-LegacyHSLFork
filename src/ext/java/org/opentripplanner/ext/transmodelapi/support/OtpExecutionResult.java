@@ -9,7 +9,6 @@ import org.opentripplanner.framework.application.OTPRequestTimeoutException;
  * execution failed due to a timeout.
  */
 public record OtpExecutionResult(ExecutionResult result, boolean timeout) {
-
   public static OtpExecutionResult of(ExecutionResult result) {
     return new OtpExecutionResult(result, false);
   }

@@ -56,7 +56,8 @@ public class OTPExceptionMapper implements ExceptionMapper<Exception> {
     // Show the exception in the server log
     LOG.error("Unhandled exception", ex);
     // Return the short form message to the client
-    return Response.serverError()
+    return Response
+      .serverError()
       .entity(ex.toString() + " " + ex.getMessage())
       .type("text/plain")
       .build();

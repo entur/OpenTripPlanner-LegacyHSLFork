@@ -380,7 +380,6 @@ public class SiriTimetableSnapshotSource implements TimetableSnapshotProvider {
 
     LOG.debug("Applied realtime data for trip {} on {}", trip, serviceDate);
 
-
     /*
       This causes the DatedServiceJourney-ID supplied in planned data to be replaced with the id
       from realtime-data.

@@ -23,7 +23,6 @@ public class TimeUtils {
   private static final Pattern DAYS_SUFFIX = Pattern.compile("([-+])(\\d+)d");
   private static final AtomicLong BUSY_WAIT_GRACE_PERIOD_TIMEOUT = new AtomicLong(0);
 
-
   /** This is a utility class. Do not instantiate this class. It should have only static methods. */
   private TimeUtils() {}
 
@@ -169,7 +168,6 @@ public class TimeUtils {
     return RelativeTime.ofSeconds(seconds).toZonedDateTime(date, zoneId);
   }
 
-
   /**
    * Wait (compute) until the given {@code waitMs} is past. The returned long is a very random
    * number. If this method is called twice a grace period of 5 times the wait-time is set. All
@@ -185,7 +183,7 @@ public class TimeUtils {
    */
   public static long busyWaitOnce(int waitMs) {
     long time = System.currentTimeMillis();
-    if(time < BUSY_WAIT_GRACE_PERIOD_TIMEOUT.get()) {
+    if (time < BUSY_WAIT_GRACE_PERIOD_TIMEOUT.get()) {
       return 0;
     }
     BUSY_WAIT_GRACE_PERIOD_TIMEOUT.set(time + 5L * waitMs);
@@ -196,7 +194,7 @@ public class TimeUtils {
     long value = rnd.nextLong();
 
     // Print wait, this method is for debugging only
-    System.err.printf(Locale.ROOT, "BUSY-WAIT(%.1fs)%n",(waitMs/1000.0));
+    System.err.printf(Locale.ROOT, "BUSY-WAIT(%.1fs)%n", (waitMs / 1000.0));
 
     while (System.currentTimeMillis() < waitUntil) {
       value |= rnd.nextLong();

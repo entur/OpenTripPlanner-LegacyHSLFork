@@ -180,14 +180,16 @@ public class TransmodelAPI {
       String operationName = (String) query.getOrDefault("operationName", null);
 
       futures.add(() ->
-        index.executeGraphQL(
-          (String) query.get("query"),
-          serverContext,
-          variables,
-          operationName,
-          maxResolves,
-          getTagsFromHeaders(headers)
-        ).result()
+        index
+          .executeGraphQL(
+            (String) query.get("query"),
+            serverContext,
+            variables,
+            operationName,
+            maxResolves,
+            getTagsFromHeaders(headers)
+          )
+          .result()
       );
     }
 

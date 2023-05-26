@@ -88,7 +88,7 @@ public class RequestTraceFilter implements ContainerRequestFilter, ContainerResp
         var value = resolveValue(it, requestContext);
         setHttpResponseHeaderValue(responseContext, it.httpResponseHeader(), value);
       }
-      if(it.hasLogKey()) {
+      if (it.hasLogKey()) {
         LogMDCSupport.removeLocal(it.logKey());
       }
     }

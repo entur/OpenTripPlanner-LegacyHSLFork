@@ -34,10 +34,9 @@ public class LogMDCSupport {
    */
   public static void putLocal(String key, String value) {
     if (enabled && StringUtils.hasValue(key)) {
-      if(StringUtils.hasValue(value)) {
+      if (StringUtils.hasValue(value)) {
         MDC.put(key, value);
-      }
-      else {
+      } else {
         MDC.remove(key);
       }
     }

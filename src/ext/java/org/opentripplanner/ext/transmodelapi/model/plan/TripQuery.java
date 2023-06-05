@@ -511,6 +511,7 @@ public class TripQuery {
           .type(ItineraryFiltersInputType.create(gqlUtil, preferences.itineraryFilter()))
           .build()
       )
+      /**
       .argument(
         GraphQLArgument
           .newArgument()
@@ -525,6 +526,7 @@ public class TripQuery {
           )
           .build()
       )
+      */
       .argument(
         GraphQLArgument
           .newArgument()

@@ -62,7 +62,6 @@ public class FlexAccessEgressAdapter extends DefaultAccessEgress {
     return false;
   }
 
-
   @Override
   public String toString() {
     return asString(true);

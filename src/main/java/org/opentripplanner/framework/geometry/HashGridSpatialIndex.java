@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
@@ -49,13 +50,15 @@ public class HashGridSpatialIndex<T> implements SpatialIndex, Serializable {
   private final double xBinSize, yBinSize;
 
   /* The map of all bins. Please see visit() and xKey/yKey for details on the key. */
-  private final TLongObjectHashMap<ArrayList<T>> bins;
+  private final TLongObjectHashMap<List<T>> bins;
 
   private int nBins = 0;
 
   private int nObjects = 0;
 
   private int nEntries = 0;
+
+  private boolean copyOnWrite;
 
   public HashGridSpatialIndex(double xBinSize, double yBinSize) {
     if (xBinSize <= 0 || yBinSize <= 0) throw new IllegalStateException(
@@ -170,12 +173,19 @@ public class HashGridSpatialIndex<T> implements SpatialIndex, Serializable {
   }
 
   /**
-   * Make each bin be exactly the required size. This is helpful for large indices, which are mostly
-   * used for reads only.
+   * Make each bin be exactly the required size and switch to copy-on-write mode. This is helpful
+   * for large indices, which are mostly used for reads only. Copy-on-write ensures thread-safe and
+   * lock-free access while iterating the bins. Once the index is compacted, insert/remove
+   * operations will also be thread-safe and lock-free, but a copy-on-write will be performed on the
+   * modified internal hash grid bins. This is an expensive operation. Thus index compaction should
+   * be performed only after the initial index construction. Conversely, the index should not be
+   * accessed from multiple threads before it is compacted, since its internal structure is not
+   * thread-safe then.
    */
-  public void compact() {
-    bins.forEachValue(ts -> {
-      ts.trimToSize();
+  public final void compact() {
+    copyOnWrite = true;
+    bins.forEachEntry((a, b) -> {
+      bins.put(a, new CopyOnWriteArrayList<>(b));
       return true;
     });
   }
@@ -250,9 +260,9 @@ public class HashGridSpatialIndex<T> implements SpatialIndex, Serializable {
          * default implementation is: hashInt = (int)(value ^ (value >>> 32));
          */
         long mapKey = (yKey << 32) | ((xKey & 0xFFFF) << 16) | ((xKey >> 16) & 0xFFFF);
-        ArrayList<T> bin = bins.get(mapKey);
+        List<T> bin = bins.get(mapKey);
         if (createIfEmpty && bin == null) {
-          bin = new ArrayList<>();
+          bin = newBin();
           bins.put(mapKey, bin);
           nBins++;
         }
@@ -265,6 +275,13 @@ public class HashGridSpatialIndex<T> implements SpatialIndex, Serializable {
         }
       }
     }
+  }
+
+  private List<T> newBin() {
+    if (copyOnWrite) {
+      return new CopyOnWriteArrayList<>();
+    }
+    return new ArrayList<>();
   }
 
   private interface BinVisitor<T> {

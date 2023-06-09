@@ -130,7 +130,8 @@ public class ServiceCalendarBuilder {
                 CalendarMapper.mapDayTypesToLocalDates(
                     netexDao.dayTypeById,
                     netexDao.dayTypeAssignmentByDayTypeId,
-                    netexDao.operatingPeriodById
+                    netexDao.operatingPeriodById,
+                    netexDao.operatingDaysById
                 )
             );
 

@@ -8,7 +8,8 @@ executors:
           password: $DOCKERHUB_PASSWORD
     environment:
       DEBIAN_FRONTEND: "noninteractive"
-      MAVEN_OPTS: -Xmx3G
+      MAVEN_OPTS: -Xmx6G
+    resource_class: large
 aliases:
   ### Application version
   - &get-version-git-tag
@@ -52,7 +53,10 @@ jobs:
       - run: *jfrog-login
       - run: wget https://raw.githubusercontent.com/entur/circleci-toolbox-image-java11/master/tools/m2/settings.xml -O .circleci/settings.xml
       - restore_cache:
-          key: dep-cache-{{ checksum "pom.xml" }}
+          keys:
+            - dep-cache-{{ checksum "pom.xml" }}
+            # fallback to the most recent cache if there is no exact match for this pom.xml
+            - dep-cache-
       - run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s .circleci/settings.xml
       - save_cache:
           paths:

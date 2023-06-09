@@ -243,6 +243,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -251,7 +252,12 @@
                         </goals>
                     </execution>
                 </executions>
-                </plugin>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+            </plugin>
 
             <!--  <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -274,7 +280,7 @@
                 <version>2.20</version>
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
-                    <argLine>-Xmx2G</argLine>
+                    <argLine>-Xmx3G</argLine>
                     <!-- Jenkins needs XML test reports to determine whether the build is stable. -->
                     <disableXmlReport>false</disableXmlReport>
                 </configuration>

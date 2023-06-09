@@ -85,6 +85,7 @@ public class CalendarMapperTest {
     var dayTypes = new HierarchicalMapById<DayType>();
     var assignments = new HierarchicalMultimap<String, DayTypeAssignment>();
     var periods = new HierarchicalMapById<OperatingPeriod>();
+    var operatingDays = new HierarchicalMapById<OperatingDay>();
 
     // Simple assignment on 21.10.2020
     dayTypes.add(createDayType(DAY_TYPE_1));
@@ -118,7 +119,8 @@ public class CalendarMapperTest {
     Map<String, Set<ServiceDate>> result = CalendarMapper.mapDayTypesToLocalDates(
         dayTypes,
         assignments,
-        periods
+        periods,
+        operatingDays
     );
 
 

@@ -7,13 +7,7 @@ import org.opentripplanner.model.calendar.ServiceDate;
 import org.opentripplanner.netex.loader.support.HierarchicalMapById;
 import org.opentripplanner.netex.loader.support.HierarchicalMultimap;
 import org.opentripplanner.netex.mapping.TripServiceAlterationMapper;
-import org.rutebanken.netex.model.DatedServiceJourney;
-import org.rutebanken.netex.model.DayType;
-import org.rutebanken.netex.model.DayTypeAssignment;
-import org.rutebanken.netex.model.OperatingDay;
-import org.rutebanken.netex.model.OperatingPeriod;
-import org.rutebanken.netex.model.PropertyOfDay;
-import org.rutebanken.netex.model.ServiceAlterationEnumeration;
+import org.rutebanken.netex.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +28,8 @@ class CalendarMapper {
     static Map<String, Set<ServiceDate>> mapDayTypesToLocalDates(
         HierarchicalMapById<DayType> dayTypeById,
         HierarchicalMultimap<String, DayTypeAssignment> dayTypeAssignmentByDayTypeId,
-        HierarchicalMapById<OperatingPeriod> operatingPeriodById
+        HierarchicalMapById<OperatingPeriod> operatingPeriodById,
+        HierarchicalMapById<OperatingDay> operatingDayById
     ) {
         Map<String, Set<ServiceDate>> result = new HashMap<>();
         for (String dayTypeId : dayTypeById.keys()) {
@@ -60,8 +55,8 @@ class CalendarMapper {
                     OperatingPeriod operatingPeriod = operatingPeriodById.lookup(
                         dtAssignment.getOperatingPeriodRef().getRef()
                     );
-                    LocalDateTime fromDate = operatingPeriod.getFromDate();
-                    LocalDateTime toDate = operatingPeriod.getToDate();
+                    LocalDateTime fromDate = getOperatingPeriodStartDate(operatingPeriod, operatingDayById);
+                    LocalDateTime toDate = getOperatingPeriodEndDate(operatingPeriod, operatingDayById);
 
                     EnumSet<DayOfWeek> daysOfWeek = EnumSet.noneOf(DayOfWeek.class);
 
@@ -162,5 +157,33 @@ class CalendarMapper {
             return TripAlteration.planned;
         }
         return TripServiceAlterationMapper.mapAlteration(netexValue);
+    }
+
+    private static LocalDateTime getOperatingPeriodStartDate(OperatingPeriod operatingPeriod, HierarchicalMapById<OperatingDay> operatingDayById) {
+        if (operatingPeriod.getFromDate() != null) {
+            return operatingPeriod.getFromDate();
+        }
+        if (operatingPeriod.getFromOperatingDayRef() != null) {
+            return lookupOperatingDay(operatingPeriod.getFromOperatingDayRef(), operatingDayById);
+        }
+        throw new IllegalArgumentException(
+                "Missing start date for operating period " + operatingPeriod.getId()
+        );
+    }
+
+    private static LocalDateTime getOperatingPeriodEndDate(OperatingPeriod operatingPeriod, HierarchicalMapById<OperatingDay> operatingDayById) {
+        if (operatingPeriod.getToDate() != null) {
+            return operatingPeriod.getToDate();
+        }
+        if (operatingPeriod.getToOperatingDayRef() != null) {
+            return lookupOperatingDay(operatingPeriod.getToOperatingDayRef(), operatingDayById);
+        }
+        throw new IllegalArgumentException(
+                "Missing end date for operating period " + operatingPeriod.getId()
+        );
+    }
+
+    private static LocalDateTime lookupOperatingDay(OperatingDayRefStructure operatingDayRef, HierarchicalMapById<OperatingDay> operatingDayById) {
+        return operatingDayById.lookup(operatingDayRef.getRef()).getCalendarDate();
     }
 }

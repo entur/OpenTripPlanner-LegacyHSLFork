@@ -3,13 +3,14 @@ package org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers;
 import static org.opentripplanner.raptor.api.request.Optimization.PARALLEL;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import org.opentripplanner.ext.sorlandsbanen.EnturHackSorlandsBanen;
 import org.opentripplanner.framework.application.OTPFeature;
-import org.opentripplanner.raptor.api.RaptorConstants;
 import org.opentripplanner.raptor.api.model.RaptorAccessEgress;
+import org.opentripplanner.raptor.api.model.RaptorConstants;
 import org.opentripplanner.raptor.api.request.Optimization;
 import org.opentripplanner.raptor.api.request.RaptorRequest;
 import org.opentripplanner.raptor.api.request.RaptorRequestBuilder;
@@ -24,6 +25,7 @@ public class RaptorRequestMapper {
   private final RouteRequest request;
   private final Collection<? extends RaptorAccessEgress> accessPaths;
   private final Collection<? extends RaptorAccessEgress> egressPaths;
+  private final Duration searchWindowAccessSlack;
   private final long transitSearchTimeZeroEpocSecond;
   private final boolean isMultiThreadedEnbled;
   private final MeterRegistry meterRegistry;
@@ -33,18 +35,20 @@ public class RaptorRequestMapper {
   private RaptorRequestMapper(
     RouteRequest request,
     boolean isMultiThreaded,
+    long transitSearchTimeZeroEpocSecond,
+    Duration searchWindowAccessSlack,
     Collection<? extends RaptorAccessEgress> accessPaths,
     Collection<? extends RaptorAccessEgress> egressPaths,
-    long transitSearchTimeZeroEpocSecond,
-    MeterRegistry meterRegistry,
-    TransitLayer transitLayer
+    TransitLayer transitLayer,
+    MeterRegistry meterRegistry
   ) {
     this.request = request;
     this.isMultiThreadedEnbled = isMultiThreaded;
+    this.searchWindowAccessSlack = searchWindowAccessSlack;
+    this.transitSearchTimeZeroEpocSecond = transitSearchTimeZeroEpocSecond;
     this.accessPaths = accessPaths;
     this.egressPaths = egressPaths;
     this.transitLayer = transitLayer;
-    this.transitSearchTimeZeroEpocSecond = transitSearchTimeZeroEpocSecond;
     this.meterRegistry = meterRegistry;
   }
 
@@ -52,19 +56,21 @@ public class RaptorRequestMapper {
     RouteRequest request,
     ZonedDateTime transitSearchTimeZero,
     boolean isMultiThreaded,
+    Duration searchWindowAccessSlack,
     Collection<? extends RaptorAccessEgress> accessPaths,
     Collection<? extends RaptorAccessEgress> egressPaths,
-    MeterRegistry meterRegistry,
-    TransitLayer transitLayer
+    TransitLayer transitLayer,
+    MeterRegistry meterRegistry
   ) {
     return new RaptorRequestMapper(
       request,
       isMultiThreaded,
+      transitSearchTimeZero.toEpochSecond(),
+      searchWindowAccessSlack,
       accessPaths,
       egressPaths,
-      transitSearchTimeZero.toEpochSecond(),
-      meterRegistry,
-      transitLayer
+      transitLayer,
+      meterRegistry
     )
       .doMap();
   }
@@ -153,6 +159,10 @@ public class RaptorRequestMapper {
 
     if (!request.timetableView() && request.arriveBy()) {
       builder.searchParams().preferLateArrival(true);
+    }
+
+    if (searchWindowAccessSlack.toSeconds() > 0) {
+      builder.searchParams().searchWindowAccessSlack(searchWindowAccessSlack);
     }
 
     // Add this last, it depends on generating an alias from the set values

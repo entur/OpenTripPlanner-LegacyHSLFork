@@ -90,7 +90,7 @@ public class VehicleRentalServiceDirectoryFetcher {
         );
         updaters.add(updater);
       }
-    } catch (java.io.IOException e) {
+    } catch (Exception e) {
       LOG.warn("Error fetching list of vehicle rental endpoints from {}", parameters.getUrl(), e);
     }
 

@@ -10,7 +10,10 @@ import org.opentripplanner.framework.application.OTPRequestTimeoutException;
  */
 public record OtpExecutionResult(ExecutionResult result, boolean timeout) {
   public static OtpExecutionResult of(ExecutionResult result) {
-    return new OtpExecutionResult(result, false);
+    boolean isTimeout =
+      result.getErrors() != null &&
+      result.getErrors().stream().anyMatch(OTPProcessingTimeoutGraphQLException.class::isInstance);
+    return new OtpExecutionResult(result, isTimeout);
   }
 
   public static OtpExecutionResult ofTimeout() {

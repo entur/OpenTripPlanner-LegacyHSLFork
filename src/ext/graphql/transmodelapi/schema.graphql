@@ -1479,6 +1479,7 @@ enum Mode {
   monorail
   rail
   scooter
+  taxi
   tram
   trolleybus
   water
@@ -1641,6 +1642,7 @@ enum TransportMode {
   metro
   monorail
   rail
+  taxi
   tram
   trolleybus
   unknown

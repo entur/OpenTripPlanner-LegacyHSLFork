@@ -3,6 +3,7 @@ package org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers;
 import static org.opentripplanner.raptor.api.request.Optimization.PARALLEL;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
@@ -24,6 +25,7 @@ public class RaptorRequestMapper {
   private final RouteRequest request;
   private final Collection<? extends RaptorAccessEgress> accessPaths;
   private final Collection<? extends RaptorAccessEgress> egressPaths;
+  private final Duration searchWindowAccessSlack;
   private final long transitSearchTimeZeroEpocSecond;
   private final boolean isMultiThreadedEnbled;
   private final MeterRegistry meterRegistry;
@@ -35,6 +37,7 @@ public class RaptorRequestMapper {
     boolean isMultiThreaded,
     Collection<? extends RaptorAccessEgress> accessPaths,
     Collection<? extends RaptorAccessEgress> egressPaths,
+    Duration searchWindowAccessSlack,
     long transitSearchTimeZeroEpocSecond,
     MeterRegistry meterRegistry,
     TransitLayer transitLayer
@@ -43,6 +46,7 @@ public class RaptorRequestMapper {
     this.isMultiThreadedEnbled = isMultiThreaded;
     this.accessPaths = accessPaths;
     this.egressPaths = egressPaths;
+    this.searchWindowAccessSlack = searchWindowAccessSlack;
     this.transitLayer = transitLayer;
     this.transitSearchTimeZeroEpocSecond = transitSearchTimeZeroEpocSecond;
     this.meterRegistry = meterRegistry;
@@ -54,6 +58,7 @@ public class RaptorRequestMapper {
     boolean isMultiThreaded,
     Collection<? extends RaptorAccessEgress> accessPaths,
     Collection<? extends RaptorAccessEgress> egressPaths,
+    Duration searchWindowAccessSlack,
     MeterRegistry meterRegistry,
     TransitLayer transitLayer
   ) {
@@ -62,6 +67,7 @@ public class RaptorRequestMapper {
       isMultiThreaded,
       accessPaths,
       egressPaths,
+      searchWindowAccessSlack,
       transitSearchTimeZero.toEpochSecond(),
       meterRegistry,
       transitLayer
@@ -153,6 +159,10 @@ public class RaptorRequestMapper {
 
     if (!request.timetableView() && request.arriveBy()) {
       builder.searchParams().preferLateArrival(true);
+    }
+
+    if (searchWindowAccessSlack.toSeconds() > 0) {
+      builder.searchParams().searchWindowAccessSlack(searchWindowAccessSlack);
     }
 
     // Add this last, it depends on generating an alias from the set values

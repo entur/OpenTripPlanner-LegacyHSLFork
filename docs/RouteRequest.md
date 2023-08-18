@@ -904,7 +904,7 @@ include stairs as a last result.
     },
     "itineraryFilters" : {
       "transitGeneralizedCostLimit" : {
-        "costLimitFunction" : "900 + 1.5 x",
+        "costLimitFunction" : "15m + 1.5 x",
         "intervalRelaxFactor" : 0.4
       },
       "bikeRentalDistanceRatio" : 0.3,
@@ -924,7 +924,7 @@ include stairs as a last result.
         "HSL:456"
       ]
     },
-    "unpreferredCost" : "600 + 2.0 x",
+    "unpreferredCost" : "10m + 2.0 x",
     "streetRoutingTimeout" : "5s",
     "transferOptimization" : {
       "optimizeTransferWaitTime" : true,

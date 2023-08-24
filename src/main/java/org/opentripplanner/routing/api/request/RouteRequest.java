@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 import org.opentripplanner.framework.time.DateUtils;
-import org.opentripplanner.framework.time.TimeUtils;
 import org.opentripplanner.model.GenericLocation;
 import org.opentripplanner.model.plan.SortOrder;
 import org.opentripplanner.model.plan.pagecursor.PageCursor;
@@ -320,9 +319,6 @@ public class RouteRequest implements Cloneable, Serializable {
   }
 
   public void setSearchWindow(Duration searchWindow) {
-    if (searchWindow != null && searchWindow.toSeconds() > TimeUtils.ONE_DAY_SECONDS) {
-      throw new IllegalArgumentException("The search window cannot exceed 24 hours");
-    }
     this.searchWindow = searchWindow;
   }
 

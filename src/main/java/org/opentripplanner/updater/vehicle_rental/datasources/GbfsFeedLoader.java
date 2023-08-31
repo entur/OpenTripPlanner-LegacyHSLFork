@@ -135,6 +135,56 @@ public class GbfsFeedLoader {
   /* private static methods */
 
   private <T> T fetchFeed(URI uri, HttpHeaders httpHeaders, Class<T> clazz) {
+    /*
+      ADD TO router-config:
+
+      "vehicleRentalServiceDirectory": {
+        //"url": "http://lamassu.tst.entur.internal/gbfs-internal",
+        "url": "http://localhost:8880/gbfs-internal",
+        "sourcesName": "systems",
+        "updaterUrlName": "url",
+        "updaterNetworkName": "id",
+        "headers": {
+          "ET-Client-Name": "tg-local-lamassu"
+        },
+        "networks": [
+          {
+            "network": "voi",
+            "geofencingZones" : true
+          }
+        ]
+      }
+
+
+     gcloud components install kubectl
+     kubectl version
+     kubectl version --short
+     kubectl get namespaces
+     kubectl config view
+     gcloud config configurations list
+     gcloud components install kubectl
+     gcloud config set project ent-kub-tst
+     gcloud container clusters get-credentials kub-ent-jp-tst-001 --region=europe-west4
+     gcloud container clusters get-credentials kub-ent-tst-001 --region=europe-west1
+
+     kubectx gke_ent-kub-tst_europe-west4_kub-ent-jp-tst-001
+
+     // Set context and setup port forwarding
+     kubectx jp
+     kubectl port-forward service/mobility-cache  8880:80 -n=mobility-cache
+
+
+
+     */
+    uri =
+      URI.create(
+        uri
+          .toString()
+          .replace("http://mobility-cache.prd.entur.internal", "http://localhost:8880")
+          .replace("http://mobility-cache.tst.entur.internal", "http://localhost:8880")
+          .replace("http://mobility-cache.dev.entur.internal", "http://localhost:8880")
+      );
+
     try {
       return otpHttpClient.getAndMapAsJsonObject(uri, httpHeaders.asMap(), objectMapper, clazz);
     } catch (OtpHttpClientException e) {

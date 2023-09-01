@@ -135,6 +135,15 @@ public class GbfsFeedLoader {
   /* private static methods */
 
   private <T> T fetchFeed(URI uri, HttpHeaders httpHeaders, Class<T> clazz) {
+    uri =
+      URI.create(
+        uri
+          .toString()
+          .replace("http://mobility-cache.prd.entur.internal", "http://localhost:8880")
+          .replace("http://mobility-cache.tst.entur.internal", "http://localhost:8880")
+          .replace("http://mobility-cache.dev.entur.internal", "http://localhost:8880")
+      );
+
     try {
       return otpHttpClient.getAndMapAsJsonObject(uri, httpHeaders.asMap(), objectMapper, clazz);
     } catch (OtpHttpClientException e) {

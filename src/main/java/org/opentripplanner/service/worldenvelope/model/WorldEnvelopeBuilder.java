@@ -63,7 +63,7 @@ public class WorldEnvelopeBuilder {
 
   public WorldEnvelope build() {
     if (minLonWest == MIN_NOT_SET) {
-      return new WorldEnvelope(minLat, minLonEast, maxLat, maxLonEast, transitMedianCenter);
+      return new WorldEnvelope(-90.0, -180, 90, 180, new WgsCoordinate(45.1,7.7));
     } else if (minLonEast == MIN_NOT_SET) {
       return new WorldEnvelope(minLat, minLonWest, maxLat, maxLonWest, transitMedianCenter);
     } else {

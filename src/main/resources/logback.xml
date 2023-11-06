@@ -53,25 +53,6 @@
 
   <logger name="org.opentripplanner" level="info"/>
 
-  <logger name="org.opentripplanner.framework.application" level="info"/>
-  <logger name="org.opentripplanner.graph_builder.module.DirectTransferGenerator" level="info"/>
-
-
-  <logger name="org.opentripplanner.routing" level="info"/>
-  <logger name="org.opentripplanner.routing.algorithm.transferoptimization" level="info"/>
-
-  <logger name="org.opentripplanner.routing.algorithm.GenericAStar" level="info"/>
-
-  <!-- Avoid printing debug messages when walk limits are exceeded -->
-  <logger name="org.opentripplanner.routing.edgetype.PlainStreetEdge" level="info"/>
-
-  <logger name="org.opentripplanner.routing.impl.RetryingPathServiceImpl" level="info"/>
-
-  <!-- Avoid printing debug messages about free-flowing vertices -->
-  <logger name="org.opentripplanner.street.model.vertex.IntersectionVertex" level="info"/>
-
-  <!-- Raptor request debug logging - Turn on/off: debug/info -->
-  <logger name="org.opentripplanner.raptor.RaptorService" level="info"/>
 
   <!-- THIRD PARTY LOGGERS -->
 
@@ -90,12 +71,6 @@
   <logger name="org.glassfish.grizzly" level="info" />
   <!-- Suppress info logs from azure packages -->
   <logger name="com.azure" level="warn" />
-
-  <!-- If you want to debug realtime updates set these loggers to debug -->
-  <logger name="org.opentripplanner.updater.trip.TimetableSnapshotSource" level="info" />
-  <logger name="org.opentripplanner.model.Timetable" level="warn" />
-  <logger name="org.opentripplanner.ext.siri.SiriTimetableSnapshotSource" level="warn" />
-  <logger name="org.opentripplanner.ext.siri.TimetableHelper" level="warn" />
 
   <!-- optional logging configuration to define your own custom logging needs -->
   <!-- add it to the root of OTP runtime folder -->

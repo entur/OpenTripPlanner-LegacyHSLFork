@@ -42,19 +42,25 @@ public class ServiceJourneyInfo {
       .getPointInJourneyPatternOrStopPointInJourneyPatternOrTimingPointInJourneyPattern()
       .stream()
       .collect(Collectors.toMap(EntityStructure::getId, point -> point.getOrder().intValueExact()));
-    return serviceJourney
-      .getPassingTimes()
-      .getTimetabledPassingTime()
-      .stream()
-      .sorted(
-        Comparator.comparing(timetabledPassingTime ->
-          stopPointIdToOrder.get(stopPointId(timetabledPassingTime))
+
+    try {
+      return serviceJourney
+        .getPassingTimes()
+        .getTimetabledPassingTime()
+        .stream()
+        .sorted(
+          Comparator.comparing(timetabledPassingTime ->
+            stopPointIdToOrder.get(stopPointId(timetabledPassingTime))
+          )
         )
-      )
-      .map(timetabledPassingTime ->
-        StopTimeAdaptor.of(timetabledPassingTime, stopFlexibility.get(timetabledPassingTime))
-      )
-      .toList();
+        .map(timetabledPassingTime ->
+          StopTimeAdaptor.of(timetabledPassingTime, stopFlexibility.get(timetabledPassingTime))
+        )
+        .toList();
+    }
+    catch (Exception e) {
+      return List.of();
+    }
   }
 
   /**

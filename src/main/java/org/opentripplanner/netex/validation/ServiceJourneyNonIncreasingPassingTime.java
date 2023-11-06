@@ -38,6 +38,10 @@ class ServiceJourneyNonIncreasingPassingTime
     ServiceJourneyInfo serviceJourneyInfo = new ServiceJourneyInfo(sj, index);
     List<StopTimeAdaptor> orderedPassingTimes = serviceJourneyInfo.orderedTimetabledPassingTimeInfos();
 
+    if(orderedPassingTimes.isEmpty()) {
+      return discard(null, ErrorType.INCOMPLETE);
+    }
+
     var previousPassingTime = orderedPassingTimes.get(0);
     if (!previousPassingTime.isComplete()) {
       return discard(previousPassingTime, ErrorType.INCOMPLETE);
@@ -72,7 +76,7 @@ class ServiceJourneyNonIncreasingPassingTime
       "%s ServiceJourney will be skipped. ServiceJourney = %s, TimetabledPassingTime = %s",
       errorType.message,
       sj.getId(),
-      invalidTimetabledPassingTimeInfo.timetabledPassingTimeId()
+      invalidTimetabledPassingTimeInfo == null ? "null" : invalidTimetabledPassingTimeInfo.timetabledPassingTimeId()
     );
   }
 

@@ -12,39 +12,39 @@ package org.opentripplanner._support.debug;
  * or
  * $ java -DtestDebug ..
  * </pre>
- * In IntelliJ I recommend adding the system property in the <em>JUnit template</em>. In the test
+ * In IntelliJ it's recommended to add the system property in the <em>JUnit template</em>. In the test
  * drop down, choose <b>Edit Configuration...</b> then <b>Edit Configuration Templates..</b> and
  * choose <b>JUnit</b>.
  */
 public class TestDebug {
 
-  private static Boolean enabled = enabled();
+  private static final Boolean ENABLED = enabled();
 
   /** This is a utility class - only static methods */
   private TestDebug() {}
 
   public static boolean on() {
-    return enabled;
+    return ENABLED;
   }
 
   public static boolean off() {
-    return !enabled;
+    return !ENABLED;
   }
 
   public static void print(Object value) {
-    if (enabled()) {
+    if (ENABLED) {
       System.err.print(value);
     }
   }
 
   public static void println() {
-    if (enabled()) {
+    if (ENABLED) {
       System.err.println();
     }
   }
 
   public static void println(Object value) {
-    if (enabled()) {
+    if (ENABLED) {
       System.err.println(value);
     }
   }

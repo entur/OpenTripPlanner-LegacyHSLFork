@@ -73,7 +73,10 @@ class TransmodelGraph {
     } catch (CoercingParseValueException | UnknownOperationException e) {
       return ExecutionResultMapper.badRequestResponse(e.getMessage());
     } catch (Exception systemError) {
-      LOG.error(systemError.getMessage(), systemError);
+      LOG.error(
+        systemError.getMessage() + "\n  Request: " + query + "\n  Variables: " + variables,
+        systemError
+      );
       return ExecutionResultMapper.systemErrorResponse(systemError.getMessage());
     }
   }

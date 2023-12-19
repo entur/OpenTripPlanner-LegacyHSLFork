@@ -3,6 +3,8 @@ package org.opentripplanner.raptor.configure;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.annotation.Nullable;
+import org.opentripplanner.ext.sorlandsbanen.EnturHackSorlandsBanen;
+import org.opentripplanner.framework.application.OTPFeature;
 import org.opentripplanner.framework.concurrent.OtpRequestThreadFactory;
 import org.opentripplanner.raptor.api.model.RaptorTripSchedule;
 import org.opentripplanner.raptor.api.request.RaptorRequest;
@@ -15,6 +17,7 @@ import org.opentripplanner.raptor.rangeraptor.context.SearchContextViaLeg;
 import org.opentripplanner.raptor.rangeraptor.internalapi.Heuristics;
 import org.opentripplanner.raptor.rangeraptor.internalapi.PassThroughPointsService;
 import org.opentripplanner.raptor.rangeraptor.internalapi.RangeRaptorWorker;
+import org.opentripplanner.raptor.rangeraptor.internalapi.RaptorRouter;
 import org.opentripplanner.raptor.rangeraptor.internalapi.RaptorRouterResult;
 import org.opentripplanner.raptor.rangeraptor.internalapi.RaptorWorkerState;
 import org.opentripplanner.raptor.rangeraptor.internalapi.RoutingStrategy;
@@ -58,7 +61,7 @@ public class RaptorConfig<T extends RaptorTripSchedule> {
     return SearchContext.of(request, tuningParameters, transit, acceptC2AtDestination).build();
   }
 
-  public RangeRaptor<T> createRangeRaptorWithStdWorker(
+  public RaptorRouter<T> createRangeRaptorWithStdWorker(
     RaptorTransitDataProvider<T> transitData,
     RaptorRequest<T> request
   ) {
@@ -66,11 +69,12 @@ public class RaptorConfig<T extends RaptorTripSchedule> {
     var stdConfig = new StdRangeRaptorConfig<>(context);
     return createRangeRaptor(
       context,
+      context.transit(),
       createWorker(context.legs().getFirst(), stdConfig.state(), stdConfig.strategy())
     );
   }
 
-  public RangeRaptor<T> createRangeRaptorWithMcWorker(
+  public RaptorRouter<T> createRangeRaptorWithMcWorker(
     RaptorTransitDataProvider<T> transitData,
     RaptorRequest<T> request,
     Heuristics heuristics
@@ -93,11 +97,10 @@ public class RaptorConfig<T extends RaptorTripSchedule> {
       var c = new McRangeRaptorConfig<>(leg, passThroughPointsService).withHeuristics(heuristics);
       worker = createWorker(leg, c.state(), c.strategy());
     }
-
-    return createRangeRaptor(context, worker);
+    return createRaptorRouter(request, context, worker);
   }
 
-  public RangeRaptor<T> createRangeRaptorWithHeuristicSearch(
+  public RaptorRouter<T> createRangeRaptorWithHeuristicSearch(
     RaptorTransitDataProvider<T> transitData,
     RaptorRequest<T> request
   ) {
@@ -137,7 +140,7 @@ public class RaptorConfig<T extends RaptorTripSchedule> {
     return McRangeRaptorConfig.passThroughPointsService(request.multiCriteria());
   }
 
-  private RangeRaptorWorker<T> createWorker(
+  public RangeRaptorWorker<T> createWorker(
     SearchContextViaLeg<T> ctxLeg,
     RaptorWorkerState<T> workerState,
     RoutingStrategy<T> routingStrategy
@@ -156,10 +159,34 @@ public class RaptorConfig<T extends RaptorTripSchedule> {
     );
   }
 
-  private RangeRaptor<T> createRangeRaptor(SearchContext<T> ctx, RangeRaptorWorker<T> worker) {
+  // HACK SØRLANDSBANEN
+  private RaptorRouter<T> createRaptorRouter(
+    RaptorRequest<T> request,
+    SearchContext<T> ctx,
+    RangeRaptorWorker<T> worker
+  ) {
+    if (
+      OTPFeature.HackSorlandsbanen.isOn() &&
+      EnturHackSorlandsBanen.match(request.extraSearchCoachReluctance)
+    ) {
+      return EnturHackSorlandsBanen.router(
+        request,
+        ctx.transit(),
+        td -> createRangeRaptor(ctx, td, worker)
+      );
+    } else {
+      return createRangeRaptor(ctx, ctx.transit(), worker);
+    }
+  }
+
+  private RaptorRouter<T> createRangeRaptor(
+    SearchContext<T> ctx,
+    RaptorTransitDataProvider<T> data,
+    RangeRaptorWorker<T> worker
+  ) {
     return new RangeRaptor<>(
       worker,
-      ctx.transit(),
+      data,
       ctx.legs().getFirst().accessPaths(),
       ctx.roundTracker(),
       ctx.calculator(),

@@ -44,6 +44,9 @@ public class RaptorArchitectureTest {
   private static final Package RR_STANDARD = RANGE_RAPTOR.subPackage("standard");
   private static final Package RR_STD_CONFIGURE = RR_STANDARD.subPackage("configure");
   private static final Package RR_CONTEXT = RANGE_RAPTOR.subPackage("context");
+  private static final Package EXT_SORLANDSBANAN_HACK = Package.of(
+    "org.opentripplanner.ext.sorlandsbanen"
+  );
 
   /**
    * Packages used by standard-range-raptor and multi-criteria-range-raptor.
@@ -224,7 +227,8 @@ public class RaptorArchitectureTest {
         RR_CONTEXT,
         RR_STD_CONFIGURE,
         RR_MC_CONFIGURE,
-        FRAMEWORK_UTILS
+        FRAMEWORK_UTILS,
+        EXT_SORLANDSBANAN_HACK
       )
       .verify();
   }
@@ -238,3 +242,27 @@ public class RaptorArchitectureTest {
       .check(ArchComponent.OTP_CLASSES);
   }
 }
+/*
+[ERROR]   RaptorArchitectureTest.enforcePackageDependenciesInConfigure:233 Architecture Violation [Priority: MEDIUM]
+- Rule 'classes that reside in a package 'org.opentripplanner.raptor.configure' and do not implement dagger.internal.Factory should only depend on classes that reside in any package [
+'org.opentripplanner.raptor.rangeraptor.internalapi',
+'org.opentripplanner.raptor.rangeraptor',
+'org.opentripplanner.raptor.rangeraptor.multicriteria.configure',
+'org.opentripplanner.raptor.api..',
+'org.opentripplanner.framework.i18n', 'org.opentripplanner.raptor.rangeraptor.context',
+'org.opentripplanner.framework.doc', 'org.opentripplanner.raptor.rangeraptor.transit',
+'org.opentripplanner.framework.application', 'org.opentripplanner.raptor.spi',
+'org.opentripplanner.framework.logging', 'org.opentripplanner.framework.error',
+'org.opentripplanner.framework.concurrent', 'org.opentripplanner.framework.text',
+'org.opentripplanner.raptor.rangeraptor.standard.configure',
+'org.opentripplanner.framework.lang', 'org.opentripplanner.framework.time',
+'org.opentripplanner.framework.tostring', 'java..', 'javax.(*)..', 'jakarta.(*)..', 'org.slf4j', 'org.opentripplanner.raptor.configure', '']' was violated (2 times):
+Method <org.opentripplanner.raptor.configure.RaptorConfig.createRaptorRouter(
+  org.opentripplanner.raptor.api.request.RaptorRequest,
+  org.opentripplanner.raptor.rangeraptor.context.SearchContext,
+  org.opentripplanner.raptor.rangeraptor.internalapi.RangeRaptorWorker
+  )> calls method <org.opentripplanner.ext.sorlandsbanen.EnturHackSorlandsBanen.match(double)> in (RaptorConfig.java:170)
+Method <org.opentripplanner.raptor.configure.RaptorConfig.createRaptorRouter(org.opentripplanner.raptor.api.request.RaptorRequest, org.opentripplanner.raptor.rangeraptor.context.SearchContext, org.opentripplanner.raptor.rangeraptor.internalapi.RangeRaptorWorker)> calls method <org.opentripplanner.ext.sorlandsbanen.EnturHackSorlandsBanen.router(org.opentripplanner.raptor.api.request.RaptorRequest, org.opentripplanner.raptor.spi.RaptorTransitDataProvider, java.util.function.Function)> in (RaptorConfig.java:172)
+
+
+*/

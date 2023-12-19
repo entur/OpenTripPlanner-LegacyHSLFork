@@ -316,13 +316,14 @@ ferries, where the check-in process needs to be done in good time before ride.
       );
     }
 
-    builder.withRaptor(it ->
-      c
-        .of("relaxTransitSearchGeneralizedCostAtDestination")
-        .since(V2_3)
-        .summary("Whether non-optimal transit paths at the destination should be returned")
-        .description(
-          """
+    builder
+      .withRaptor(it ->
+        c
+          .of("relaxTransitSearchGeneralizedCostAtDestination")
+          .since(V2_3)
+          .summary("Whether non-optimal transit paths at the destination should be returned")
+          .description(
+            """
                 Let c be the existing minimum pareto optimal generalized cost to beat. Then a trip
                 with cost c' is accepted if the following is true:
                 `c' < Math.round(c * relaxRaptorCostCriteria)`.
@@ -332,10 +333,17 @@ ferries, where the check-in process needs to be done in good time before ride.
                 Values equals or less than zero is not allowed. Values greater than 2.0 are not
                 supported, due to performance reasons.
                 """
-        )
-        .asDoubleOptional()
-        .ifPresent(it::withRelaxGeneralizedCostAtDestination)
-    );
+          )
+          .asDoubleOptional()
+          .ifPresent(it::withRelaxGeneralizedCostAtDestination)
+      )
+      .setExtraSearchCoachReluctance(
+        c
+          .of("extraSearchCoachReluctance")
+          .since(V2_1)
+          .summary("TODO")
+          .asDouble(dft.extraSearchCoachReluctance())
+      );
   }
 
   private static void mapBikePreferences(NodeAdapter c, BikePreferences.Builder builder) {

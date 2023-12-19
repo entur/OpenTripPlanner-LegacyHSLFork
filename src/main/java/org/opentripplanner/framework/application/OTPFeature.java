@@ -37,6 +37,7 @@ public enum OTPFeature {
     "Should there be a transfer leg when transferring on the very same stop. Note that for in-seat/interlined transfers no transfer leg will be generated."
   ),
   FloatingBike(true, false, "Enable floating bike routing."),
+  HackSorlandsbanen(false, true, "Includ Sørlandsbanen"),
   GtfsGraphQlApi(true, false, "Enable the [GTFS GraphQL API](apis/GTFS-GraphQL-API.md)."),
   GtfsGraphQlApiRentalStationFuzzyMatching(
     false,

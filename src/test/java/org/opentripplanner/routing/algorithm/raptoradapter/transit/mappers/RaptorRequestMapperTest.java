@@ -90,6 +90,7 @@ class RaptorRequestMapperTest {
       false,
       ACCESS,
       EGRESS,
+      null,
       null
     );
   }

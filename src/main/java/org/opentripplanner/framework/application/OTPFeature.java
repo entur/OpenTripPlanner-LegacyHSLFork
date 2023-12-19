@@ -32,6 +32,7 @@ public enum OTPFeature {
       """
   ),
   FloatingBike(true, false, "Enable floating bike routing."),
+  HackSorlandsbanen(false, true, "Includ Sørlandsbanen"),
   GtfsGraphQlApi(true, false, "Enable the [GTFS GraphQL API](apis/GTFS-GraphQL-API.md)."),
   GtfsGraphQlApiRentalStationFuzzyMatching(
     false,

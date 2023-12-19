@@ -138,7 +138,8 @@ public class TransitRouter {
       accessEgresses.getAccesses(),
       accessEgresses.getEgresses(),
       serverContext.meterRegistry(),
-      this::listStopIndexes
+      this::listStopIndexes,
+      transitLayer
     );
 
     // Route transit

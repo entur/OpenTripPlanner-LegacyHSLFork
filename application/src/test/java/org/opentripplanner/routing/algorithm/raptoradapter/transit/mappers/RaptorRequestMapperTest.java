@@ -114,7 +114,8 @@ class RaptorRequestMapperTest {
       ACCESS,
       EGRESS,
       null,
-      id -> IntStream.of(STOPS_MAP.get(id).getIndex())
+      id -> IntStream.of(STOPS_MAP.get(id).getIndex()),
+      null
     );
   }
 }

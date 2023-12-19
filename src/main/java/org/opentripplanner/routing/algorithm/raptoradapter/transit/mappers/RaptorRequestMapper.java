@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
+import org.opentripplanner.ext.sorlandsbanen.EnturHackSorlandsBanen;
 import org.opentripplanner.framework.application.OTPFeature;
 import org.opentripplanner.raptor.api.model.GeneralizedCostRelaxFunction;
 import org.opentripplanner.raptor.api.model.RaptorAccessEgress;
@@ -20,6 +21,8 @@ import org.opentripplanner.raptor.api.request.RaptorRequest;
 import org.opentripplanner.raptor.api.request.RaptorRequestBuilder;
 import org.opentripplanner.raptor.rangeraptor.SystemErrDebugLogger;
 import org.opentripplanner.routing.algorithm.raptoradapter.router.performance.PerformanceTimersForRaptor;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.RaptorCostConverter;
 import org.opentripplanner.routing.api.request.DebugEventType;
 import org.opentripplanner.routing.api.request.RouteRequest;
@@ -36,13 +39,16 @@ public class RaptorRequestMapper<T extends RaptorTripSchedule> {
   private final boolean isMultiThreadedEnbled;
   private final MeterRegistry meterRegistry;
 
+  private final TransitLayer transitLayer;
+
   private RaptorRequestMapper(
     RouteRequest request,
     boolean isMultiThreaded,
     Collection<? extends RaptorAccessEgress> accessPaths,
     Collection<? extends RaptorAccessEgress> egressPaths,
     long transitSearchTimeZeroEpocSecond,
-    MeterRegistry meterRegistry
+    MeterRegistry meterRegistry,
+    TransitLayer transitLayer
   ) {
     this.request = request;
     this.isMultiThreadedEnbled = isMultiThreaded;
@@ -50,6 +56,7 @@ public class RaptorRequestMapper<T extends RaptorTripSchedule> {
     this.egressPaths = egressPaths;
     this.transitSearchTimeZeroEpocSecond = transitSearchTimeZeroEpocSecond;
     this.meterRegistry = meterRegistry;
+    this.transitLayer = transitLayer;
   }
 
   public static <T extends RaptorTripSchedule> RaptorRequest<T> mapRequest(
@@ -58,7 +65,8 @@ public class RaptorRequestMapper<T extends RaptorTripSchedule> {
     boolean isMultiThreaded,
     Collection<? extends RaptorAccessEgress> accessPaths,
     Collection<? extends RaptorAccessEgress> egressPaths,
-    MeterRegistry meterRegistry
+    MeterRegistry meterRegistry,
+    TransitLayer transitLayer
   ) {
     return new RaptorRequestMapper<T>(
       request,
@@ -66,7 +74,8 @@ public class RaptorRequestMapper<T extends RaptorTripSchedule> {
       accessPaths,
       egressPaths,
       transitSearchTimeZero.toEpochSecond(),
-      meterRegistry
+      meterRegistry,
+      transitLayer
     )
       .doMap();
   }
@@ -176,7 +185,7 @@ public class RaptorRequestMapper<T extends RaptorTripSchedule> {
       );
     }
 
-    return builder.build();
+    return EnturHackSorlandsBanen.enableHack(builder.build(), request, transitLayer);
   }
 
   private List<PassThroughPoint> mapPassThroughPoints() {

@@ -58,7 +58,7 @@ public class EnturHackSorlandsBanen {
       return raptorRequest;
     }
 
-    if (!request.preferences().transit().relaxTransitPriorityGroup().isNormal()) {
+    if (!request.preferences().transit().relaxTransitGroupPriority().isNormal()) {
       return raptorRequest;
     }
 

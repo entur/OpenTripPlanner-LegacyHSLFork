@@ -95,7 +95,7 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
       additionalPastSearchDays,
       additionalFutureSearchDays,
       filter,
-      createTransitPriorityGroupConfigurator(request)
+      createTransitGroupPriorityConfigurator(request)
     );
     this.patternIndex = transitDataCreator.createPatternIndex(tripPatterns);
     this.activeTripPatternsPerStop = transitDataCreator.createTripPatternsPerStop(tripPatterns);
@@ -246,8 +246,8 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
     return new ConstrainedBoardingSearch(false, toStopTransfers, fromStopTransfers);
   }
 
-  private PriorityGroupConfigurator createTransitPriorityGroupConfigurator(RouteRequest request) {
-    if (request.preferences().transit().relaxTransitPriorityGroup().isNormal()) {
+  private PriorityGroupConfigurator createTransitGroupPriorityConfigurator(RouteRequest request) {
+    if (request.preferences().transit().relaxTransitGroupPriority().isNormal()) {
       return PriorityGroupConfigurator.empty();
     }
     var transitRequest = request.journey().transit();

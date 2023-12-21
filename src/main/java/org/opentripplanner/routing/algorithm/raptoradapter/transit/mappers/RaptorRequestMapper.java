@@ -23,7 +23,7 @@ import org.opentripplanner.routing.algorithm.raptoradapter.router.performance.Pe
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.RaptorCostConverter;
-import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.grouppriority.TransitPriorityGroup32n;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.grouppriority.TransitGroupPriority32n;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.routing.api.request.framework.CostLinearFunction;
 import org.opentripplanner.transit.model.site.StopLocation;
@@ -125,9 +125,9 @@ public class RaptorRequestMapper {
     builder.withMultiCriteria(mcBuilder -> {
       var pt = preferences.transit();
       var r = pt.raptor();
-      if (!pt.relaxTransitPriorityGroup().isNormal()) {
-        mcBuilder.withTransitPriorityCalculator(TransitPriorityGroup32n.priorityCalculator());
-        mcBuilder.withRelaxC1(mapRelaxCost(pt.relaxTransitPriorityGroup()));
+      if (!pt.relaxTransitGroupPriority().isNormal()) {
+        mcBuilder.withTransitPriorityCalculator(TransitGroupPriority32n.priorityCalculator());
+        mcBuilder.withRelaxC1(mapRelaxCost(pt.relaxTransitGroupPriority()));
       } else {
         mcBuilder.withPassThroughPoints(mapPassThroughPoints());
         r.relaxGeneralizedCostAtDestination().ifPresent(mcBuilder::withRelaxCostAtDestination);

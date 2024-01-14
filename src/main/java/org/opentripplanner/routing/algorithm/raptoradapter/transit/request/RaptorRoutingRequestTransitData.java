@@ -8,6 +8,7 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opentripplanner.framework.application.OTPFeature;
+import org.opentripplanner.framework.logging.Throttle;
 import org.opentripplanner.framework.time.ServiceDateUtils;
 import org.opentripplanner.model.transfer.TransferService;
 import org.opentripplanner.raptor.api.model.RaptorConstrainedTransfer;
@@ -30,9 +31,12 @@ import org.opentripplanner.routing.algorithm.raptoradapter.transit.constrainedtr
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.CostCalculatorFactory;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.DefaultCostCalculator;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.FactorStrategy;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.grouppriority.TransitGroupPriorityReport;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers.GeneralizedCostParametersMapper;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.transit.model.network.RoutingTripPattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the data provider for the Range Raptor search engine. It uses data from the TransitLayer,
@@ -40,6 +44,9 @@ import org.opentripplanner.transit.model.network.RoutingTripPattern;
  * based on walk speed.
  */
 public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvider<TripSchedule> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(RaptorRoutingRequestTransitData.class);
+  private static final Throttle THROTTLE_TRANSIT_GROUP_PRIORITY = Throttle.ofTenMinutes();
 
   private final TransitLayer transitLayer;
 
@@ -85,7 +92,7 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
     this.transitSearchTimeZero = transitSearchTimeZero;
 
     // Delegate to the creator to construct the needed data structures. The code is messy so
-    // it is nice to NOT have it in the class. It isolate this code to only be available at
+    // it is nice to NOT have it in the class. It isolates this code to only be available at
     // the time of construction
     var transitDataCreator = new RaptorRoutingRequestTransitDataCreator(
       transitLayer,
@@ -97,6 +104,8 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
       filter,
       createTransitGroupPriorityConfigurator(request)
     );
+    logTransitGroups(request, tripPatterns);
+
     this.patternIndex = transitDataCreator.createPatternIndex(tripPatterns);
     this.activeTripPatternsPerStop = transitDataCreator.createTripPatternsPerStop(tripPatterns);
     this.transferIndex = transitLayer.getRaptorTransfersForRequest(request);
@@ -255,6 +264,16 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
       transitRequest.priorityGroupsByAgency(),
       transitRequest.priorityGroupsGlobal()
     );
+  }
+
+  private void logTransitGroups(RouteRequest request, List<TripPatternForDates> patterns) {
+    if (
+      request.preferences().transit().relaxTransitGroupPriority().isNormal() ||
+      THROTTLE_TRANSIT_GROUP_PRIORITY.throttle()
+    ) {
+      return;
+    }
+    LOG.info(TransitGroupPriorityReport.buildReport(patterns));
   }
 
   /*--  HACK SØRLANDSBANEN  ::  BEGIN  --*/

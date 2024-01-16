@@ -278,11 +278,10 @@ public class TransitRouter {
         .stream()
         .map(routingAccessEgress -> {
           if (routingAccessEgress instanceof FlexAccessEgressAdapter flexAccessEgressAdapter) {
-            return new BookingTimeAccessEgress(
-              flexAccessEgressAdapter,
-              request.dateTime(),
+            return BookingTimeAccessEgress.of(
               request.earliestBookingTime(),
-              serverContext.transitService().getTimeZone()
+              transitSearchTimeZero,
+              flexAccessEgressAdapter
             );
           } else {
             return routingAccessEgress;

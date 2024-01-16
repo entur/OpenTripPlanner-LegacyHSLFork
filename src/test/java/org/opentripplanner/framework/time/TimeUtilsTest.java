@@ -3,6 +3,7 @@ package org.opentripplanner.framework.time;
 import static java.time.ZoneOffset.UTC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
@@ -180,6 +181,16 @@ public class TimeUtilsTest {
     // Negative numbers
     assertEquals("-1s", TimeUtils.msToString(-1000));
     assertEquals("-1.234s", TimeUtils.msToString(-1234));
+  }
+
+  @Test
+  void testOtpTime() {
+    // otp zero is identical to time
+    assertEquals(0, TimeUtils.otpTime(CAL, Instant.parse("2020-01-15T00:00Z")));
+    // Test positive offset - otp zero is 1h2m3s before time
+    assertEquals(3723, TimeUtils.otpTime(CAL, Instant.parse("2020-01-15T01:02:003Z")));
+    // Test negative offset - otp zero is 30m after time
+    assertEquals(-1800, TimeUtils.otpTime(CAL, Instant.parse("2020-01-14T23:30Z")));
   }
 
   private static int time(int hour, int min, int sec) {

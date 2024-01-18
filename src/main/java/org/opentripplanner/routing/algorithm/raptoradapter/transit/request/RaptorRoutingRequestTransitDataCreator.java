@@ -18,6 +18,7 @@ import org.opentripplanner.framework.time.DurationUtils;
 import org.opentripplanner.framework.time.ServiceDateUtils;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripPatternForDate;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.grouppriority.PriorityGroupConfigurator;
 import org.opentripplanner.transit.model.network.RoutingTripPattern;
 import org.opentripplanner.transit.model.timetable.TripTimes;
 import org.slf4j.Logger;
@@ -151,7 +152,6 @@ class RaptorRoutingRequestTransitDataCreator {
         )
       );
     }
-
     return combinedList;
   }
 

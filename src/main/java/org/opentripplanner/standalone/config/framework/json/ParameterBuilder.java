@@ -203,10 +203,9 @@ public class ParameterBuilder {
   }
 
   /**
-   * @deprecated Avoid using required enum types, when adding/removing new Enum values
-   *             you potentially break forward/backward compatibility. If the new enum
-   *             value is used in the config, an earlier version of OTP can not read
-   *             the required value.
+   * WARNING! Be careful when using required enum types. When adding/removing Enum values, you
+   * potentially break forward/backward compatibility. If the new enum value is used in the
+   * config, an earlier version of OTP cannot read the required value.
    */
   @Deprecated
   public <T extends Enum<T>> T asEnum(Class<T> enumType) {

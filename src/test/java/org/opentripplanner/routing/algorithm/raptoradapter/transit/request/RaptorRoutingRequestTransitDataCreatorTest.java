@@ -13,6 +13,7 @@ import org.opentripplanner._support.time.ZoneIds;
 import org.opentripplanner.framework.time.ServiceDateUtils;
 import org.opentripplanner.model.StopTime;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripPatternForDate;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.grouppriority.PriorityGroupConfigurator;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.basic.TransitMode;
 import org.opentripplanner.transit.model.framework.FeedScopedId;

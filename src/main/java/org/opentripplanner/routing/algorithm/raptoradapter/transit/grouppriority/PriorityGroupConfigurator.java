@@ -1,14 +1,18 @@
-package org.opentripplanner.routing.algorithm.raptoradapter.transit.request;
+package org.opentripplanner.routing.algorithm.raptoradapter.transit.grouppriority;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.IntSupplier;
 import java.util.stream.Stream;
 import org.opentripplanner.framework.lang.ArrayUtils;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.grouppriority.TransitGroupPriority32n;
+import org.opentripplanner.transit.model.filter.expr.Matcher;
+import org.opentripplanner.transit.model.filter.transit.TripPatternMatcherFactory;
 import org.opentripplanner.routing.api.request.request.filter.TransitGroupSelect;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.network.TripPattern;
@@ -47,32 +51,33 @@ public class PriorityGroupConfigurator {
   private final int baseGroupId = TransitGroupPriority32n.groupId(GROUP_INDEX_COUNTER_START);
   private int groupIndexCounter = GROUP_INDEX_COUNTER_START;
   private final boolean enabled;
-  private final PriorityGroupMatcher[] agencyMatchers;
-  private final PriorityGroupMatcher[] globalMatchers;
+  private final Matcher<TripPattern>[] agencyMatchers;
+  private final Matcher<TripPattern>[] globalMatchers;
 
   // Index matchers and ids
-  private final List<MatcherAgencyAndIds> agencyMatchersIds;
-  private final List<MatcherAndId> globalMatchersIds;
+  private final List<MatcherWithGroupId> matchersWithIds;
 
   private PriorityGroupConfigurator() {
     this.enabled = false;
     this.agencyMatchers = null;
     this.globalMatchers = null;
-    this.agencyMatchersIds = List.of();
-    this.globalMatchersIds = List.of();
+    this.matchersWithIds = List.of();
   }
 
   private PriorityGroupConfigurator(
     Collection<TransitGroupSelect> byAgency,
     Collection<TransitGroupSelect> global
   ) {
-    this.agencyMatchers = PriorityGroupMatcher.of(byAgency);
-    this.globalMatchers = PriorityGroupMatcher.of(global);
+    this.agencyMatchers = TripPatternMatcherFactory.of(byAgency);
+    this.globalMatchers = TripPatternMatcherFactory.of(global);
     this.enabled = Stream.of(agencyMatchers, globalMatchers).anyMatch(ArrayUtils::hasContent);
-    this.globalMatchersIds =
-      Arrays.stream(globalMatchers).map(m -> new MatcherAndId(m, nextGroupId())).toList();
-    // We need to populate this dynamically
-    this.agencyMatchersIds = Arrays.stream(agencyMatchers).map(MatcherAgencyAndIds::new).toList();
+
+    var list = new ArrayList<MatcherWithGroupId>();
+    list.addAll(
+      Arrays.stream(globalMatchers).map(m -> new MatcherAndId(m, nextGroupId())).toList()
+    );
+    list.addAll(Arrays.stream(agencyMatchers).map(MatcherAgencyAndIds::new).toList());
+    this.matchersWithIds = List.copyOf(list);
   }
 
   public static PriorityGroupConfigurator empty() {
@@ -99,24 +104,13 @@ public class PriorityGroupConfigurator {
       return baseGroupId;
     }
 
-    for (var it : agencyMatchersIds) {
+    for (var it : matchersWithIds) {
       if (it.matcher().match(tripPattern)) {
         var agencyId = tripPattern.getRoute().getAgency().getId();
-        int groupId = it.ids().get(agencyId);
-
-        if (groupId < 0) {
-          groupId = nextGroupId();
-          it.ids.put(agencyId, groupId);
-        }
-        return groupId;
+        return it.groupId(agencyId, this::nextGroupId);
       }
     }
 
-    for (var it : globalMatchersIds) {
-      if (it.matcher.match(tripPattern)) {
-        return it.groupId();
-      }
-    }
     // Fallback to base-group-id
     return baseGroupId;
   }
@@ -129,16 +123,41 @@ public class PriorityGroupConfigurator {
     return TransitGroupPriority32n.groupId(++groupIndexCounter);
   }
 
-  /** Pair of matcher and groupId. Used only inside this class. */
-  record MatcherAndId(PriorityGroupMatcher matcher, int groupId) {}
+  /**
+   * A matcher with the associated priority group ids.
+   */
+  interface MatcherWithGroupId {
+    Matcher<TripPattern> matcher();
+    int groupId(FeedScopedId agencyId, IntSupplier nextGroupId);
+  }
 
-  /** Matcher with map of ids by agency. */
-  record MatcherAgencyAndIds(PriorityGroupMatcher matcher, TObjectIntMap<FeedScopedId> ids) {
-    MatcherAgencyAndIds(PriorityGroupMatcher matcher) {
+  /** Pair of matcher and groupId. Used only inside this class. */
+  private record MatcherAndId(Matcher<TripPattern> matcher, int groupId)
+    implements MatcherWithGroupId {
+    @Override
+    public int groupId(FeedScopedId agencyId, IntSupplier nextGroupId) {
+      return groupId;
+    }
+  }
+
+  /** Matcher with a map of group ids by agency. */
+  private record MatcherAgencyAndIds(Matcher<TripPattern> matcher, TObjectIntMap<FeedScopedId> ids)
+    implements MatcherWithGroupId {
+    MatcherAgencyAndIds(Matcher<TripPattern> matcher) {
       this(
         matcher,
         new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1)
       );
+    }
+
+    @Override
+    public int groupId(FeedScopedId agencyId, IntSupplier nextGroupId) {
+      int groupId = ids.get(agencyId);
+      if (groupId < 0) {
+        groupId = nextGroupId.getAsInt();
+        ids.put(agencyId, groupId);
+      }
+      return groupId;
     }
   }
 }

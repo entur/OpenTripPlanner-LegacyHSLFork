@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opentripplanner.framework.application.OTPFeature;
@@ -27,6 +28,8 @@ import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.constrainedtransfer.ConstrainedBoardingSearch;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.constrainedtransfer.ConstrainedTransfersForPatterns;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.CostCalculatorFactory;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.DefaultCostCalculator;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.FactorStrategy;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers.GeneralizedCostParametersMapper;
 import org.opentripplanner.routing.api.request.RouteRequest;
 import org.opentripplanner.transit.model.network.RoutingTripPattern;
@@ -82,7 +85,7 @@ public class RaptorRoutingRequestTransitData implements RaptorTransitDataProvide
     this.transitSearchTimeZero = transitSearchTimeZero;
 
     // Delegate to the creator to construct the needed data structures. The code is messy so
-    // it is nice to NOT have it in the class. It isolate this code to only be available at
+    // it is nice to NOT have it in the class. It isolates this code to only be available at
     // the time of construction
     var transitDataCreator = new RaptorRoutingRequestTransitDataCreator(
       transitLayer,

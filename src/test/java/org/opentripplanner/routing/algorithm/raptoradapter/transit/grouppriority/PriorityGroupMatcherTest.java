@@ -1,11 +1,8 @@
-package org.opentripplanner.routing.algorithm.raptoradapter.transit.request;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+package org.opentripplanner.routing.algorithm.raptoradapter.transit.grouppriority;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.opentripplanner.routing.algorithm.raptoradapter.transit.request.TestRouteData;
 import org.opentripplanner.routing.api.request.request.filter.TransitGroupSelect;
 import org.opentripplanner.transit.model.basic.TransitMode;
 import org.opentripplanner.transit.model.framework.FeedScopedId;

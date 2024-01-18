@@ -6,6 +6,7 @@ import static org.opentripplanner.standalone.config.framework.json.OtpVersion.V2
 import java.util.Collection;
 import java.util.List;
 import org.opentripplanner.routing.api.request.request.TransitRequest;
+import org.opentripplanner.routing.api.request.request.filter.ModeSelect;
 import org.opentripplanner.routing.api.request.request.filter.TransitGroupSelect;
 import org.opentripplanner.standalone.config.framework.json.NodeAdapter;
 import org.opentripplanner.standalone.config.framework.json.OtpVersion;
@@ -74,7 +75,22 @@ public class TransitGroupPriorityConfig {
           .of("modes")
           .since(V2_5)
           .summary("List all modes to select for this group.")
-          .asEnumSet(TransitMode.class)
+          .asObjects(TransitGroupPriorityConfig::mapModeSelect)
+      )
+      .addAgencyIds(
+        c.of("agencies").since(V2_3).summary("List agency ids to match.").asFeedScopedIds(List.of())
+      )
+      .addRouteIds(
+        c.of("routes").since(V2_3).summary("List route ids to match.").asFeedScopedIds(List.of())
+      )
+      .build();
+  }
+
+  private static ModeSelect mapModeSelect(NodeAdapter c) {
+    return ModeSelect
+      .of()
+      .withMode(
+        c.of("main").since(V2_5).summary("The main transit moder.").asEnum(TransitMode.class)
       )
       .addSubModeRegexp(
         c
@@ -82,12 +98,6 @@ public class TransitGroupPriorityConfig {
           .since(V2_5)
           .summary("List a set of regular expressions for matching sub-modes.")
           .asStringList(List.of())
-      )
-      .addAgencyIds(
-        c.of("agencies").since(V2_3).summary("List agency ids to match.").asFeedScopedIds(List.of())
-      )
-      .addRouteIds(
-        c.of("routes").since(V2_3).summary("List route ids to match.").asFeedScopedIds(List.of())
       )
       .build();
   }

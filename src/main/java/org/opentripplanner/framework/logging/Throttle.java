@@ -28,10 +28,9 @@ public class Throttle {
   private final String setupInfo;
 
   Throttle(Duration quietPeriod) {
-    this.quietPeriodMilliseconds = (int)quietPeriod.toMillis();
+    this.quietPeriodMilliseconds = (int) quietPeriod.toMillis();
     this.setupInfo = "(throttle " + TimeUtils.msToString(quietPeriodMilliseconds) + " interval)";
   }
-
 
   public static Throttle ofOneSecond() {
     return new Throttle(Duration.ofSeconds(1));

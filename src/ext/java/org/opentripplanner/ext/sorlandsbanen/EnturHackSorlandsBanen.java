@@ -58,10 +58,6 @@ public class EnturHackSorlandsBanen {
       return raptorRequest;
     }
 
-    if (!request.preferences().transit().relaxTransitGroupPriority().isNormal()) {
-      return raptorRequest;
-    }
-
     SearchParams params = raptorRequest.searchParams();
 
     WgsCoordinate from = findStopCoordinate(request.from(), params.accessPaths(), transitLayer);

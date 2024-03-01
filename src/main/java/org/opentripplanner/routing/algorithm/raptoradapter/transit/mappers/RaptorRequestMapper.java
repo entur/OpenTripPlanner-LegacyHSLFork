@@ -54,7 +54,6 @@ public class RaptorRequestMapper<T extends RaptorTripSchedule> {
     this.isMultiThreadedEnbled = isMultiThreaded;
     this.accessPaths = accessPaths;
     this.egressPaths = egressPaths;
-    this.searchWindowAccessSlack = searchWindowAccessSlack;
     this.transitLayer = transitLayer;
     this.transitSearchTimeZeroEpocSecond = transitSearchTimeZeroEpocSecond;
     this.meterRegistry = meterRegistry;
@@ -66,7 +65,6 @@ public class RaptorRequestMapper<T extends RaptorTripSchedule> {
     boolean isMultiThreaded,
     Collection<? extends RaptorAccessEgress> accessPaths,
     Collection<? extends RaptorAccessEgress> egressPaths,
-    Duration searchWindowAccessSlack,
     MeterRegistry meterRegistry,
     TransitLayer transitLayer
   ) {

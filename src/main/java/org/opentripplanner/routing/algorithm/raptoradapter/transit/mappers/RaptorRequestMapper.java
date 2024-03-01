@@ -3,7 +3,6 @@ package org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers;
 import static org.opentripplanner.raptor.api.request.Optimization.PARALLEL;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
@@ -36,7 +35,6 @@ public class RaptorRequestMapper<T extends RaptorTripSchedule> {
   private final RouteRequest request;
   private final Collection<? extends RaptorAccessEgress> accessPaths;
   private final Collection<? extends RaptorAccessEgress> egressPaths;
-  private final Duration searchWindowAccessSlack;
   private final long transitSearchTimeZeroEpocSecond;
   private final boolean isMultiThreadedEnbled;
   private final MeterRegistry meterRegistry;
@@ -48,7 +46,6 @@ public class RaptorRequestMapper<T extends RaptorTripSchedule> {
     boolean isMultiThreaded,
     Collection<? extends RaptorAccessEgress> accessPaths,
     Collection<? extends RaptorAccessEgress> egressPaths,
-    Duration searchWindowAccessSlack,
     long transitSearchTimeZeroEpocSecond,
     MeterRegistry meterRegistry,
     TransitLayer transitLayer
@@ -78,7 +75,6 @@ public class RaptorRequestMapper<T extends RaptorTripSchedule> {
       isMultiThreaded,
       accessPaths,
       egressPaths,
-      searchWindowAccessSlack,
       transitSearchTimeZero.toEpochSecond(),
       meterRegistry,
       transitLayer
@@ -178,10 +174,6 @@ public class RaptorRequestMapper<T extends RaptorTripSchedule> {
 
     if (!request.timetableView() && request.arriveBy()) {
       builder.searchParams().preferLateArrival(true);
-    }
-
-    if (searchWindowAccessSlack.toSeconds() > 0) {
-      builder.searchParams().searchWindowAccessSlack(searchWindowAccessSlack);
     }
 
     // Add this last, it depends on generating an alias from the set values

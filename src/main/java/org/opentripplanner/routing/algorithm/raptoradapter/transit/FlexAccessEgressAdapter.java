@@ -1,9 +1,11 @@
 package org.opentripplanner.routing.algorithm.raptoradapter.transit;
 
+import java.util.Optional;
 import org.opentripplanner.ext.flex.FlexAccessEgress;
 import org.opentripplanner.framework.model.TimeAndCost;
 import org.opentripplanner.model.StopTime;
 import org.opentripplanner.raptor.api.model.RaptorConstants;
+import org.opentripplanner.transit.model.timetable.booking.RoutingBookingInfo;
 
 /**
  * This class is used to adapt the FlexAccessEgress into a time-dependent multi-leg DefaultAccessEgress.
@@ -59,8 +61,13 @@ public class FlexAccessEgressAdapter extends DefaultAccessEgress {
   }
 
   @Override
-  public DefaultAccessEgress withPenalty(TimeAndCost penalty) {
+  public RoutingAccessEgress withPenalty(TimeAndCost penalty) {
     return new FlexAccessEgressAdapter(this, penalty);
+  }
+
+  @Override
+  public Optional<RoutingBookingInfo> routingBookingInfo() {
+    return flexAccessEgress.routingBookingInfo();
   }
 
   private static int mapToRaptorTime(int flexTime) {

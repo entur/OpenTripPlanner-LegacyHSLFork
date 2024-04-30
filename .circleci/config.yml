@@ -21,7 +21,7 @@ jobs:
     environment:
       DEBIAN_FRONTEND: "noninteractive"
       MAVEN_OPTS: -Xmx6G
-    resource_class: large
+    resource_class: xlarge
     steps:
       - checkout
       - restore_cache:

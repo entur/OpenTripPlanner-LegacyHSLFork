@@ -243,7 +243,7 @@ public final class DefaultCostCalculator<T extends DefaultTripSchedule>
     this.waitFactor = original.waitFactor;
     this.transferCostOnly = original.transferCostOnly;
     this.transitFactors = modeReluctanceMapper.apply(original.transitFactors);
-    this.stopTransferCost = original.stopTransferCost;
+    this.stopBoardAlightTransferCosts = original.stopBoardAlightTransferCosts;
   }
   /*--  HACK SØRLANDSBANEN  ::  END  --*/
 }

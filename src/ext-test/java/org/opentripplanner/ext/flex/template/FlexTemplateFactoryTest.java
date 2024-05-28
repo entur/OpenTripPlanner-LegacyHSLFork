@@ -34,6 +34,7 @@ import org.opentripplanner.transit.model._data.TransitModelForTest;
 import org.opentripplanner.transit.model.site.RegularStop;
 import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.transit.model.timetable.Trip;
+import org.opentripplanner.transit.model.timetable.booking.RoutingBookingInfo;
 
 class FlexTemplateFactoryTest {
 
@@ -61,6 +62,7 @@ class FlexTemplateFactoryTest {
   private static final FlexServiceDate DATE = new FlexServiceDate(
     LocalDate.of(2024, Month.MAY, 17),
     SERVICE_TIME_OFFSET,
+    RoutingBookingInfo.NOT_SET,
     new TIntHashSet()
   );
 
@@ -101,7 +103,7 @@ class FlexTemplateFactoryTest {
     assertEquals(1, template.toStopIndex);
     assertSame(CALCULATOR, template.calculator);
     assertSame(STOP_B, template.transferStop);
-    assertSame(DATE.serviceDate, template.serviceDate);
+    assertSame(DATE.serviceDate(), template.serviceDate);
     assertEquals(SERVICE_TIME_OFFSET, template.secondsFromStartOfTime);
     assertEquals(1, subject.size(), subject::toString);
 
@@ -133,7 +135,7 @@ class FlexTemplateFactoryTest {
     assertEquals(1, template.toStopIndex);
     assertSame(CALCULATOR, template.calculator);
     assertSame(STOP_A, template.transferStop);
-    assertSame(DATE.serviceDate, template.serviceDate);
+    assertSame(DATE.serviceDate(), template.serviceDate);
     assertEquals(SERVICE_TIME_OFFSET, template.secondsFromStartOfTime);
     assertEquals(1, subject.size(), subject::toString);
 

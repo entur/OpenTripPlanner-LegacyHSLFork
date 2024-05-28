@@ -28,6 +28,7 @@ import org.opentripplanner.routing.graphfinder.NearbyStop;
 import org.opentripplanner.street.model.vertex.TransitStopVertex;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.site.StopLocation;
+import org.opentripplanner.transit.model.timetable.booking.RoutingBookingInfo;
 import org.opentripplanner.transit.service.TransitService;
 
 public class FlexRouter {
@@ -47,7 +48,8 @@ public class FlexRouter {
 
   /* Request data */
   private final ZonedDateTime startOfTime;
-  private final int departureTime;
+  private final int requestedTime;
+  private final int requestedBookingTime;
   private final List<FlexServiceDate> dates;
 
   public FlexRouter(
@@ -55,6 +57,7 @@ public class FlexRouter {
     TransitService transitService,
     FlexParameters flexParameters,
     Instant requestedTime,
+    Instant requestedBookingTime,
     int additionalPastSearchDays,
     int additionalFutureSearchDays,
     Collection<NearbyStop> streetAccesses,
@@ -89,7 +92,11 @@ public class FlexRouter {
     ZoneId tz = transitService.getTimeZone();
     LocalDate searchDate = LocalDate.ofInstant(requestedTime, tz);
     this.startOfTime = ServiceDateUtils.asStartOfService(searchDate, tz);
-    this.departureTime = ServiceDateUtils.secondsSinceStartOfTime(startOfTime, requestedTime);
+    this.requestedTime = ServiceDateUtils.secondsSinceStartOfTime(startOfTime, requestedTime);
+    this.requestedBookingTime =
+      requestedBookingTime == null
+        ? RoutingBookingInfo.NOT_SET
+        : ServiceDateUtils.secondsSinceStartOfTime(startOfTime, requestedBookingTime);
     this.dates =
       createFlexServiceDates(
         transitService,
@@ -108,7 +115,7 @@ public class FlexRouter {
       egressFlexPathCalculator,
       flexParameters.maxTransferDuration()
     )
-      .calculateDirectFlexPaths(streetAccesses, streetEgresses, dates, departureTime, arriveBy);
+      .calculateDirectFlexPaths(streetAccesses, streetEgresses, dates, requestedTime, arriveBy);
 
     var itineraries = new ArrayList<Itinerary>();
 
@@ -161,6 +168,7 @@ public class FlexRouter {
         new FlexServiceDate(
           date,
           ServiceDateUtils.secondsSinceStartOfTime(startOfTime, date),
+          requestedBookingTime,
           transitService.getServiceCodesRunningForDate(date)
         )
       );
@@ -198,7 +206,8 @@ public class FlexRouter {
 
     @Override
     public boolean isDateActive(FlexServiceDate date, FlexTrip<?, ?> trip) {
-      return date.isFlexTripRunning(trip, transitService);
+      int serviceCode = transitService.getServiceCodeForId(trip.getTrip().getServiceId());
+      return date.isTripServiceRunning(serviceCode);
     }
   }
 }

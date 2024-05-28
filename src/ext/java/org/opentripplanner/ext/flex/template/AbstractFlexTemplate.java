@@ -47,6 +47,7 @@ abstract class AbstractFlexTemplate {
   protected final StopLocation transferStop;
   protected final int secondsFromStartOfTime;
   public final LocalDate serviceDate;
+  protected final int requestedBookingTime;
   protected final FlexPathCalculator calculator;
   private final Duration maxTransferDuration;
 
@@ -77,8 +78,9 @@ abstract class AbstractFlexTemplate {
     this.fromStopIndex = boardStopPosition;
     this.toStopIndex = alightStopPosition;
     this.transferStop = transferStop;
-    this.secondsFromStartOfTime = date.secondsFromStartOfTime;
-    this.serviceDate = date.serviceDate;
+    this.secondsFromStartOfTime = date.secondsFromStartOfTime();
+    this.serviceDate = date.serviceDate();
+    this.requestedBookingTime = date.requestedBookingTime();
     this.calculator = calculator;
     this.maxTransferDuration = maxTransferDuration;
   }
@@ -210,7 +212,8 @@ abstract class AbstractFlexTemplate {
           toStopIndex,
           trip,
           finalState,
-          transferEdges.isEmpty()
+          transferEdges.isEmpty(),
+          requestedBookingTime
         );
       })
       .orElse(null);

@@ -3,9 +3,8 @@ package org.opentripplanner.ext.flex;
 import static org.opentripplanner.model.StopTime.MISSING_VALUE;
 
 import java.util.Objects;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.opentripplanner.ext.flex.trip.FlexTrip;
+import org.opentripplanner.framework.time.TimeUtils;
 import org.opentripplanner.framework.tostring.ToStringBuilder;
 import org.opentripplanner.street.search.state.State;
 import org.opentripplanner.transit.model.site.RegularStop;
@@ -20,8 +19,7 @@ public final class FlexAccessEgress {
   private final FlexTrip<?, ?> trip;
   private final State lastState;
   private final boolean stopReachedOnBoard;
-
-  @Nullable
+  private final int requestedBookingTime;
   private final RoutingBookingInfo routingBookingInfo;
 
   public FlexAccessEgress(
@@ -31,7 +29,8 @@ public final class FlexAccessEgress {
     int toStopIndex,
     FlexTrip<?, ?> trip,
     State lastState,
-    boolean stopReachedOnBoard
+    boolean stopReachedOnBoard,
+    int requestedBookingTime
   ) {
     this.stop = stop;
     this.pathDurations = pathDurations;
@@ -40,7 +39,8 @@ public final class FlexAccessEgress {
     this.trip = Objects.requireNonNull(trip);
     this.lastState = lastState;
     this.stopReachedOnBoard = stopReachedOnBoard;
-    this.routingBookingInfo = createRoutingBookingInfo().orElse(null);
+    this.routingBookingInfo = createRoutingBookingInfo();
+    this.requestedBookingTime = requestedBookingTime;
   }
 
   public RegularStop stop() {
@@ -56,9 +56,19 @@ public final class FlexAccessEgress {
   }
 
   public int earliestDepartureTime(int departureTime) {
-    int requestedDepartureTime = pathDurations.mapToFlexTripDepartureTime(departureTime);
+    int tripDepartureTime = pathDurations.mapToFlexTripDepartureTime(departureTime);
+
+    int tmp = tripDepartureTime;
+    tripDepartureTime =
+      routingBookingInfo.earliestDepartureTime(requestedBookingTime, tripDepartureTime);
+
+    if (tmp != tripDepartureTime) {
+      System.out.println("departure time ....... : " + TimeUtils.timeToStrLong(tmp));
+      System.out.println("min notice dep.time .. : " + TimeUtils.timeToStrLong(tripDepartureTime));
+    }
+
     int earliestDepartureTime = trip.earliestDepartureTime(
-      requestedDepartureTime,
+      tripDepartureTime,
       fromStopIndex,
       toStopIndex,
       pathDurations.trip()
@@ -66,13 +76,23 @@ public final class FlexAccessEgress {
     if (earliestDepartureTime == MISSING_VALUE) {
       return MISSING_VALUE;
     }
+    /*
+    if (
+      !routingBookingInfo.isThereEnoughTimeToBookForDeparture(
+        earliestDepartureTime,
+        requestedBookingTime
+      )
+    ) {
+      return MISSING_VALUE;
+    }
+    */
     return pathDurations.mapToRouterDepartureTime(earliestDepartureTime);
   }
 
   public int latestArrivalTime(int arrivalTime) {
-    int requestedArrivalTime = pathDurations.mapToFlexTripArrivalTime(arrivalTime);
+    int tripArrivalTime = pathDurations.mapToFlexTripArrivalTime(arrivalTime);
     int latestArrivalTime = trip.latestArrivalTime(
-      requestedArrivalTime,
+      tripArrivalTime,
       fromStopIndex,
       toStopIndex,
       pathDurations.trip()
@@ -80,15 +100,15 @@ public final class FlexAccessEgress {
     if (latestArrivalTime == MISSING_VALUE) {
       return MISSING_VALUE;
     }
+    if (
+      routingBookingInfo.exceedsMinimumBookingNotice(
+        latestArrivalTime - pathDurations.trip(),
+        requestedBookingTime
+      )
+    ) {
+      return MISSING_VALUE;
+    }
     return pathDurations.mapToRouterArrivalTime(latestArrivalTime);
-  }
-
-  /**
-   * Return routing booking info for the boarding stop. Empty, if there are not any
-   * booking restrictions, witch applies to routing.
-   */
-  public Optional<RoutingBookingInfo> routingBookingInfo() {
-    return Optional.ofNullable(routingBookingInfo);
   }
 
   @Override
@@ -105,14 +125,10 @@ public final class FlexAccessEgress {
       .toString();
   }
 
-  private Optional<RoutingBookingInfo> createRoutingBookingInfo() {
-    var bookingInfo = trip.getPickupBookingInfo(fromStopIndex);
-    if (bookingInfo == null) {
-      return Optional.empty();
-    }
+  private RoutingBookingInfo createRoutingBookingInfo() {
     return RoutingBookingInfo
       .of()
-      .withBookingInfo(bookingInfo)
+      .withBookingInfo(trip.getPickupBookingInfo(fromStopIndex))
       .withLegDurationInSeconds(pathDurations.total())
       .withTimeOffsetInSeconds(pathDurations.access())
       .build();

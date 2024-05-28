@@ -10,6 +10,7 @@ import org.opentripplanner.ext.flex.FlexPathDurations;
 import org.opentripplanner.ext.flex.edgetype.FlexTripEdge;
 import org.opentripplanner.ext.flex.flexpathcalculator.FlexPathCalculator;
 import org.opentripplanner.ext.flex.trip.FlexTrip;
+import org.opentripplanner.framework.time.TimeUtils;
 import org.opentripplanner.model.PathTransfer;
 import org.opentripplanner.routing.graphfinder.NearbyStop;
 import org.opentripplanner.street.model.edge.Edge;
@@ -18,6 +19,7 @@ import org.opentripplanner.street.search.state.EdgeTraverser;
 import org.opentripplanner.street.search.state.State;
 import org.opentripplanner.transit.model.site.RegularStop;
 import org.opentripplanner.transit.model.site.StopLocation;
+import org.opentripplanner.transit.model.timetable.booking.RoutingBookingInfo;
 
 class FlexAccessTemplate extends AbstractFlexTemplate {
 
@@ -46,7 +48,7 @@ class FlexAccessTemplate extends AbstractFlexTemplate {
   Optional<DirectFlexPath> createDirectGraphPath(
     NearbyStop egress,
     boolean arriveBy,
-    int departureTime
+    int requestedDepartureTime
   ) {
     List<Edge> egressEdges = egress.edges;
 
@@ -76,7 +78,7 @@ class FlexAccessTemplate extends AbstractFlexTemplate {
     int timeShift;
 
     if (arriveBy) {
-      int lastStopArrivalTime = flexDurations.mapToFlexTripArrivalTime(departureTime);
+      int lastStopArrivalTime = flexDurations.mapToFlexTripArrivalTime(requestedDepartureTime);
       int latestArrivalTime = trip.latestArrivalTime(
         lastStopArrivalTime,
         fromStopIndex,
@@ -88,10 +90,32 @@ class FlexAccessTemplate extends AbstractFlexTemplate {
         return Optional.empty();
       }
 
+      // No need to time-shift latestArrivalTime for meeting the min-booking notice restriction,
+      // the time is already as-late-as-possible
+      var bookingInfo = RoutingBookingInfo.of(trip.getPickupBookingInfo(fromStopIndex));
+      if (!bookingInfo.isThereEnoughTimeToBookForArrival(latestArrivalTime, requestedBookingTime)) {
+        return Optional.empty();
+      }
+
       // Shift from departing at departureTime to arriving at departureTime
       timeShift = flexDurations.mapToRouterArrivalTime(latestArrivalTime) - flexDurations.total();
     } else {
-      int firstStopDepartureTime = flexDurations.mapToFlexTripDepartureTime(departureTime);
+      int firstStopDepartureTime = flexDurations.mapToFlexTripDepartureTime(requestedDepartureTime);
+
+      // Time-shift departure so the minimum-booking-notice restriction is honored. This is not
+      //  necessary in for access/egress since in practice Raptor will do this for us.
+      // TODO get routing booking info
+      var bookingInfo = trip.getPickupBookingInfo(fromStopIndex);
+      if (bookingInfo != null) {
+        var minNotice = bookingInfo.getMinimumBookingNotice();
+        if (minNotice != null && requestedBookingTime != RoutingBookingInfo.NOT_SET) {
+          int firstBookableDepartureTime = requestedBookingTime + (int) minNotice.toSeconds();
+          if (firstBookableDepartureTime > firstStopDepartureTime) {
+            firstStopDepartureTime = firstBookableDepartureTime;
+          }
+        }
+      }
+
       int earliestDepartureTime = trip.earliestDepartureTime(
         firstStopDepartureTime,
         fromStopIndex,
@@ -102,7 +126,29 @@ class FlexAccessTemplate extends AbstractFlexTemplate {
       if (earliestDepartureTime == MISSING_VALUE) {
         return Optional.empty();
       }
+
+      var routingBookingInfo = RoutingBookingInfo.of(bookingInfo);
+      if (
+        !routingBookingInfo.isThereEnoughTimeToBookForDeparture(
+          earliestDepartureTime,
+          requestedBookingTime
+        )
+      ) {
+        return Optional.empty();
+      }
+
       timeShift = flexDurations.mapToRouterDepartureTime(earliestDepartureTime);
+
+      System.out.println(
+        "requestedDepartureTime .. : " + TimeUtils.timeToStrLong(requestedDepartureTime)
+      );
+      System.out.println(
+        "requestedBookingTime .... : " + TimeUtils.timeToStrLong(requestedBookingTime)
+      );
+      System.out.println(
+        "EDT ..................... : " + TimeUtils.timeToStrLong(earliestDepartureTime)
+      );
+      System.out.println("BookingInfo ............. : " + bookingInfo);
     }
 
     return Optional.of(new DirectFlexPath(timeShift, finalState));

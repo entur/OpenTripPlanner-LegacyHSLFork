@@ -1,7 +1,7 @@
 package org.opentripplanner.transit.model.timetable.booking;
 
 import java.util.Objects;
-import java.util.Optional;
+import javax.annotation.Nullable;
 import org.opentripplanner.framework.lang.IntUtils;
 import org.opentripplanner.framework.tostring.ToStringBuilder;
 
@@ -17,7 +17,9 @@ import org.opentripplanner.framework.tostring.ToStringBuilder;
  */
 public final class RoutingBookingInfo {
 
-  private static final int NOT_SET = -1_999_999;
+  public static final int NOT_SET = -1_999_999;
+  private static final int ZERO = 0;
+  private static final RoutingBookingInfo UNRESTRICTED = new RoutingBookingInfo();
 
   private final int latestBookingTime;
   private final int minimumBookingNotice;
@@ -43,8 +45,34 @@ public final class RoutingBookingInfo {
       IntUtils.requireNotNegative(timeOffsetInSeconds, "timeOffsetInSeconds");
   }
 
+  private RoutingBookingInfo() {
+    this.latestBookingTime = NOT_SET;
+    this.minimumBookingNotice = NOT_SET;
+    this.legDurationInSeconds = ZERO;
+    this.timeOffsetInSeconds = ZERO;
+  }
+
+  /** See {@link #isUnrestricted()} */
+  public static RoutingBookingInfo unrestricted() {
+    return UNRESTRICTED;
+  }
+
+  public static RoutingBookingInfo of(@Nullable BookingInfo bookingInfo) {
+    return bookingInfo == null ? unrestricted() : of().withBookingInfo(bookingInfo).build();
+  }
+
   public static RoutingBookingInfo.Builder of() {
     return new Builder();
+  }
+
+  /**
+   * Return {@code true} if there are no booking restrictions. Note! there can be other
+   * booking-related information associated with the trip.
+   */
+  public boolean isUnrestricted() {
+    return (
+      (this == UNRESTRICTED) || (latestBookingTime == NOT_SET && minimumBookingNotice == NOT_SET)
+    );
   }
 
   /**
@@ -54,6 +82,9 @@ public final class RoutingBookingInfo {
    * If not the case, the RaptorConstants.TIME_NOT_SET is returned.
    */
   public boolean isThereEnoughTimeToBookForDeparture(int departureTime, int requestedBookingTime) {
+    if (isUnrestricted(requestedBookingTime)) {
+      return true;
+    }
     return isThereEnoughTimeToBook(departureTime + timeOffsetInSeconds, requestedBookingTime);
   }
 
@@ -64,28 +95,24 @@ public final class RoutingBookingInfo {
    * If not the case, the RaptorConstants.TIME_NOT_SET is returned.
    */
   public boolean isThereEnoughTimeToBookForArrival(int arrivalTime, int requestedBookingTime) {
+    if (isUnrestricted(requestedBookingTime)) {
+      return true;
+    }
     return isThereEnoughTimeToBook(
       arrivalTime - legDurationInSeconds + timeOffsetInSeconds,
       requestedBookingTime
     );
   }
 
-  /**
-   * Check if requested board-time can be booked according to the booking info rules. See
-   * {@link BookingInfo}.
-   * <p>
-   * If not the case, the RaptorConstants.TIME_NOT_SET is returned.
-   */
-  private boolean isThereEnoughTimeToBook(int time, int requestedBookingTime) {
-    // This can be optimized/simplified; it can be done before the search start since it
-    // only depends on the latestBookingTime and requestedBookingTime, not the departure time.
-    if (exceedsLatestBookingTime(requestedBookingTime)) {
-      return false;
+  public int earliestDepartureTime(int requestedDepartureTime, int departureTime) {
+    if (requestedDepartureTime == NOT_SET || minimumBookingNotice == NOT_SET) {
+      return departureTime;
     }
-    if (exceedsMinimumBookingNotice(time, requestedBookingTime)) {
-      return false;
-    }
-    return true;
+    return Math.max(requestedDepartureTime + minimumBookingNotice, departureTime);
+  }
+
+  private boolean isUnrestricted(int requestedBookingTime) {
+    return requestedBookingTime == NOT_SET || isUnrestricted();
   }
 
   @Override
@@ -114,20 +141,50 @@ public final class RoutingBookingInfo {
       .of(RoutingBookingInfo.class)
       .addServiceTime("latestBookingTime", latestBookingTime, NOT_SET)
       .addDurationSec("minimumBookingNotice", minimumBookingNotice, NOT_SET)
+      .addDurationSec("timeOffsetInSeconds", timeOffsetInSeconds, ZERO)
+      .addDurationSec("legDurationInSeconds", legDurationInSeconds, ZERO)
       .toString();
   }
 
-  private boolean exceedsLatestBookingTime(int requestedEarliestBookingTime) {
-    return exist(latestBookingTime) && requestedEarliestBookingTime > latestBookingTime;
+  /**
+   * Check if requested board-time can be booked according to the booking info rules. See
+   * {@link BookingInfo}.
+   * <p>
+   * If not the case, the RaptorConstants.TIME_NOT_SET is returned.
+   */
+  private boolean isThereEnoughTimeToBook(int time, int requestedBookingTime) {
+    // This can be optimized/simplified; it can be done before the search start since it
+    // only depends on the latestBookingTime and requestedBookingTime, not the departure time.
+    if (exceedsLatestBookingTime(requestedBookingTime)) {
+      return false;
+    }
+    if (exceedsMinimumBookingNotice(time, requestedBookingTime)) {
+      return false;
+    }
+    return true;
+  }
+
+  public boolean exceedsLatestBookingTime(int requestedBookingTime) {
+    return (
+      exist(requestedBookingTime) &&
+      exist(latestBookingTime) &&
+      exceedsLatestBookingTime(requestedBookingTime, latestBookingTime)
+    );
+  }
+
+  private static boolean exceedsLatestBookingTime(int requestedBookingTime, int latestBookingTime) {
+    return requestedBookingTime > latestBookingTime;
   }
 
   /**
    * Check if the given time is after (or eq to) the earliest time allowed according to the minimum
    * booking notice.
    */
-  private boolean exceedsMinimumBookingNotice(int departureTime, int requestedBookingTime) {
+  public boolean exceedsMinimumBookingNotice(int departureTime, int requestedBookingTime) {
     return (
-      exist(minimumBookingNotice) && (departureTime - minimumBookingNotice < requestedBookingTime)
+      exist(requestedBookingTime) &&
+      exist(minimumBookingNotice) &&
+      (departureTime - minimumBookingNotice < requestedBookingTime)
     );
   }
 
@@ -137,21 +194,34 @@ public final class RoutingBookingInfo {
 
   public static class Builder {
 
-    private int latestBookingTime = NOT_SET;
-    private int minimumBookingNotice = NOT_SET;
+    private int latestBookingTime;
+    private int minimumBookingNotice;
     private int legDurationInSeconds = 0;
     private int timeOffsetInSeconds = 0;
+
+    public Builder() {
+      setUnrestricted();
+    }
 
     /**
      * Convenience method to add booking info to builder.
      */
-    public Builder withBookingInfo(BookingInfo bookingInfo) {
-      if (bookingInfo.getLatestBookingTime() != null) {
-        withLatestBookingTime(bookingInfo.getLatestBookingTime().relativeTimeSeconds());
+    public Builder withBookingInfo(@Nullable BookingInfo bookingInfo) {
+      // Clear booking
+      if (bookingInfo == null) {
+        setUnrestricted();
+        return this;
       }
-      if (bookingInfo.getMinimumBookingNotice() != null) {
-        withMinimumBookingNotice((int) bookingInfo.getMinimumBookingNotice().toSeconds());
-      }
+      withLatestBookingTime(
+        bookingInfo.getLatestBookingTime() == null
+          ? NOT_SET
+          : bookingInfo.getLatestBookingTime().relativeTimeSeconds()
+      );
+      withMinimumBookingNotice(
+        bookingInfo.getMinimumBookingNotice() == null
+          ? NOT_SET
+          : (int) bookingInfo.getMinimumBookingNotice().toSeconds()
+      );
       return this;
     }
 
@@ -185,19 +255,21 @@ public final class RoutingBookingInfo {
       return this;
     }
 
-    public Optional<RoutingBookingInfo> build() {
+    public RoutingBookingInfo build() {
       if (latestBookingTime == NOT_SET && minimumBookingNotice == NOT_SET) {
-        return Optional.empty();
+        return RoutingBookingInfo.unrestricted();
       }
-
-      return Optional.of(
-        new RoutingBookingInfo(
-          latestBookingTime,
-          minimumBookingNotice,
-          legDurationInSeconds,
-          timeOffsetInSeconds
-        )
+      return new RoutingBookingInfo(
+        latestBookingTime,
+        minimumBookingNotice,
+        legDurationInSeconds,
+        timeOffsetInSeconds
       );
+    }
+
+    private void setUnrestricted() {
+      latestBookingTime = NOT_SET;
+      minimumBookingNotice = NOT_SET;
     }
   }
 }

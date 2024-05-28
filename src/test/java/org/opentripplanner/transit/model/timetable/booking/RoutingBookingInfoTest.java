@@ -52,8 +52,7 @@ class RoutingBookingInfoTest {
     var subject = RoutingBookingInfo
       .of()
       .withMinimumBookingNotice(MINIMUM_BOOKING_NOTICE_20m)
-      .build()
-      .orElseThrow();
+      .build();
 
     // Since we have not set a duration or offset, departure and arrival is the same
     assertEquals(
@@ -89,8 +88,7 @@ class RoutingBookingInfoTest {
       )
       .withLegDurationInSeconds(duration)
       .withTimeOffsetInSeconds(offset)
-      .build()
-      .orElseThrow();
+      .build();
 
     assertEquals(
       expected.minBookingNotice,
@@ -125,8 +123,7 @@ class RoutingBookingInfoTest {
       )
       .withLegDurationInSeconds(duration)
       .withTimeOffsetInSeconds(offset)
-      .build()
-      .orElseThrow();
+      .build();
 
     assertEquals(
       expected.latestBookingTime,
@@ -159,8 +156,7 @@ class RoutingBookingInfoTest {
       .withLatestBookingTime(LATEST_BOOKING_TIME_13_00.toSecondOfDay())
       .withLegDurationInSeconds(duration)
       .withTimeOffsetInSeconds(offset)
-      .build()
-      .orElseThrow();
+      .build();
 
     assertEquals(
       expected == Expected.BOTH,
@@ -185,8 +181,7 @@ class RoutingBookingInfoTest {
       .of()
       .withMinimumBookingNotice(MINIMUM_BOOKING_NOTICE_20m)
       .withLatestBookingTime(LATEST_BOOKING_TIME_13_00.toSecondOfDay())
-      .build()
-      .orElseThrow();
+      .build();
 
     assertEquals(
       "RoutingBookingInfo{latestBookingTime: 13:00, minimumBookingNotice: 20m}",

@@ -3,22 +3,16 @@ package org.opentripplanner.ext.flex.trip;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-import org.opentripplanner.ext.flex.FlexServiceDate;
 import org.opentripplanner.ext.flex.flexpathcalculator.FlexPathCalculator;
-import org.opentripplanner.ext.flex.template.FlexAccessTemplate;
-import org.opentripplanner.ext.flex.template.FlexEgressTemplate;
-import org.opentripplanner.model.BookingInfo;
 import org.opentripplanner.model.PickDrop;
 import org.opentripplanner.model.StopTime;
-import org.opentripplanner.routing.graphfinder.NearbyStop;
-import org.opentripplanner.standalone.config.sandbox.FlexConfig;
 import org.opentripplanner.transit.model.framework.AbstractTransitEntity;
 import org.opentripplanner.transit.model.site.AreaStop;
 import org.opentripplanner.transit.model.site.GroupStop;
 import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.transit.model.timetable.Trip;
+import org.opentripplanner.transit.model.timetable.booking.BookingInfo;
 
 /**
  * This class represents the different variations of what is considered flexible transit, and its
@@ -27,6 +21,8 @@ import org.opentripplanner.transit.model.timetable.Trip;
  */
 public abstract class FlexTrip<T extends FlexTrip<T, B>, B extends FlexTripBuilder<T, B>>
   extends AbstractTransitEntity<T, B> {
+
+  public static int STOP_INDEX_NOT_FOUND = -1;
 
   private final Trip trip;
 
@@ -42,20 +38,6 @@ public abstract class FlexTrip<T extends FlexTrip<T, B>, B extends FlexTripBuild
   public static boolean isFlexStop(StopLocation stop) {
     return stop instanceof GroupStop || stop instanceof AreaStop;
   }
-
-  public abstract Stream<FlexAccessTemplate> getFlexAccessTemplates(
-    NearbyStop access,
-    FlexServiceDate date,
-    FlexPathCalculator calculator,
-    FlexConfig config
-  );
-
-  public abstract Stream<FlexEgressTemplate> getFlexEgressTemplates(
-    NearbyStop egress,
-    FlexServiceDate date,
-    FlexPathCalculator calculator,
-    FlexConfig config
-  );
 
   /**
    * Earliest departure time from fromStopIndex to toStopIndex, which departs after departureTime,
@@ -98,6 +80,11 @@ public abstract class FlexTrip<T extends FlexTrip<T, B>, B extends FlexTripBuild
   public abstract int latestArrivalTime(int stopIndex);
 
   /**
+   * Return number-of-stops this trip visit.
+   */
+  public abstract int numberOfStops();
+
+  /**
    * Returns all the stops that are in this trip.
    * <p>
    * Note that they are in no specific order and don't correspond 1-to-1 to the stop times of the
@@ -106,6 +93,12 @@ public abstract class FlexTrip<T extends FlexTrip<T, B>, B extends FlexTripBuild
    * Location groups are expanded into their constituent stops.
    */
   public abstract Set<StopLocation> getStops();
+
+  /**
+   * Return a stop at given stop-index. Note! The visited order may not be the same as the
+   * indexing order.
+   */
+  public abstract StopLocation getStop(int stopIndex);
 
   public Trip getTrip() {
     return trip;
@@ -119,9 +112,32 @@ public abstract class FlexTrip<T extends FlexTrip<T, B>, B extends FlexTripBuild
 
   public abstract PickDrop getAlightRule(int i);
 
-  public abstract boolean isBoardingPossible(NearbyStop stop);
+  public abstract boolean isBoardingPossible(StopLocation stop);
 
-  public abstract boolean isAlightingPossible(NearbyStop stop);
+  public abstract boolean isAlightingPossible(StopLocation stop);
+
+  /**
+   * Find the first stop-position matching the given {@code fromStop} where
+   * boarding is allowed.
+   *
+   * @return stop position in the pattern or {@link #STOP_INDEX_NOT_FOUND} if not found.
+   */
+  public abstract int findBoardIndex(StopLocation fromStop);
+
+  /**
+   * Find the first stop-position matching the given {@code toStop} where
+   * alighting is allowed.
+   *
+   * @return the stop position in the pattern or {@link #STOP_INDEX_NOT_FOUND} if not found.
+   */
+  public abstract int findAlightIndex(StopLocation toStop);
+
+  /**
+   * Allow each FlexTrip type to decorate or replace the router defaultCalculator.
+   */
+  public abstract FlexPathCalculator decorateFlexPathCalculator(
+    FlexPathCalculator defaultCalculator
+  );
 
   @Override
   public boolean sameAs(@Nonnull T other) {

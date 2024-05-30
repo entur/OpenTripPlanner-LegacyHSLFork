@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.opentripplanner.framework.application.OTPRequestTimeoutException;
 import org.opentripplanner.model.calendar.CalendarService;
 import org.opentripplanner.model.calendar.CalendarServiceData;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
@@ -30,6 +31,7 @@ public class CalendarServiceImpl implements CalendarService {
 
   @Override
   public Set<LocalDate> getServiceDatesForServiceId(FeedScopedId serviceId) {
+    OTPRequestTimeoutException.checkForTimeout();
     Set<LocalDate> dates = new HashSet<>();
     List<LocalDate> serviceDates = data.getServiceDatesForServiceId(serviceId);
     if (serviceDates != null) {

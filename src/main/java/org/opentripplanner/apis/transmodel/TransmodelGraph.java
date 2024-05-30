@@ -65,6 +65,7 @@ class TransmodelGraph {
       var graphQL = createGraphQL(instrumentation, executionStrategy);
 
       var result = graphQL.execute(executionInput);
+      OTPRequestTimeoutException.checkForTimeout();
       result = limitMaxNumberOfErrors(result);
 
       return ExecutionResultMapper.okResponse(result);

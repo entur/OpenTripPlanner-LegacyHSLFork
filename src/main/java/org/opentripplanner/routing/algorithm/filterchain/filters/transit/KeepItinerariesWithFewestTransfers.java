@@ -8,6 +8,8 @@ import java.util.Set;
 import org.opentripplanner.model.SystemNotice;
 import org.opentripplanner.model.plan.Itinerary;
 import org.opentripplanner.routing.algorithm.filterchain.framework.spi.ItineraryListFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This filter makes sure that the itinerary with the fewest transfers is not removed.
@@ -16,6 +18,7 @@ import org.opentripplanner.routing.algorithm.filterchain.framework.spi.Itinerary
  * keys are removed. Itineraries with other system notices are ignored.
  */
 public class KeepItinerariesWithFewestTransfers implements ItineraryListFilter {
+  private static final Logger LOG = LoggerFactory.getLogger(KeepItinerariesWithFewestTransfers.class);
 
   private final Set<String> filterKeys;
 
@@ -31,7 +34,10 @@ public class KeepItinerariesWithFewestTransfers implements ItineraryListFilter {
       .filter(it ->
         filterKeys.containsAll(it.getSystemNotices().stream().map(SystemNotice::tag).toList())
       )
-      .ifPresent(it -> it.removeDeletionFlags(filterKeys));
+      .ifPresent(it -> {
+        LOG.debug("Include TxMin Itinerary. Remove {} from {}.", filterKeys, it);
+        it.removeDeletionFlags(filterKeys);
+      });
 
     return itineraries;
   }

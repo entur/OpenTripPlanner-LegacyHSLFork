@@ -34,14 +34,13 @@ public class AbortOnUnprocessableRequestExecutionStrategy
   @Override
   protected <T> CompletableFuture<T> handleFetchingException(
     DataFetchingEnvironment environment,
-    ExecutionStrategyParameters params,
     Throwable e
   ) {
     if (e instanceof OTPRequestTimeoutException || e instanceof ResponseTooLargeException) {
       logCancellationProgress();
       throw (RuntimeException) e;
     }
-    return super.handleFetchingException(environment, params, e);
+    return super.handleFetchingException(environment, e);
   }
 
   @SuppressWarnings("Convert2MethodRef")

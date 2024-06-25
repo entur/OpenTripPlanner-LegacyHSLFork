@@ -13,6 +13,7 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperat
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionStrategyParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters;
+import graphql.execution.instrumentation.parameters.InstrumentationFieldParameters;
 import graphql.execution.instrumentation.parameters.InstrumentationValidationParameters;
 import graphql.language.Document;
 import graphql.schema.GraphQLTypeUtil;
@@ -21,6 +22,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Timer;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Using this instrumentation we can precisely measure how queries and data fetchers are executed
@@ -59,53 +61,49 @@ public class MicrometerGraphQLInstrumentation implements Instrumentation {
 
   @Override
   public InstrumentationContext<ExecutionResult> beginExecution(
-    InstrumentationExecutionParameters parameters,
-    InstrumentationState state
+    InstrumentationExecutionParameters parameters
   ) {
+    TraceState state = parameters.getInstrumentationState();
     Timer.Sample sample = Timer.start(meterRegistry);
     return whenCompleted((res, err) ->
-      sample.stop(buildQueryTimer(((TraceState) state).operationName, "execution"))
+      sample.stop(buildQueryTimer(state.operationName, "execution"))
     );
   }
 
   @Override
   public InstrumentationContext<Document> beginParse(
-    InstrumentationExecutionParameters parameters,
-    InstrumentationState state
+    InstrumentationExecutionParameters parameters
   ) {
+    TraceState state = parameters.getInstrumentationState();
     Timer.Sample sample = Timer.start(meterRegistry);
-    return whenCompleted((res, err) ->
-      sample.stop(buildQueryTimer(((TraceState) state).operationName, "parse"))
-    );
+    return whenCompleted((res, err) -> sample.stop(buildQueryTimer(state.operationName, "parse")));
   }
 
   @Override
   public InstrumentationContext<List<ValidationError>> beginValidation(
-    InstrumentationValidationParameters parameters,
-    InstrumentationState state
+    InstrumentationValidationParameters parameters
   ) {
+    TraceState state = parameters.getInstrumentationState();
     Timer.Sample sample = Timer.start(meterRegistry);
     return whenCompleted((res, err) ->
-      sample.stop(buildQueryTimer(((TraceState) state).operationName, "validation"))
+      sample.stop(buildQueryTimer(state.operationName, "validation"))
     );
   }
 
   @Override
   public InstrumentationContext<ExecutionResult> beginExecuteOperation(
-    InstrumentationExecuteOperationParameters parameters,
-    InstrumentationState state
+    InstrumentationExecuteOperationParameters parameters
   ) {
     return noOp();
   }
 
   @Override
   public ExecutionStrategyInstrumentationContext beginExecutionStrategy(
-    InstrumentationExecutionStrategyParameters parameters,
-    InstrumentationState state
+    InstrumentationExecutionStrategyParameters parameters
   ) {
     return new ExecutionStrategyInstrumentationContext() {
       @Override
-      public void onDispatched() {}
+      public void onDispatched(CompletableFuture<ExecutionResult> result) {}
 
       @Override
       public void onCompleted(ExecutionResult result, Throwable t) {}
@@ -113,20 +111,27 @@ public class MicrometerGraphQLInstrumentation implements Instrumentation {
   }
 
   @Override
+  public InstrumentationContext<ExecutionResult> beginField(
+    InstrumentationFieldParameters parameters
+  ) {
+    return noOp();
+  }
+
+  @Override
   public InstrumentationContext<Object> beginFieldFetch(
-    InstrumentationFieldFetchParameters parameters,
-    InstrumentationState state
+    InstrumentationFieldFetchParameters parameters
   ) {
     if (parameters.getField().getDirective("timingData") == null) {
       return noOp();
     }
+    TraceState state = parameters.getInstrumentationState();
     Timer.Sample sample = Timer.start(meterRegistry);
     return whenCompleted((res, err) -> {
       String parentType = GraphQLTypeUtil.simplePrint(
         parameters.getExecutionStepInfo().getParent().getUnwrappedNonNullType()
       );
       String fieldName = parameters.getExecutionStepInfo().getFieldDefinition().getName();
-      sample.stop(buildFieldTimer(((TraceState) state).operationName, parentType, fieldName));
+      sample.stop(buildFieldTimer(state.operationName, parentType, fieldName));
     });
   }
 
@@ -151,7 +156,10 @@ public class MicrometerGraphQLInstrumentation implements Instrumentation {
       .register(meterRegistry);
   }
 
-  private record TraceState(String operationName) implements InstrumentationState {
+  private static class TraceState implements InstrumentationState {
+
+    private final String operationName;
+
     private TraceState(String operationName) {
       this.operationName = operationName == null ? "__UNKNOWN__" : operationName;
     }

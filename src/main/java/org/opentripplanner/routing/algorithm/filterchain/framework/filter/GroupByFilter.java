@@ -57,7 +57,11 @@ public class GroupByFilter<T extends GroupId<T>> implements ItineraryListFilter 
     for (Entry<T> e : groups) {
       List<Itinerary> groupResult = e.itineraries;
       for (ItineraryListFilter filter : nestedFilters) {
-        groupResult = filter.filter(groupResult);
+        try {
+          groupResult = filter.filter(groupResult);
+        } catch (RuntimeException ex) {
+          throw new IllegalStateException("Error in filter '" + filter.toString() + "'", ex);
+        }
       }
       result.addAll(groupResult);
     }

@@ -45,11 +45,28 @@ public interface SingeCriteriaComparator {
 
   @SuppressWarnings("OptionalGetWithoutIsPresent")
   static SingeCriteriaComparator compareTransitGroupsPriority() {
-    return (left, right) ->
-      TransitGroupPriority32n.dominate(
+    return (left, right) -> {
+      if (left.getGeneralizedCost2().isEmpty()) {
+        throw new IllegalArgumentException(
+          "C2 used in context where it does not exist. Itinerary: " +
+          left.toStr() +
+          " compared with: " +
+          right.toStr()
+        );
+      }
+      if (right.getGeneralizedCost2().isEmpty()) {
+        throw new IllegalArgumentException(
+          "C2 used in context where it does not exist. Itinerary: " +
+          right.toStr() +
+          " compared with: " +
+          left.toStr()
+        );
+      }
+      return TransitGroupPriority32n.dominate(
         left.getGeneralizedCost2().get(),
         right.getGeneralizedCost2().get()
       );
+    };
   }
 
   static SingeCriteriaComparator compareLessThan(final ToIntFunction<Itinerary> op) {

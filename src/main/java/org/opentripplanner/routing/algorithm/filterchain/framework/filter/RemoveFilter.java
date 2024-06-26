@@ -49,4 +49,9 @@ public class RemoveFilter implements ItineraryListFilter {
 
     return itineraries;
   }
+
+  @Override
+  public String toString() {
+    return name();
+  }
 }

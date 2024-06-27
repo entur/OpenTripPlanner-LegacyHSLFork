@@ -248,7 +248,6 @@ public class TransitRouter {
     var nearbyStops = AccessEgressRouter.streetSearch(
       accessRequest,
       temporaryVerticesContainer,
-      serverContext.transitService(),
       streetRequest,
       serverContext.dataOverlayContext(accessRequest),
       type.isEgress(),

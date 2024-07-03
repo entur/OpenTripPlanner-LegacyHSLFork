@@ -21,7 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opentripplanner.framework.time.ServiceDateUtils;
@@ -452,8 +454,8 @@ public class Timetable implements Serializable {
    * Contains one TripTimes object for each scheduled trip (even cancelled ones) and possibly
    * additional TripTimes objects for unscheduled trips. Frequency entries are stored separately.
    */
-  public List<TripTimes> getTripTimes() {
-    return tripTimes;
+  public Stream<TripTimes> getTripTimes() {
+    return tripTimes.stream();
   }
 
   /**
@@ -484,7 +486,7 @@ public class Timetable implements Serializable {
   }
 
   public TripTimes getRepresentativeTripTimes() {
-    if (!getTripTimes().isEmpty()) {
+    if (!tripTimes.isEmpty()) {
       return getTripTimes(0);
     } else if (!getFrequencyEntries().isEmpty()) {
       return getFrequencyEntries().get(0).tripTimes;
@@ -492,5 +494,21 @@ public class Timetable implements Serializable {
       // Pattern is created only for real-time updates
       return null;
     }
+  }
+
+  boolean removeTripTimes(TripTimes tripTimesToRemove) {
+    boolean remove = tripTimes.remove(tripTimesToRemove);
+    if (remove) {
+      LOG.info("Removed trip times {} from timetable {}", tripTimesToRemove, this);
+    }
+    return remove;
+  }
+
+  public void removeTripTimesIf(Predicate<TripTimes> predicate) {
+    tripTimes.removeIf(predicate);
+  }
+
+  public boolean hasNoTripTimes() {
+    return tripTimes.isEmpty();
   }
 }

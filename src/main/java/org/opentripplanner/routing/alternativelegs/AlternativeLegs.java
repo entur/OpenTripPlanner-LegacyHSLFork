@@ -179,30 +179,25 @@ public class AlternativeLegs {
 
       var servicesRunning = transitService.getServiceCodesRunningForDate(serviceDate);
 
-      for (TripTimes tripTimes : timetable.getTripTimes()) {
-        if (!servicesRunning.contains(tripTimes.getServiceCode())) {
-          continue;
-        }
-        if (skipByTripCancellation(tripTimes, false)) {
-          continue;
-        }
-
-        boolean departureTimeInRange = includeDepartBefore
-          ? tripTimes.getDepartureTime(boardingPosition) <= secondsSinceMidnight
-          : tripTimes.getDepartureTime(boardingPosition) >= secondsSinceMidnight;
-
-        if (departureTimeInRange) {
-          pq.add(
-            new TripTimeOnDate(
-              tripTimes,
-              boardingPosition,
-              pattern,
-              serviceDate,
-              midnight.toInstant()
-            )
-          );
-        }
-      }
+      timetable
+        .getTripTimes()
+        .filter(tripTimes -> servicesRunning.contains(tripTimes.getServiceCode()))
+        .filter(tripTimes -> !skipByTripCancellation(tripTimes, false))
+        .filter(tripTimes ->
+          includeDepartBefore
+            ? tripTimes.getDepartureTime(boardingPosition) <= secondsSinceMidnight
+            : tripTimes.getDepartureTime(boardingPosition) >= secondsSinceMidnight
+        )
+        .map(tripTimes ->
+          new TripTimeOnDate(
+            tripTimes,
+            boardingPosition,
+            pattern,
+            serviceDate,
+            midnight.toInstant()
+          )
+        )
+        .forEach(pq::add);
     }
 
     List<ScheduledTransitLeg> res = new ArrayList<>();

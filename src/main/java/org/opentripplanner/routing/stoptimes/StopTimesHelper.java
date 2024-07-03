@@ -114,14 +114,15 @@ public class StopTimesHelper {
           if (skipByStopCancellation(pattern, includeCancellations, i)) {
             continue;
           }
-          for (TripTimes t : tt.getTripTimes()) {
-            if (skipByTripCancellation(t, includeCancellations)) {
-              continue;
-            }
-            if (servicesRunning.contains(t.getServiceCode())) {
-              stopTimes.times.add(new TripTimeOnDate(t, i, pattern, serviceDate, midnight));
-            }
-          }
+          final var currentStopIndex = i;
+          tt
+            .getTripTimes()
+            .filter(tripTimes -> !skipByTripCancellation(tripTimes, includeCancellations))
+            .filter(tripTimes -> servicesRunning.contains(tripTimes.getServiceCode()))
+            .map(tripTimes ->
+              new TripTimeOnDate(tripTimes, currentStopIndex, pattern, serviceDate, midnight)
+            )
+            .forEach(stopTimes.times::add);
         }
       }
       ret.add(stopTimes);
@@ -244,40 +245,45 @@ public class StopTimesHelper {
             continue;
           }
 
-          for (TripTimes tripTimes : timetable.getTripTimes()) {
-            if (!servicesRunning.contains(tripTimes.getServiceCode())) {
-              continue;
-            }
-            if (skipByTripCancellation(tripTimes, includeCancellations)) {
-              continue;
-            }
-            if (
-              !includeReplaced &&
-              isReplacedByAnotherPattern(tripTimes.getTrip(), serviceDate, pattern, transitService)
-            ) {
-              continue;
-            }
+          final var currentStopIndex = stopIndex;
+          timetable
+            .getTripTimes()
+            .filter(tripTimes -> servicesRunning.contains(tripTimes.getServiceCode()))
+            .filter(tripTimes -> !skipByTripCancellation(tripTimes, includeCancellations))
+            .filter(tripTimes ->
+              includeReplaced ||
+              !isReplacedByAnotherPattern(tripTimes.getTrip(), serviceDate, pattern, transitService)
+            )
+            .filter(tripTimes -> {
+              boolean departureTimeInRange =
+                tripTimes.getDepartureTime(currentStopIndex) >= secondsSinceMidnight &&
+                tripTimes.getDepartureTime(currentStopIndex) <=
+                secondsSinceMidnight +
+                timeRangeSeconds;
 
-            boolean departureTimeInRange =
-              tripTimes.getDepartureTime(stopIndex) >= secondsSinceMidnight &&
-              tripTimes.getDepartureTime(stopIndex) <= secondsSinceMidnight + timeRangeSeconds;
-
-            boolean arrivalTimeInRange =
-              tripTimes.getArrivalTime(stopIndex) >= secondsSinceMidnight &&
-              tripTimes.getArrivalTime(stopIndex) <= secondsSinceMidnight + timeRangeSeconds;
-
-            // ARRIVAL: Arrival time has to be within range
-            // DEPARTURES: Departure time has to be within range
-            // BOTH: Either arrival time or departure time has to be within range
-            if (
-              (arrivalDeparture != ARRIVALS && departureTimeInRange) ||
-              (arrivalDeparture != DEPARTURES && arrivalTimeInRange)
-            ) {
-              pq.add(
-                new TripTimeOnDate(tripTimes, stopIndex, pattern, serviceDate, midnight.toInstant())
+              boolean arrivalTimeInRange =
+                tripTimes.getArrivalTime(currentStopIndex) >= secondsSinceMidnight &&
+                tripTimes.getArrivalTime(currentStopIndex) <=
+                secondsSinceMidnight +
+                timeRangeSeconds;
+              // ARRIVAL: Arrival time has to be within range
+              // DEPARTURES: Departure time has to be within range
+              // BOTH: Either arrival time or departure time has to be within range
+              return (
+                (arrivalDeparture != ARRIVALS && departureTimeInRange) ||
+                (arrivalDeparture != DEPARTURES && arrivalTimeInRange)
               );
-            }
-          }
+            })
+            .map(tripTimes ->
+              new TripTimeOnDate(
+                tripTimes,
+                currentStopIndex,
+                pattern,
+                serviceDate,
+                midnight.toInstant()
+              )
+            )
+            .forEach(pq::add);
           // TODO Add back support for frequency entries
         }
       }

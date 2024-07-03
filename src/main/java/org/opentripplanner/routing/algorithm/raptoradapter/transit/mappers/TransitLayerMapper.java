@@ -65,7 +65,6 @@ public class TransitLayerMapper {
   static List<TripTimes> getSortedTripTimes(Timetable timetable) {
     return timetable
       .getTripTimes()
-      .stream()
       .sorted(Comparator.comparing(TripTimes::sortIndex))
       .collect(Collectors.toList());
   }

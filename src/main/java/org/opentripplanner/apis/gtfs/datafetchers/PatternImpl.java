@@ -216,7 +216,6 @@ public class PatternImpl implements GraphQLDataFetchers.GraphQLPattern {
         return getSource(environment)
           .getScheduledTimetable()
           .getTripTimes()
-          .stream()
           .filter(times -> services.contains(times.getServiceCode()))
           .map(TripTimes::getTrip)
           .collect(Collectors.toList());

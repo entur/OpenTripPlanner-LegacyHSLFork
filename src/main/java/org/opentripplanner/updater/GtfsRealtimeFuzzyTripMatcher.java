@@ -10,7 +10,6 @@ import org.opentripplanner.graph_builder.issue.api.DataImportIssueStore;
 import org.opentripplanner.gtfs.mapping.DirectionMapper;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.network.Route;
-import org.opentripplanner.transit.model.network.TripPattern;
 import org.opentripplanner.transit.model.timetable.Direction;
 import org.opentripplanner.transit.model.timetable.Trip;
 import org.opentripplanner.transit.model.timetable.TripTimes;
@@ -85,17 +84,18 @@ public class GtfsRealtimeFuzzyTripMatcher {
     LocalDate date
   ) {
     TIntSet servicesRunningForDate = transitService.getServiceCodesRunningForDate(date);
-    for (TripPattern pattern : transitService.getPatternsForRoute(route)) {
-      if (pattern.getDirection() != direction) continue;
-      for (TripTimes times : pattern.getScheduledTimetable().getTripTimes()) {
-        if (
-          times.getScheduledDepartureTime(0) == startTime &&
-          servicesRunningForDate.contains(times.getServiceCode())
-        ) {
-          return times.getTrip();
-        }
-      }
-    }
-    return null;
+
+    return transitService
+      .getPatternsForRoute(route)
+      .stream()
+      .filter(pattern -> pattern.getDirection() == direction)
+      .flatMap(pattern -> pattern.getScheduledTimetable().getTripTimes())
+      .filter(times ->
+        times.getScheduledDepartureTime(0) == startTime &&
+        servicesRunningForDate.contains(times.getServiceCode())
+      )
+      .findFirst()
+      .map(TripTimes::getTrip)
+      .orElse(null);
   }
 }

@@ -80,9 +80,14 @@ class TripPatternMapperTest {
     assertEquals("NSR:Quay:3", r.tripPattern().getStop(2).getId().getId());
     assertEquals("NSR:Quay:4", r.tripPattern().getStop(3).getId().getId());
 
-    assertEquals(1, r.tripPattern().getScheduledTimetable().getTripTimes().size());
+    assertEquals(1, r.tripPattern().getScheduledTimetable().getTripTimes().count());
 
-    TripTimes tripTimes = r.tripPattern().getScheduledTimetable().getTripTimes().get(0);
+    TripTimes tripTimes = r
+      .tripPattern()
+      .getScheduledTimetable()
+      .getTripTimes()
+      .findFirst()
+      .orElseThrow();
 
     assertEquals(4, tripTimes.getNumStops());
 

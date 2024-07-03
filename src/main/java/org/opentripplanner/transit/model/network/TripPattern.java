@@ -389,7 +389,7 @@ public final class TripPattern
    * @param removeTrip it the predicate returns true
    */
   public void removeTrips(Predicate<Trip> removeTrip) {
-    scheduledTimetable.getTripTimes().removeIf(tt -> removeTrip.test(tt.getTrip()));
+    scheduledTimetable.removeTripTimesIf(tt -> removeTrip.test(tt.getTrip()));
   }
 
   /**
@@ -418,7 +418,7 @@ public final class TripPattern
    * trips/TripIds in the Timetable rather than the enclosing TripPattern.
    */
   public Stream<Trip> scheduledTripsAsStream() {
-    var trips = scheduledTimetable.getTripTimes().stream().map(TripTimes::getTrip);
+    var trips = scheduledTimetable.getTripTimes().map(TripTimes::getTrip);
     var freqTrips = scheduledTimetable
       .getFrequencyEntries()
       .stream()

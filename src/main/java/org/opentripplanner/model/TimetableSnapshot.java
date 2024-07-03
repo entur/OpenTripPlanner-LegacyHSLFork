@@ -246,7 +246,6 @@ public class TimetableSnapshot {
     return commit(null, false);
   }
 
-  @SuppressWarnings("unchecked")
   public TimetableSnapshot commit(TransitLayerUpdater transitLayerUpdater, boolean force) {
     if (readOnly) {
       throw new ConcurrentModificationException("This TimetableSnapshot is read-only.");
@@ -334,7 +333,7 @@ public class TimetableSnapshot {
 
         if (tripTimesToRemove != null) {
           for (Timetable sortedTimetable : sortedTimetables) {
-            boolean isDirty = sortedTimetable.getTripTimes().remove(tripTimesToRemove);
+            boolean isDirty = sortedTimetable.removeTripTimes(tripTimesToRemove);
             if (isDirty) {
               dirtyTimetables.add(sortedTimetable);
             }

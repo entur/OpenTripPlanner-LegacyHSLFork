@@ -131,14 +131,15 @@ public class InterlineProcessor {
     for (TripPattern pattern : tripPatterns) {
       Timetable timetable = pattern.getScheduledTimetable();
       /* TODO: Block semantics seem undefined for frequency trips, so skip them? */
-      for (TripTimes tripTimes : timetable.getTripTimes()) {
-        Trip trip = tripTimes.getTrip();
-        if (StringUtils.hasValue(trip.getGtfsBlockId())) {
-          tripTimesForBlockId.put(trip.getGtfsBlockId(), tripTimes);
+
+      timetable
+        .getTripTimes()
+        .filter(tripTimes -> StringUtils.hasValue(tripTimes.getTrip().getGtfsBlockId()))
+        .forEach(tripTimes -> {
+          tripTimesForBlockId.put(tripTimes.getTrip().getGtfsBlockId(), tripTimes);
           // For space efficiency, only record times that are part of a block.
           patternForTripTimes.put(tripTimes, pattern);
-        }
-      }
+        });
     }
 
     // Associate pairs of TripPatterns with lists of trips that continue from one pattern to the other.

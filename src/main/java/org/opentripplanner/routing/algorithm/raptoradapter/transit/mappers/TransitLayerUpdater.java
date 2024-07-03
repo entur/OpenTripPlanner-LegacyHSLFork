@@ -133,29 +133,19 @@ public class TransitLayerUpdater {
         if (transferIndexGenerator != null && tripPattern.isCreatedByRealtimeUpdater()) {
           transferIndexGenerator.addRealtimeTrip(
             tripPattern,
-            timetable.getTripTimes().stream().map(TripTimes::getTrip).collect(Collectors.toList())
+            timetable.getTripTimes().map(TripTimes::getTrip).toList()
           );
         }
 
-        for (TripTimes triptimes : timetable.getTripTimes()) {
-          var id = new TripIdAndServiceDate(
-            triptimes.getTrip().getId(),
-            timetable.getServiceDate()
+        final var tpfd = newTripPatternForDate;
+        timetable
+          .getTripTimes()
+          .map(tripTimes ->
+            new TripIdAndServiceDate(tripTimes.getTrip().getId(), timetable.getServiceDate())
+          )
+          .forEach(tripIdAndServiceDate ->
+            updateTripPatternForDate(tripIdAndServiceDate, tpfd, previouslyUsedPatterns)
           );
-          TripPatternForDate previousTripPatternForDate = tripPatternsForTripIdAndServiceDateCache.put(
-            id,
-            newTripPatternForDate
-          );
-          if (previousTripPatternForDate != null) {
-            previouslyUsedPatterns.add(previousTripPatternForDate);
-          } else {
-            LOG.debug(
-              "NEW TripPatternForDate: {} - {}",
-              newTripPatternForDate.getServiceDate(),
-              newTripPatternForDate.getTripPattern().debugInfo()
-            );
-          }
-        }
       }
     }
 
@@ -195,7 +185,7 @@ public class TransitLayerUpdater {
               .stream()
               .filter(tt -> tt.getServiceDate().equals(date))
               .findFirst()
-              .map(tt -> tt.getTripTimes().isEmpty())
+              .map(Timetable::hasNoTripTimes)
               .orElse(false);
 
             if (toRemove) {
@@ -236,5 +226,25 @@ public class TransitLayerUpdater {
       updatedTimetables.size(),
       System.currentTimeMillis() - startTime
     );
+  }
+
+  private void updateTripPatternForDate(
+    TripIdAndServiceDate id,
+    TripPatternForDate newTripPatternForDate,
+    Set<TripPatternForDate> previouslyUsedPatterns
+  ) {
+    TripPatternForDate previousTripPatternForDate = tripPatternsForTripIdAndServiceDateCache.put(
+      id,
+      newTripPatternForDate
+    );
+    if (previousTripPatternForDate != null) {
+      previouslyUsedPatterns.add(previousTripPatternForDate);
+    } else {
+      LOG.debug(
+        "NEW TripPatternForDate: {} - {}",
+        newTripPatternForDate.getServiceDate(),
+        newTripPatternForDate.getTripPattern().debugInfo()
+      );
+    }
   }
 }

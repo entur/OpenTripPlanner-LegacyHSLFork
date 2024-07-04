@@ -3,7 +3,7 @@ package org.opentripplanner.routing.algorithm.filterchain.filters.system;
 import java.util.Comparator;
 import java.util.function.ToIntFunction;
 import org.opentripplanner.model.plan.Itinerary;
-import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.grouppriority.TransitGroupPriority32n;
+import org.opentripplanner.transit.model.network.grouppriority.TransitGroupPriority32n;
 
 /**
  * Comparator used to compare a SINGLE criteria for dominance. The difference between this and the

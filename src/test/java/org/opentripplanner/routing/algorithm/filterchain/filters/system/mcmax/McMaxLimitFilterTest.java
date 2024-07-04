@@ -11,8 +11,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.opentripplanner.model.plan.Itinerary;
 import org.opentripplanner.model.plan.Place;
 import org.opentripplanner.routing.algorithm.filterchain.filters.system.SingleCriteriaComparator;
-import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.grouppriority.TransitGroupPriority32n;
 import org.opentripplanner.transit.model._data.TransitModelForTest;
+import org.opentripplanner.transit.model.network.grouppriority.TransitGroupPriority32n;
 
 class McMaxLimitFilterTest {
 

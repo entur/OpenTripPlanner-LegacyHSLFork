@@ -16,11 +16,13 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -398,6 +400,24 @@ public class Timetable implements Serializable {
   }
 
   /**
+   * Remove the given TripTimes.
+   * This method modifies the state of the timetable. It should be called only during
+   * graph building or from the real-time graph writer thread with proper copy-and-write logic.
+   */
+  boolean removeTripTimes(TripTimes tripTimesToRemove) {
+    return tripTimes.remove(tripTimesToRemove);
+  }
+
+  /**
+   * Remove the TripTimes that matches the given predicate.
+   * This method modifies the state of the timetable. It should be called only during
+   * graph building or from the real-time graph writer thread with proper copy-and-write logic.
+   */
+  public void removeTripTimesIf(Predicate<TripTimes> predicate) {
+    tripTimes.removeIf(predicate);
+  }
+
+  /**
    * Apply the same update to all trip-times inculuding scheduled and frequency based
    * trip times.
    * <p>
@@ -451,9 +471,10 @@ public class Timetable implements Serializable {
   /**
    * Contains one TripTimes object for each scheduled trip (even cancelled ones) and possibly
    * additional TripTimes objects for unscheduled trips. Frequency entries are stored separately.
+   * Return an unmodifiable view of the list of TripTimes.
    */
   public List<TripTimes> getTripTimes() {
-    return tripTimes;
+    return Collections.unmodifiableList(tripTimes);
   }
 
   /**
@@ -484,7 +505,7 @@ public class Timetable implements Serializable {
   }
 
   public TripTimes getRepresentativeTripTimes() {
-    if (!getTripTimes().isEmpty()) {
+    if (!tripTimes.isEmpty()) {
       return getTripTimes(0);
     } else if (!getFrequencyEntries().isEmpty()) {
       return getFrequencyEntries().get(0).tripTimes;

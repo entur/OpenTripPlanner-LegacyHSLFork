@@ -389,7 +389,7 @@ public final class TripPattern
    * @param removeTrip it the predicate returns true
    */
   public void removeTrips(Predicate<Trip> removeTrip) {
-    scheduledTimetable.getTripTimes().removeIf(tt -> removeTrip.test(tt.getTrip()));
+    scheduledTimetable.removeTripTimesIf(tt -> removeTrip.test(tt.getTrip()));
   }
 
   /**

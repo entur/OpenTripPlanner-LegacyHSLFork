@@ -40,6 +40,8 @@ public final class Trip extends AbstractTransitEntity<Trip, TripBuilder> impleme
   private final String netexInternalPlanningCode;
   private final TripAlteration netexAlteration;
 
+  private final boolean createdByRealtimeUpdater;
+
   Trip(TripBuilder builder) {
     super(builder.getId());
     // Required fields
@@ -65,6 +67,7 @@ public final class Trip extends AbstractTransitEntity<Trip, TripBuilder> impleme
     this.shapeId = builder.getShapeId();
     this.gtfsBlockId = builder.getGtfsBlockId();
     this.netexInternalPlanningCode = builder.getNetexInternalPlanningCode();
+    this.createdByRealtimeUpdater = builder.isCreatedByRealtimeUpdate();
   }
 
   public static TripBuilder of(@Nonnull FeedScopedId id) {
@@ -165,6 +168,10 @@ public final class Trip extends AbstractTransitEntity<Trip, TripBuilder> impleme
   @Nonnull
   public TripAlteration getNetexAlteration() {
     return netexAlteration;
+  }
+
+  public boolean isCreatedByRealtimeUpdater() {
+    return createdByRealtimeUpdater;
   }
 
   /**

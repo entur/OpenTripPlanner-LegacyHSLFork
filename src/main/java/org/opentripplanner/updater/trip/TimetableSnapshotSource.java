@@ -742,7 +742,7 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
   }
 
   /**
-   * Add a (new) trip to the graph and the buffer
+   * Add a (new) trip to the graph and the bufferN
    *
    * @param trip              trip
    * @param vehicleDescriptor accessibility information of the vehicle

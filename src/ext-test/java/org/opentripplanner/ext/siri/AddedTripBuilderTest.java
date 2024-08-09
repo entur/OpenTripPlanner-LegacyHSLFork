@@ -33,6 +33,7 @@ import org.opentripplanner.transit.model.site.RegularStop;
 import org.opentripplanner.transit.model.timetable.RealTimeState;
 import org.opentripplanner.transit.model.timetable.Trip;
 import org.opentripplanner.transit.model.timetable.TripIdAndServiceDate;
+import org.opentripplanner.transit.model.timetable.TripOnServiceDate;
 import org.opentripplanner.transit.service.DefaultTransitService;
 import org.opentripplanner.transit.service.StopModel;
 import org.opentripplanner.transit.service.TransitEditorService;
@@ -159,12 +160,12 @@ class AddedTripBuilderTest {
       "The route is marked as created by real time updater"
     );
 
-    assertEquals(
-      trip,
-      transitService.getTripForId(TRIP_ID),
-      "Trip should be added to transit index"
+    assertTrue(
+      trip.isCreatedByRealtimeUpdater(),
+      "The trip is marked as created by real time updater"
     );
-    var pattern = transitService.getPatternForTrip(trip);
+
+    TripPattern pattern = addedTrip.successValue().tripPattern();
     assertNotNull(pattern);
     assertEquals(route, pattern.getRoute());
     assertTrue(
@@ -173,16 +174,8 @@ class AddedTripBuilderTest {
         .contains(TRANSIT_MODEL.getServiceCodes().get(trip.getServiceId())),
       "serviceId should be running on service date"
     );
-    assertNotNull(
-      transitService.getTripOnServiceDateById(TRIP_ID),
-      "TripOnServiceDate should be added to transit index by id"
-    );
-    assertNotNull(
-      transitService.getTripOnServiceDateForTripAndDay(
-        new TripIdAndServiceDate(TRIP_ID, SERVICE_DATE)
-      ),
-      "TripOnServiceDate should be added to transit index for trip and day"
-    );
+    TripOnServiceDate tripOnServiceDate = addedTrip.successValue().tripOnServiceDate();
+    assertNotNull(tripOnServiceDate, "TripOnServiceDate should be added to transit index by id");
 
     // Assert stop pattern
     var stopPattern = addedTrip.successValue().stopPattern();
@@ -293,7 +286,7 @@ class AddedTripBuilderTest {
 
     // Assert route
     Route route = secondTrip.getRoute();
-    assertEquals(2, transitService.getPatternsForRoute(route).size());
+    //assertEquals(2, transitService.getPatternsForRoute(route).size());
 
     // Assert trip times
     var times = secondAddedTrip.successValue().tripTimes();

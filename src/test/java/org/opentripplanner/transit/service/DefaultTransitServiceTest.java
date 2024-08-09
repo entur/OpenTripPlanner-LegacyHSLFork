@@ -69,9 +69,7 @@ class DefaultTransitServiceTest {
           .withDepartureTimes(new int[] { 0, 1 })
           .build()
       );
-      timetableSnapshot.update(
-        new RealtimeUpdate(REAL_TIME_PATTERN, tripTimes, LocalDate.now(), false)
-      );
+      timetableSnapshot.update(new RealtimeUpdate(REAL_TIME_PATTERN, tripTimes, LocalDate.now()));
 
       return timetableSnapshot.commit();
     });

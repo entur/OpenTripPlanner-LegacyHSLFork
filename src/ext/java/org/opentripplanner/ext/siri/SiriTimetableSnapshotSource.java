@@ -134,7 +134,7 @@ public class SiriTimetableSnapshotSource implements TimetableSnapshotProvider {
     return snapshotManager.getTimetableSnapshot();
   }
 
-  private TimetableSnapshot getTimetableSnapshotBuffer() {
+  public TimetableSnapshot getTimetableSnapshotBuffer() {
     return snapshotManager.getTimetableSnapshotBuffer();
   }
 
@@ -293,15 +293,23 @@ public class SiriTimetableSnapshotSource implements TimetableSnapshotProvider {
     Trip trip = tripUpdate.tripTimes().getTrip();
     LocalDate serviceDate = tripUpdate.serviceDate();
 
-    // Get cached trip pattern or create one if it doesn't exist yet
-    final TripPattern pattern = tripPatternCache.getOrCreateTripPattern(
-      tripUpdate.stopPattern(),
-      trip,
-      serviceDate
-    );
+    final TripPattern pattern;
+    if (tripUpdate.tripPattern() != null) {
+      pattern = tripUpdate.tripPattern();
+    } else {
+      // Get cached trip pattern or create one if it doesn't exist yet
+      pattern =
+        tripPatternCache.getOrCreateTripPattern(tripUpdate.stopPattern(), trip, serviceDate);
+    }
+
     // Add new trip times to buffer, making protective copies as needed. Bubble success/error up.
     var result = snapshotManager.updateBuffer(
-      new RealtimeUpdate(pattern, tripUpdate.tripTimes(), serviceDate)
+      new RealtimeUpdate(
+        pattern,
+        tripUpdate.tripTimes(),
+        serviceDate,
+        tripUpdate.tripOnServiceDate()
+      )
     );
     LOG.debug("Applied real-time data for trip {} on {}", trip, serviceDate);
     return result;

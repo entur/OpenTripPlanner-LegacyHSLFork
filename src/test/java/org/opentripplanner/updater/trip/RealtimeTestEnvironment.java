@@ -35,6 +35,7 @@ import org.opentripplanner.transit.model.timetable.TripTimesFactory;
 import org.opentripplanner.transit.model.timetable.TripTimesStringBuilder;
 import org.opentripplanner.transit.service.DefaultTransitService;
 import org.opentripplanner.transit.service.StopModel;
+import org.opentripplanner.transit.service.TransitEditorService;
 import org.opentripplanner.transit.service.TransitModel;
 import org.opentripplanner.transit.service.TransitService;
 import org.opentripplanner.updater.TimetableSnapshotSourceParameters;
@@ -180,10 +181,14 @@ public final class RealtimeTestEnvironment {
   }
 
   private EstimatedTimetableHandler getEstimatedTimetableHandler(boolean fuzzyMatching) {
+    TransitEditorService transitEditorService = new DefaultTransitService(
+      transitModel,
+      siriSource.getTimetableSnapshotBuffer()
+    );
     return new EstimatedTimetableHandler(
       siriSource,
-      fuzzyMatching ? new SiriFuzzyTripMatcher(getTransitService()) : null,
-      getTransitService(),
+      fuzzyMatching ? new SiriFuzzyTripMatcher(transitEditorService) : null,
+      transitEditorService,
       getFeedId()
     );
   }

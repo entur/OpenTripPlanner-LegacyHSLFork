@@ -7,6 +7,7 @@ import org.opentripplanner.transit.model.framework.AbstractEntityBuilder;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.network.BikeAccess;
 import org.opentripplanner.transit.model.network.Route;
+import org.opentripplanner.transit.model.network.RouteBuilder;
 import org.opentripplanner.transit.model.organization.Operator;
 
 public class TripBuilder extends AbstractEntityBuilder<Trip, TripBuilder> {
@@ -25,6 +26,7 @@ public class TripBuilder extends AbstractEntityBuilder<Trip, TripBuilder> {
   private String gtfsBlockId;
   private String netexInternalPlanningCode;
   private TripAlteration netexAlteration;
+  private boolean createdByRealtimeUpdate;
 
   TripBuilder(FeedScopedId id) {
     super(id);
@@ -172,6 +174,15 @@ public class TripBuilder extends AbstractEntityBuilder<Trip, TripBuilder> {
   public TripBuilder withNetexAlteration(TripAlteration netexAlteration) {
     this.netexAlteration = netexAlteration;
     return this;
+  }
+
+  public TripBuilder withCreatedByRealtimeUpdater(boolean createdByRealtimeUpdate) {
+    this.createdByRealtimeUpdate = createdByRealtimeUpdate;
+    return this;
+  }
+
+  public boolean isCreatedByRealtimeUpdate() {
+    return createdByRealtimeUpdate;
   }
 
   @Override

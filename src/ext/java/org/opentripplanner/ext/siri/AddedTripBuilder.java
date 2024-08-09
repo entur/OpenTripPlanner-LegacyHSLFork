@@ -264,18 +264,9 @@ class AddedTripBuilder {
       .withReplacementFor(replacedTrips)
       .build();
 
-    // Adding trip to index necessary to include values in graphql-queries
-    // TODO - SIRI: should more data be added to index?
-    transitService.addTripForId(tripId, trip);
-    transitService.addPatternForTrip(trip, pattern);
-    transitService.addPatternsForRoute(route, pattern);
-    transitService.addTripOnServiceDateById(tripOnServiceDate.getId(), tripOnServiceDate);
-    transitService.addTripOnServiceDateForTripAndDay(
-      new TripIdAndServiceDate(tripId, serviceDate),
-      tripOnServiceDate
+    return Result.success(
+      new TripUpdate(stopPattern, updatedTripTimes, serviceDate, tripOnServiceDate, pattern)
     );
-
-    return Result.success(new TripUpdate(stopPattern, updatedTripTimes, serviceDate));
   }
 
   /**
@@ -318,21 +309,18 @@ class AddedTripBuilder {
   }
 
   private Trip createTrip(Route route, FeedScopedId calServiceId) {
-    var tripBuilder = Trip.of(tripId);
-    tripBuilder.withRoute(route);
-
-    // Explicitly set TransitMode on Trip - in case it differs from Route
-    tripBuilder.withMode(transitMode);
-    tripBuilder.withNetexSubmode(transitSubMode);
-
-    tripBuilder.withServiceId(calServiceId);
-
-    // Use destinationName as default headsign - if provided
-    tripBuilder.withHeadsign(NonLocalizedString.ofNullable(headsign));
-
-    tripBuilder.withOperator(operator);
-
-    return tripBuilder.build();
+    return Trip
+      .of(tripId)
+      .withRoute(route)
+      // Explicitly set TransitMode on Trip - in case it differs from Route
+      .withMode(transitMode)
+      .withNetexSubmode(transitSubMode)
+      .withServiceId(calServiceId)
+      // Use destinationName as default headsign - if provided
+      .withHeadsign(NonLocalizedString.ofNullable(headsign))
+      .withOperator(operator)
+      .withCreatedByRealtimeUpdater(true)
+      .build();
   }
 
   /**

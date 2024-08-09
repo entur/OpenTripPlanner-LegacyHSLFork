@@ -3,6 +3,7 @@ package org.opentripplanner.model;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -24,7 +25,9 @@ import org.opentripplanner.transit.model.framework.Result;
 import org.opentripplanner.transit.model.network.Route;
 import org.opentripplanner.transit.model.network.TripPattern;
 import org.opentripplanner.transit.model.site.StopLocation;
+import org.opentripplanner.transit.model.timetable.Trip;
 import org.opentripplanner.transit.model.timetable.TripIdAndServiceDate;
+import org.opentripplanner.transit.model.timetable.TripOnServiceDate;
 import org.opentripplanner.transit.model.timetable.TripTimes;
 import org.opentripplanner.updater.spi.UpdateError;
 import org.opentripplanner.updater.spi.UpdateSuccess;
@@ -120,6 +123,11 @@ public class TimetableSnapshot {
   private final SetMultimap<StopLocation, TripPattern> patternsForStop;
 
   private final Map<FeedScopedId, Route> realtimeAddedRoutes;
+  private final Map<FeedScopedId, Trip> realTimeAddedTrips;
+  private final Map<Trip, TripPattern> realTimeAddedPatternForTrip;
+  private final Multimap<Route, TripPattern> realTimeAddedPatternForRoute;
+  private final Map<FeedScopedId, TripOnServiceDate> realTimeAddedTripOnServiceDateById;
+  private final Map<TripIdAndServiceDate, TripOnServiceDate> realTimeAddedTripOnServiceDateForTripAndDay;
 
   /**
    * Boolean value indicating that timetable snapshot is read only if true. Once it is true, it
@@ -134,19 +142,40 @@ public class TimetableSnapshot {
   private boolean dirty = false;
 
   public TimetableSnapshot() {
-    this(new HashMap<>(), new HashMap<>(), new HashMap<>(), HashMultimap.create(), false);
+    this(
+      new HashMap<>(),
+      new HashMap<>(),
+      new HashMap<>(),
+      new HashMap<>(),
+      new HashMap<>(),
+      HashMultimap.create(),
+      new HashMap<>(),
+      new HashMap<>(),
+      HashMultimap.create(),
+      false
+    );
   }
 
   private TimetableSnapshot(
     Map<TripPattern, SortedSet<Timetable>> timetables,
     Map<TripIdAndServiceDate, TripPattern> realtimeAddedTripPattern,
     Map<FeedScopedId, Route> realtimeAddedRoutes,
+    Map<FeedScopedId, Trip> realtimeAddedTrips,
+    Map<Trip, TripPattern> realTimeAddedPatternForTrip,
+    Multimap<Route, TripPattern> realTimeAddedPatternForRoute,
+    Map<FeedScopedId, TripOnServiceDate> realTimeAddedTripOnServiceDateById,
+    Map<TripIdAndServiceDate, TripOnServiceDate> realTimeAddedTripOnServiceDateForTripAndDay,
     SetMultimap<StopLocation, TripPattern> patternsForStop,
     boolean readOnly
   ) {
     this.timetables = timetables;
     this.realtimeAddedTripPattern = realtimeAddedTripPattern;
     this.realtimeAddedRoutes = realtimeAddedRoutes;
+    this.realTimeAddedTrips = realtimeAddedTrips;
+    this.realTimeAddedPatternForTrip = realTimeAddedPatternForTrip;
+    this.realTimeAddedPatternForRoute = realTimeAddedPatternForRoute;
+    this.realTimeAddedTripOnServiceDateById = realTimeAddedTripOnServiceDateById;
+    this.realTimeAddedTripOnServiceDateForTripAndDay = realTimeAddedTripOnServiceDateForTripAndDay;
     this.patternsForStop = patternsForStop;
     this.readOnly = readOnly;
   }
@@ -192,6 +221,28 @@ public class TimetableSnapshot {
     return realtimeAddedRoutes.get(id);
   }
 
+  public Trip getRealTimeAddedTrips(FeedScopedId id) {
+    return realTimeAddedTrips.get(id);
+  }
+
+  public TripPattern getRealTimeAddedPatternForTrip(Trip trip) {
+    return realTimeAddedPatternForTrip.get(trip);
+  }
+
+  public Collection<TripPattern> getRealTimeAddedPatternForRoute(Route route) {
+    return realTimeAddedPatternForRoute.get(route);
+  }
+
+  public TripOnServiceDate getRealTimeAddedTripOnServiceDateById(FeedScopedId id) {
+    return realTimeAddedTripOnServiceDateById.get(id);
+  }
+
+  public TripOnServiceDate getRealTimeAddedTripOnServiceDateForTripAndDay(
+    TripIdAndServiceDate tripIdAndServiceDate
+  ) {
+    return realTimeAddedTripOnServiceDateForTripAndDay.get(tripIdAndServiceDate);
+  }
+
   /**
    * Update the TripTimes of one Trip in a Timetable of a TripPattern. If the Trip of the TripTimes
    * does not exist yet in the Timetable, add it. This method will make a protective copy of the
@@ -219,7 +270,8 @@ public class TimetableSnapshot {
 
     // Assume all trips in a pattern are from the same feed, which should be the case.
     // Find trip index
-    int tripIndex = tt.getTripIndex(updatedTripTimes.getTrip().getId());
+    Trip trip = updatedTripTimes.getTrip();
+    int tripIndex = tt.getTripIndex(trip.getId());
     if (tripIndex == -1) {
       // Trip not found, add it
       tt.addTripTimes(updatedTripTimes);
@@ -230,7 +282,7 @@ public class TimetableSnapshot {
 
     if (pattern.isCreatedByRealtimeUpdater()) {
       // Remember this pattern for the added trip id and service date
-      FeedScopedId tripId = updatedTripTimes.getTrip().getId();
+      FeedScopedId tripId = trip.getId();
       TripIdAndServiceDate tripIdAndServiceDate = new TripIdAndServiceDate(tripId, serviceDate);
       realtimeAddedTripPattern.put(tripIdAndServiceDate, pattern);
     }
@@ -238,9 +290,21 @@ public class TimetableSnapshot {
     // To make these trip patterns visible for departureRow searches.
     addPatternToIndex(pattern);
 
-    Route route = updatedTripTimes.getTrip().getRoute();
+    Route route = trip.getRoute();
     if (route.isCreatedByRealtimeUpdater()) {
       realtimeAddedRoutes.putIfAbsent(route.getId(), route);
+    }
+    TripOnServiceDate tripOnServiceDate = realtimeUpdate.tripOnServiceDate();
+    if (tripOnServiceDate != null) {
+      FeedScopedId tripId = trip.getId();
+      realTimeAddedTrips.put(tripId, trip);
+      realTimeAddedPatternForTrip.put(trip, pattern);
+      realTimeAddedPatternForRoute.put(route, pattern);
+      realTimeAddedTripOnServiceDateById.put(tripOnServiceDate.getId(), tripOnServiceDate);
+      realTimeAddedTripOnServiceDateForTripAndDay.put(
+        new TripIdAndServiceDate(tripId, serviceDate),
+        tripOnServiceDate
+      );
     }
 
     // The time tables are finished during the commit
@@ -275,6 +339,11 @@ public class TimetableSnapshot {
       Map.copyOf(timetables),
       Map.copyOf(realtimeAddedTripPattern),
       Map.copyOf(realtimeAddedRoutes),
+      Map.copyOf(realTimeAddedTrips),
+      Map.copyOf(realTimeAddedPatternForTrip),
+      ImmutableSetMultimap.copyOf(realTimeAddedPatternForRoute),
+      Map.copyOf(realTimeAddedTripOnServiceDateById),
+      Map.copyOf(realTimeAddedTripOnServiceDateForTripAndDay),
       ImmutableSetMultimap.copyOf(patternsForStop),
       true
     );

@@ -40,6 +40,8 @@ public final class Route extends AbstractTransitEntity<Route, RouteBuilder> impl
   private final String textColor;
   private final BikeAccess bikesAllowed;
 
+  private final boolean createdByRealtimeUpdater;
+
   Route(RouteBuilder builder) {
     super(builder.getId());
     // Required fields
@@ -63,6 +65,7 @@ public final class Route extends AbstractTransitEntity<Route, RouteBuilder> impl
     this.url = builder.getUrl();
     this.color = builder.getColor();
     this.textColor = builder.getTextColor();
+    this.createdByRealtimeUpdater = builder.isCreatedByRealtimeUpdate();
   }
 
   public static RouteBuilder of(@Nonnull FeedScopedId id) {
@@ -208,5 +211,9 @@ public final class Route extends AbstractTransitEntity<Route, RouteBuilder> impl
   @Override
   public String logName() {
     return mode.name() + " " + getName();
+  }
+
+  public boolean isCreatedByRealtimeUpdater() {
+    return createdByRealtimeUpdater;
   }
 }

@@ -181,7 +181,6 @@ class AddedTripBuilder {
       }
       route = createRoute(agency);
       LOG.info("Adding route {} to transitModel.", route);
-      transitService.addRoutes(route);
     }
 
     Trip trip = createTrip(route, calServiceId);
@@ -288,15 +287,15 @@ class AddedTripBuilder {
    */
   @Nonnull
   private Route createRoute(Agency agency) {
-    var routeBuilder = Route.of(entityResolver.resolveId(lineRef));
-
-    routeBuilder.withShortName(shortName);
-    routeBuilder.withMode(transitMode);
-    routeBuilder.withNetexSubmode(transitSubMode);
-    routeBuilder.withOperator(operator);
-    routeBuilder.withAgency(agency);
-
-    return routeBuilder.build();
+    return Route
+      .of(entityResolver.resolveId(lineRef))
+      .withShortName(shortName)
+      .withMode(transitMode)
+      .withNetexSubmode(transitSubMode)
+      .withOperator(operator)
+      .withAgency(agency)
+      .withCreatedByRealtimeUpdater(true)
+      .build();
   }
 
   /**

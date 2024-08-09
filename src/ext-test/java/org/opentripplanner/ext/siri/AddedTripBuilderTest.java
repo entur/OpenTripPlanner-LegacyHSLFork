@@ -154,15 +154,15 @@ class AddedTripBuilderTest {
     assertEquals(SubMode.of(SUB_MODE), route.getNetexSubmode(), "submode should be mapped");
     assertNotEquals(REPLACED_ROUTE, route, "Should not re-use replaced route");
 
-    assertEquals(
-      route,
-      transitService.getRouteForId(TransitModelForTest.id(LINE_REF)),
-      "Route should be added to transit index"
+    assertTrue(
+      route.isCreatedByRealtimeUpdater(),
+      "The route is marked as created by real time updater"
     );
+
     assertEquals(
       trip,
       transitService.getTripForId(TRIP_ID),
-      "Route should be added to transit index"
+      "Trip should be added to transit index"
     );
     var pattern = transitService.getPatternForTrip(trip);
     assertNotNull(pattern);
@@ -293,8 +293,6 @@ class AddedTripBuilderTest {
 
     // Assert route
     Route route = secondTrip.getRoute();
-    assertSame(firstTrip.getRoute(), route, "route be reused from the first trip");
-
     assertEquals(2, transitService.getPatternsForRoute(route).size());
 
     // Assert trip times

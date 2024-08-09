@@ -80,6 +80,8 @@ public class SiriTripPatternCache {
     // TODO RT_AB: Verify implementation, which is different than the GTFS-RT version.
     //   It can return a TripPattern from the scheduled data, but protective copies are handled in
     //   TimetableSnapshot.update. Better document this aspect of the contract in this method's Javadoc.
+    // RT_VP this would fail with NPE if the original trip pattern is created by real-time updates
+    // and the transit model index is not updated with real-time added trips.
     if (originalTripPattern.getStopPattern().equals(stopPattern)) {
       return originalTripPattern;
     }

@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.mappers.TransitLayerUpdater;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.framework.Result;
+import org.opentripplanner.transit.model.network.Route;
 import org.opentripplanner.transit.model.network.TripPattern;
 import org.opentripplanner.transit.model.site.StopLocation;
 import org.opentripplanner.transit.model.timetable.TripIdAndServiceDate;
@@ -118,6 +119,8 @@ public class TimetableSnapshot {
    */
   private final SetMultimap<StopLocation, TripPattern> patternsForStop;
 
+  private final Map<FeedScopedId, Route> realtimeAddedRoutes;
+
   /**
    * Boolean value indicating that timetable snapshot is read only if true. Once it is true, it
    * shouldn't be possible to change it to false anymore.
@@ -131,17 +134,19 @@ public class TimetableSnapshot {
   private boolean dirty = false;
 
   public TimetableSnapshot() {
-    this(new HashMap<>(), new HashMap<>(), HashMultimap.create(), false);
+    this(new HashMap<>(), new HashMap<>(), new HashMap<>(), HashMultimap.create(), false);
   }
 
   private TimetableSnapshot(
     Map<TripPattern, SortedSet<Timetable>> timetables,
     Map<TripIdAndServiceDate, TripPattern> realtimeAddedTripPattern,
+    Map<FeedScopedId, Route> realtimeAddedRoutes,
     SetMultimap<StopLocation, TripPattern> patternsForStop,
     boolean readOnly
   ) {
     this.timetables = timetables;
     this.realtimeAddedTripPattern = realtimeAddedTripPattern;
+    this.realtimeAddedRoutes = realtimeAddedRoutes;
     this.patternsForStop = patternsForStop;
     this.readOnly = readOnly;
   }
@@ -183,23 +188,25 @@ public class TimetableSnapshot {
     return !realtimeAddedTripPattern.isEmpty();
   }
 
+  public Route getRealtimeAddedRoute(FeedScopedId id) {
+    return realtimeAddedRoutes.get(id);
+  }
+
   /**
    * Update the TripTimes of one Trip in a Timetable of a TripPattern. If the Trip of the TripTimes
-   * does not exist yet in the Timetable, add it. This method will make a protective copy
-   * of the Timetable if such a copy has not already been made while building up this snapshot,
-   * handling both cases where patterns were pre-existing in static data or created by realtime data.
+   * does not exist yet in the Timetable, add it. This method will make a protective copy of the
+   * Timetable if such a copy has not already been made while building up this snapshot, handling
+   * both cases where patterns were pre-existing in static data or created by realtime data.
    *
-   * @param serviceDate service day for which this update is valid
-   * @return whether the update was actually applied
+   * @param realtimeUpdate@return whether the update was actually applied
    */
-  public Result<UpdateSuccess, UpdateError> update(
-    TripPattern pattern,
-    TripTimes updatedTripTimes,
-    LocalDate serviceDate
-  ) {
+  public Result<UpdateSuccess, UpdateError> update(RealtimeUpdate realtimeUpdate) {
     // Preconditions
+    TripPattern pattern = realtimeUpdate.pattern();
     Objects.requireNonNull(pattern);
+    LocalDate serviceDate = realtimeUpdate.serviceDate();
     Objects.requireNonNull(serviceDate);
+    TripTimes updatedTripTimes = realtimeUpdate.updatedTripTimes();
 
     if (readOnly) {
       throw new ConcurrentModificationException("This TimetableSnapshot is read-only.");
@@ -230,6 +237,11 @@ public class TimetableSnapshot {
 
     // To make these trip patterns visible for departureRow searches.
     addPatternToIndex(pattern);
+
+    Route route = updatedTripTimes.getTrip().getRoute();
+    if (route.isCreatedByRealtimeUpdater()) {
+      realtimeAddedRoutes.putIfAbsent(route.getId(), route);
+    }
 
     // The time tables are finished during the commit
 
@@ -262,6 +274,7 @@ public class TimetableSnapshot {
     TimetableSnapshot ret = new TimetableSnapshot(
       Map.copyOf(timetables),
       Map.copyOf(realtimeAddedTripPattern),
+      Map.copyOf(realtimeAddedRoutes),
       ImmutableSetMultimap.copyOf(patternsForStop),
       true
     );

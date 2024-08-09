@@ -41,6 +41,7 @@ import org.opentripplanner.framework.i18n.NonLocalizedString;
 import org.opentripplanner.framework.lang.StringUtils;
 import org.opentripplanner.framework.time.ServiceDateUtils;
 import org.opentripplanner.gtfs.mapping.TransitModeMapper;
+import org.opentripplanner.model.RealtimeUpdate;
 import org.opentripplanner.model.StopTime;
 import org.opentripplanner.model.Timetable;
 import org.opentripplanner.model.TimetableSnapshot;
@@ -424,10 +425,14 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
       );
 
       cancelScheduledTrip(tripId, serviceDate, CancelationType.DELETE);
-      return snapshotManager.updateBuffer(newPattern, updatedTripTimes, serviceDate);
+      return snapshotManager.updateBuffer(
+        new RealtimeUpdate(newPattern, updatedTripTimes, serviceDate)
+      );
     } else {
       // Set the updated trip times in the buffer
-      return snapshotManager.updateBuffer(pattern, updatedTripTimes, serviceDate);
+      return snapshotManager.updateBuffer(
+        new RealtimeUpdate(pattern, updatedTripTimes, serviceDate)
+      );
     }
   }
 
@@ -696,10 +701,8 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
       var name = Objects.requireNonNullElse(addedRouteExtension.routeLongName(), tripId.toString());
       builder.withLongName(new NonLocalizedString(name));
       builder.withUrl(addedRouteExtension.routeUrl());
-
-      var route = builder.build();
-      transitEditorService.addRoutes(route);
-      return route;
+      builder.withCreatedByRealtimeUpdater(true);
+      return builder.build();
     }
     // no information about the rout is given, so we create a dummy one
     else {
@@ -713,9 +716,8 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
       // Create route name
       I18NString longName = NonLocalizedString.ofNullable(tripDescriptor.getTripId());
       builder.withLongName(longName);
-      var route = builder.build();
-      transitEditorService.addRoutes(route);
-      return route;
+      builder.withCreatedByRealtimeUpdater(true);
+      return builder.build();
     }
   }
 
@@ -869,7 +871,7 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
       pattern.lastStop().getName()
     );
     // Add new trip times to the buffer
-    return snapshotManager.updateBuffer(pattern, newTripTimes, serviceDate);
+    return snapshotManager.updateBuffer(new RealtimeUpdate(pattern, newTripTimes, serviceDate));
   }
 
   /**
@@ -900,7 +902,7 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
           case CANCEL -> newTripTimes.cancelTrip();
           case DELETE -> newTripTimes.deleteTrip();
         }
-        snapshotManager.updateBuffer(pattern, newTripTimes, serviceDate);
+        snapshotManager.updateBuffer(new RealtimeUpdate(pattern, newTripTimes, serviceDate));
         success = true;
       }
     }
@@ -939,7 +941,7 @@ public class TimetableSnapshotSource implements TimetableSnapshotProvider {
           case CANCEL -> newTripTimes.cancelTrip();
           case DELETE -> newTripTimes.deleteTrip();
         }
-        snapshotManager.updateBuffer(pattern, newTripTimes, serviceDate);
+        snapshotManager.updateBuffer(new RealtimeUpdate(pattern, newTripTimes, serviceDate));
         cancelledAddedTrip = true;
       }
     }

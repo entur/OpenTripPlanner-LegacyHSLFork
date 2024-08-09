@@ -190,7 +190,14 @@ public class DefaultTransitService implements TransitEditorService {
 
   @Override
   public Route getRouteForId(FeedScopedId id) {
-    return this.transitModelIndex.getRouteForId(id);
+    TimetableSnapshot currentSnapshot = lazyGetTimeTableSnapShot();
+    if (currentSnapshot != null) {
+      Route realtimeAddedRoute = currentSnapshot.getRealtimeAddedRoute(id);
+      if (realtimeAddedRoute != null) {
+        return realtimeAddedRoute;
+      }
+    }
+    return transitModelIndex.getRouteForId(id);
   }
 
   /**

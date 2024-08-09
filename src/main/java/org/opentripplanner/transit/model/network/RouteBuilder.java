@@ -30,6 +30,7 @@ public final class RouteBuilder extends AbstractEntityBuilder<Route, RouteBuilde
   private String color;
   private String textColor;
   private BikeAccess bikesAllowed = BikeAccess.UNKNOWN;
+  private boolean createdByRealtimeUpdate;
 
   RouteBuilder(FeedScopedId id) {
     super(id);
@@ -208,6 +209,15 @@ public final class RouteBuilder extends AbstractEntityBuilder<Route, RouteBuilde
       groupsOfRoutes = new ArrayList<>();
     }
     return groupsOfRoutes;
+  }
+
+  public RouteBuilder withCreatedByRealtimeUpdater(boolean createdByRealtimeUpdate) {
+    this.createdByRealtimeUpdate = createdByRealtimeUpdate;
+    return this;
+  }
+
+  public boolean isCreatedByRealtimeUpdate() {
+    return createdByRealtimeUpdate;
   }
 
   @Override

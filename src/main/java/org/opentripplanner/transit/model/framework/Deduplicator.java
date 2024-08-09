@@ -19,6 +19,8 @@ import org.opentripplanner.framework.tostring.ToStringBuilder;
 /**
  * Does the same thing as String.intern, but for several different types. Java's String.intern uses
  * perm gen space and is broken anyway.
+ * THREAD-SAFETY: This class is not thread-safe and should be used only during graph
+ * building or from the graph writer thread.
  */
 public class Deduplicator implements DeduplicatorService, Serializable {
 

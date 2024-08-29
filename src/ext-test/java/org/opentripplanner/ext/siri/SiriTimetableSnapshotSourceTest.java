@@ -1,12 +1,20 @@
 package org.opentripplanner.ext.siri;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.opentripplanner.updater.spi.UpdateResultAssertions.assertFailure;
+import static org.opentripplanner.updater.trip.RealtimeTestEnvironment.SERVICE_DATE;
 
 import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.opentripplanner.transit.model._data.TransitModelForTest;
+import org.opentripplanner.transit.model.framework.FeedScopedId;
+import org.opentripplanner.transit.model.network.Route;
 import org.opentripplanner.transit.model.timetable.RealTimeState;
+import org.opentripplanner.transit.model.timetable.Trip;
+import org.opentripplanner.transit.model.timetable.TripIdAndServiceDate;
+import org.opentripplanner.transit.service.TransitService;
 import org.opentripplanner.updater.spi.UpdateError;
 import org.opentripplanner.updater.trip.RealtimeTestEnvironment;
 import uk.org.siri.siri20.EstimatedTimetableDeliveryStructure;
@@ -31,9 +39,49 @@ class SiriTimetableSnapshotSourceTest {
   }
 
   @Test
-  void testAddJourney() {
+  void testAddJourneyWithExistingRoute() {
     var env = RealtimeTestEnvironment.siri();
+
+    Route route = env.getTransitService().getRouteForId(env.route1Id);
+    int numPatternForRoute = env.getTransitService().getPatternsForRoute(route).size();
+
+    String newJourneyId = "newJourney";
     var updates = createValidAddedJourney(env);
+
+    var result = env.applyEstimatedTimetable(updates);
+
+    assertEquals(1, result.successful());
+    assertEquals("ADDED | C1 [R] 0:02 0:02 | D1 0:04 0:04", env.getRealtimeTimetable(newJourneyId));
+    assertEquals(
+      "SCHEDULED | C1 0:01 0:01 | D1 0:03 0:03",
+      env.getScheduledTimetable(newJourneyId)
+    );
+    FeedScopedId tripId = TransitModelForTest.id(newJourneyId);
+    TransitService transitService = env.getTransitService();
+    Trip trip = transitService.getTripForId(tripId);
+    assertNotNull(trip);
+    assertNotNull(transitService.getPatternForTrip(trip));
+    assertNotNull(transitService.getTripOnServiceDateById(tripId));
+    assertNotNull(
+      transitService.getTripOnServiceDateForTripAndDay(
+        new TripIdAndServiceDate(tripId, SERVICE_DATE)
+      )
+    );
+    assertEquals(
+      numPatternForRoute + 1,
+      transitService.getPatternsForRoute(route).size(),
+      "The added trip should use a new pattern for this route"
+    );
+  }
+
+  @Test
+  void testAddJourneyWithNewRoute() {
+    var env = RealtimeTestEnvironment.siri();
+
+    String newRouteRef = "new route ref";
+    var updates = createValidAddedJourney(env);
+
+    int numRoutes = env.getTransitService().getAllRoutes().size();
     var result = env.applyEstimatedTimetable(updates);
 
     assertEquals(1, result.successful());
@@ -42,6 +90,12 @@ class SiriTimetableSnapshotSourceTest {
       "SCHEDULED | C1 0:01 0:01 | D1 0:03 0:03",
       env.getScheduledTimetable("newJourney")
     );
+    TransitService transitService = env.getTransitService();
+    assertEquals(numRoutes + 1, transitService.getAllRoutes().size());
+    FeedScopedId newRouteId = TransitModelForTest.id(newRouteRef);
+    Route newRoute = transitService.getRouteForId(newRouteId);
+    assertNotNull(newRoute);
+    assertEquals(1, transitService.getPatternsForRoute(newRoute).size());
   }
 
   @Test
@@ -165,9 +219,7 @@ class SiriTimetableSnapshotSourceTest {
 
     var updates = updatedJourneyBuilder(env)
       .withFramedVehicleJourneyRef(builder ->
-        builder
-          .withServiceDate(RealtimeTestEnvironment.SERVICE_DATE)
-          .withVehicleJourneyRef(env.trip1.getId().getId())
+        builder.withServiceDate(SERVICE_DATE).withVehicleJourneyRef(env.trip1.getId().getId())
       )
       .buildEstimatedTimetableDeliveries();
     var result = env.applyEstimatedTimetable(updates);
@@ -211,7 +263,7 @@ class SiriTimetableSnapshotSourceTest {
 
     var updates = new SiriEtBuilder(env.getDateTimeHelper())
       .withFramedVehicleJourneyRef(builder ->
-        builder.withServiceDate(RealtimeTestEnvironment.SERVICE_DATE).withVehicleJourneyRef("XXX")
+        builder.withServiceDate(SERVICE_DATE).withVehicleJourneyRef("XXX")
       )
       .withEstimatedCalls(builder ->
         builder

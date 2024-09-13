@@ -3,7 +3,9 @@ package org.opentripplanner.gtfs;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,8 +76,11 @@ public class GenerateTripPatternsOperation {
     var progressLogger = ProgressTracker.track("build trip patterns", 50_000, trips.size());
     LOG.info(progressLogger.startMessage());
 
+    ArrayList<Trip> shuffledTripList = new ArrayList<>(trips);
+    Collections.shuffle(shuffledTripList);
+
     /* Loop over all trips, handling each one as a frequency-based or scheduled trip. */
-    for (Trip trip : trips) {
+    for (Trip trip : shuffledTripList) {
       try {
         buildTripPatternForTrip(trip);
         //noinspection Convert2MethodRef

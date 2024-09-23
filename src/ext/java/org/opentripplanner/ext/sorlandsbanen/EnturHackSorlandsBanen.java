@@ -2,6 +2,7 @@ package org.opentripplanner.ext.sorlandsbanen;
 
 import java.util.Collection;
 import java.util.function.Function;
+import org.opentripplanner.framework.application.OTPFeature;
 import org.opentripplanner.framework.geometry.SphericalDistanceLibrary;
 import org.opentripplanner.framework.geometry.WgsCoordinate;
 import org.opentripplanner.model.GenericLocation;
@@ -11,10 +12,8 @@ import org.opentripplanner.raptor.api.request.RaptorRequest;
 import org.opentripplanner.raptor.api.request.SearchParams;
 import org.opentripplanner.raptor.configure.RaptorConfig;
 import org.opentripplanner.raptor.rangeraptor.internalapi.Heuristics;
-import org.opentripplanner.raptor.rangeraptor.internalapi.RaptorWorker;
 import org.opentripplanner.raptor.spi.RaptorTransitDataProvider;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.TransitLayer;
-import org.opentripplanner.routing.algorithm.raptoradapter.transit.TripSchedule;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.FactorStrategy;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.cost.IndexBasedFactorStrategy;
 import org.opentripplanner.routing.algorithm.raptoradapter.transit.request.RaptorRoutingRequestTransitData;
@@ -29,10 +28,10 @@ public class EnturHackSorlandsBanen {
   private static final int MIN_DISTANCE_LIMIT = 120_000;
 
   public static <T extends RaptorTripSchedule> boolean match(RaptorRequest<T> mcRequest) {
-    return mcRequest.extraSearchCoachReluctance > 0.1;
+    return OTPFeature.HackSorlandsbanen.isOn() && mcRequest.extraSearchCoachReluctance > 0.1;
   }
 
-  public static <T extends RaptorTripSchedule> RaptorWorker<T> worker(
+  public static <T extends RaptorTripSchedule> ConcurrentRangeRaptor<T> worker(
     RaptorConfig<T> config,
     RaptorTransitDataProvider<T> transitData,
     RaptorRequest<T> mcRequest,
@@ -43,7 +42,7 @@ public class EnturHackSorlandsBanen {
       (RaptorRoutingRequestTransitData) transitData
     ).enturHackSorlandsbanen(mapFactors(mcRequest.extraSearchCoachReluctance));
 
-    return new ConcurrentCompositeWorker<>(
+    return new ConcurrentRangeRaptor<>(
       config.createMcWorker(transitData, mcRequest, destinationHeuristics),
       config.createMcWorker(altTransitData, mcRequest, destinationHeuristics)
     );

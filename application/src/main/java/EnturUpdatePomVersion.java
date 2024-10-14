@@ -3,16 +3,18 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class EnturUpdatePomVersion {
 
   private static final String VERSION_SEP = "-";
   private static final String ENTUR_PREFIX = "entur" + VERSION_SEP;
-  private static final Path POM_FILE = Path.of("pom.xml");
+  private static final String POM_FILE_NAME = "pom.xml";
 
   private final List<String> tags = new ArrayList<>();
   private final List<String> pomFile = new ArrayList<>();
@@ -45,11 +47,13 @@ public class EnturUpdatePomVersion {
   }
 
   private void run() throws IOException {
-    readAndReplaceVersion();
-    replacePomFile();
+    for (Path pom : listPomFiles()) {
+      readAndReplaceVersion(pom);
+      replacePomFile(pom);
+    }
   }
 
-  public void readAndReplaceVersion() throws IOException {
+  public void readAndReplaceVersion(Path pom) throws IOException {
     var pattern = Pattern.compile(
       "(\\s*<version>)(\\d+.\\d+.\\d+)" +
       VERSION_SEP +
@@ -60,7 +64,7 @@ public class EnturUpdatePomVersion {
     boolean found = false;
     int i = 0;
 
-    for (String line : Files.readAllLines(POM_FILE, UTF_8)) {
+    for (String line : Files.readAllLines(pom, UTF_8)) {
       // Look for the version in the 25 first lines
       if (!found) {
         var m = pattern.matcher(line);
@@ -86,9 +90,9 @@ public class EnturUpdatePomVersion {
     }
   }
 
-  public void replacePomFile() throws IOException {
-    Files.delete(POM_FILE);
-    Files.write(POM_FILE, pomFile, UTF_8);
+  public void replacePomFile(Path pom) throws IOException {
+    Files.delete(pom);
+    Files.write(pom, pomFile, UTF_8);
   }
 
   private static void printHelp() {
@@ -131,5 +135,14 @@ public class EnturUpdatePomVersion {
       throw new IllegalStateException("Unable to load git tags from file: " + arg);
     }
     return tags;
+  }
+
+  private List<Path> listPomFiles() throws IOException {
+    try (Stream<Path> stream = Files.walk(Paths.get(""))) {
+      return stream
+        .filter(Files::isRegularFile)
+        .filter(path -> path.getFileName().toString().equals(POM_FILE_NAME))
+        .toList();
+    }
   }
 }

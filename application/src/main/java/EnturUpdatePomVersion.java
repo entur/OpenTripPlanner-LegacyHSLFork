@@ -20,6 +20,7 @@ public class EnturUpdatePomVersion {
   private final List<String> pomFile = new ArrayList<>();
   private String mainVersion;
   private int versionNumber = 0;
+  private String newVersion;
 
   public static void main(String[] args) {
     try {
@@ -51,9 +52,11 @@ public class EnturUpdatePomVersion {
       readAndReplaceVersion(pom);
       replacePomFile(pom);
     }
+    System.out.println(newVersion);
   }
 
   public void readAndReplaceVersion(Path pom) throws IOException {
+    pomFile.clear();
     var pattern = Pattern.compile(
       "(\\s*<version>)(\\d+.\\d+.\\d+)" +
       VERSION_SEP +
@@ -70,9 +73,8 @@ public class EnturUpdatePomVersion {
         var m = pattern.matcher(line);
         if (m.matches()) {
           mainVersion = m.group(2);
-          String newVersion = mainVersion + VERSION_SEP + ENTUR_PREFIX + resolveVersionNumber();
+          newVersion = mainVersion + VERSION_SEP + ENTUR_PREFIX + resolveVersionNumber();
           line = m.group(1) + newVersion + m.group(4);
-          System.out.println(newVersion);
           found = true;
         }
         if (++i == 25) {

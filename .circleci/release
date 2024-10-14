@@ -34,14 +34,14 @@ function listAllTags() {
     ## List all Entur tags to allow the UpdatePomVersion java program find the next version number
     echo ""
     echo "Dump all entur tags to ${TAGS_FILE}"
-    mkdir target
+    mkdir -p target
     git tag -l | grep entur > ${TAGS_FILE}
 }
 
 function setPomVersion() {
     echo ""
     echo "Update pom.xml with new version"
-    javac -d ${APPLICATION_MODULE}/target/classes src/main/java/EnturUpdatePomVersion.java
+    javac -d ${APPLICATION_MODULE}/target/classes ${APPLICATION_MODULE}/src/main/java/EnturUpdatePomVersion.java
 
     VERSION="`java -cp ${APPLICATION_MODULE}/target/classes EnturUpdatePomVersion ${TAGS_FILE}`"
     echo ""
@@ -55,7 +55,7 @@ function setPomVersion() {
     ## Add [ci skip] here before moving this to the CI server
     echo ""
     echo "Add and commit pom.xml"
-    git commit -m "Version ${VERSION}" **/pom.xml
+    git commit -m "Version ${VERSION}" pom.xml application/pom.xml
 }
 
 function mergeInOldReleaseWithNoChanges() {

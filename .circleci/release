@@ -55,7 +55,7 @@ function setPomVersion() {
     ## Add [ci skip] here before moving this to the CI server
     echo ""
     echo "Add and commit pom.xml"
-    git commit -m "Version ${VERSION}" pom.xml application/pom.xml
+    git commit -m "Version ${VERSION}" "**pom.xml"
 }
 
 function mergeInOldReleaseWithNoChanges() {

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.opentripplanner</groupId>
         <artifactId>otp-root</artifactId>
-        <version>2.7.0-entur-7</version>
+        <version>2.7.0-entur-8</version>
     </parent>
     <artifactId>otp</artifactId>
     <name>OpenTripPlanner - Application</name>

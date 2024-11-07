@@ -31,7 +31,7 @@ jobs:
             - dep-cache-
       - run: wget https://raw.githubusercontent.com/entur/circleci-toolbox-image-java11/master/tools/m2/settings.xml -O .circleci/settings.xml
       - run: *jfrog-login
-      - run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s .circleci/settings.xml
+#      - run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.0:go-offline -s .circleci/settings.xml
       - save_cache:
           paths:
             - ~/.m2

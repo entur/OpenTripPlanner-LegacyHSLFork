@@ -1,9 +1,9 @@
 package org.opentripplanner.transit.model.filter.expr;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
+import org.opentripplanner.transit.api.model.CriteriaCollection;
 
 /**
  * A builder for creating complex matchers composed of other matchers.
@@ -22,12 +22,15 @@ public class ExpressionBuilder<T> {
     return new ExpressionBuilder<>();
   }
 
-  public <V> ExpressionBuilder<T> or(Collection<V> values, Function<V, Matcher<T>> valueProvider) {
-    if (values.isEmpty()) {
+  public <V> ExpressionBuilder<T> atLeastOneMatch(
+    CriteriaCollection<V> criteria,
+    Function<V, Matcher<T>> matcherProvider
+  ) {
+    if (criteria.includeEverything()) {
       return this;
     }
 
-    matchers.add(OrMatcher.of(values.stream().map(valueProvider).toList()));
+    matchers.add(OrMatcher.of(criteria.get().stream().map(matcherProvider).toList()));
     return this;
   }
 

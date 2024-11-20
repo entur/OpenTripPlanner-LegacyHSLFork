@@ -1,77 +1,78 @@
 package org.opentripplanner.transit.api.request;
 
 import java.time.LocalDate;
-import java.util.List;
+import org.opentripplanner.transit.api.model.CriteriaCollection;
 import org.opentripplanner.transit.model.framework.FeedScopedId;
 import org.opentripplanner.transit.model.timetable.TripAlteration;
-import org.opentripplanner.utils.collection.ListUtils;
+import org.opentripplanner.transit.model.timetable.TripOnServiceDate;
 
-/*
+/**
  * A request for trips on a specific service date.
- *
- * This request is used to retrieve TripsOnServiceDates that match the provided criteria.
+ * </p>
+ * This request is used to retrieve {@link TripOnServiceDate}s that match the provided criteria.
  * At least one operatingDay must be provided.
  */
 public class TripOnServiceDateRequest {
 
-  private final List<LocalDate> operatingDays;
-  private final List<FeedScopedId> authorities;
-  private final List<FeedScopedId> lines;
-  private final List<FeedScopedId> serviceJourneys;
-  private final List<FeedScopedId> replacementFor;
-  private final List<String> privateCodes;
-  private final List<TripAlteration> alterations;
+  private final CriteriaCollection<LocalDate> serviceDates;
+  private final CriteriaCollection<FeedScopedId> agencies;
+  private final CriteriaCollection<FeedScopedId> routes;
+  private final CriteriaCollection<FeedScopedId> serviceJourneys;
+  private final CriteriaCollection<FeedScopedId> replacementFor;
+  private final CriteriaCollection<String> netexInternalPlanningCodes;
+  private final CriteriaCollection<TripAlteration> alterations;
 
   protected TripOnServiceDateRequest(
-    List<LocalDate> operatingDays,
-    List<FeedScopedId> authorities,
-    List<FeedScopedId> lines,
-    List<FeedScopedId> serviceJourneys,
-    List<FeedScopedId> replacementFor,
-    List<String> privateCodes,
-    List<TripAlteration> alterations
+    CriteriaCollection<LocalDate> serviceDates,
+    CriteriaCollection<FeedScopedId> agencies,
+    CriteriaCollection<FeedScopedId> routes,
+    CriteriaCollection<FeedScopedId> serviceJourneys,
+    CriteriaCollection<FeedScopedId> replacementFor,
+    CriteriaCollection<String> netexInternalPlanningCodes,
+    CriteriaCollection<TripAlteration> alterations
   ) {
-    if (operatingDays == null || operatingDays.isEmpty()) {
+    if (serviceDates.get() == null || serviceDates.get().isEmpty()) {
       throw new IllegalArgumentException("operatingDays must have at least one date");
     }
-    this.operatingDays = ListUtils.nullSafeImmutableList(operatingDays);
-    this.authorities = ListUtils.nullSafeImmutableList(authorities);
-    this.lines = ListUtils.nullSafeImmutableList(lines);
-    this.serviceJourneys = ListUtils.nullSafeImmutableList(serviceJourneys);
-    this.replacementFor = ListUtils.nullSafeImmutableList(replacementFor);
-    this.privateCodes = ListUtils.nullSafeImmutableList(privateCodes);
-    this.alterations = ListUtils.nullSafeImmutableList(alterations);
+    this.serviceDates = CriteriaCollection.ofEmptyIsEverything(serviceDates);
+    this.agencies = CriteriaCollection.ofEmptyIsEverything(agencies);
+    this.routes = CriteriaCollection.ofEmptyIsEverything(routes);
+    this.serviceJourneys = CriteriaCollection.ofEmptyIsEverything(serviceJourneys);
+    this.replacementFor = CriteriaCollection.ofEmptyIsEverything(replacementFor);
+    this.netexInternalPlanningCodes =
+      CriteriaCollection.ofEmptyIsEverything(netexInternalPlanningCodes);
+    this.alterations = CriteriaCollection.ofEmptyIsEverything(alterations);
   }
 
   public static TripOnServiceDateRequestBuilder of() {
     return new TripOnServiceDateRequestBuilder();
   }
 
-  public List<FeedScopedId> authorities() {
-    return authorities;
+  public CriteriaCollection<FeedScopedId> agencies() {
+    return agencies;
   }
 
-  public List<FeedScopedId> lines() {
-    return lines;
+  public CriteriaCollection<FeedScopedId> routes() {
+    return routes;
   }
 
-  public List<FeedScopedId> serviceJourneys() {
+  public CriteriaCollection<FeedScopedId> serviceJourneys() {
     return serviceJourneys;
   }
 
-  public List<FeedScopedId> replacementFor() {
+  public CriteriaCollection<FeedScopedId> replacementFor() {
     return replacementFor;
   }
 
-  public List<String> privateCodes() {
-    return privateCodes;
+  public CriteriaCollection<String> netexInternalPlanningCodes() {
+    return netexInternalPlanningCodes;
   }
 
-  public List<TripAlteration> alterations() {
+  public CriteriaCollection<TripAlteration> alterations() {
     return alterations;
   }
 
-  public List<LocalDate> operatingDays() {
-    return operatingDays;
+  public CriteriaCollection<LocalDate> serviceDates() {
+    return serviceDates;
   }
 }

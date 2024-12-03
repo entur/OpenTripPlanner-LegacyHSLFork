@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.opentripplanner</groupId>
     <artifactId>otp-root</artifactId>
-    <version>2.7.0-entur-18</version>
+    <version>2.7.0-entur-19</version>
     <packaging>pom</packaging>
 
     <name>OpenTripPlanner - Root</name>

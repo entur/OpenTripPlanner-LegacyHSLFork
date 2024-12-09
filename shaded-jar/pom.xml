@@ -34,6 +34,28 @@
              shade-plugin will explode the dependencies even if they aren't manually copied in.
             -->
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.directory}/otp-${project.version}-shaded.jar</file>
+                                    <type>jar</type>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <!-- We want to create a standalone jar that can be run on the command
                   line. Java does not really allow this - you cannot place jars inside of jars.
                   You must either provide all the dependency jars to the user (usually lib/
